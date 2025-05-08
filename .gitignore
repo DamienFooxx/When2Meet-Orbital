@@ -19,6 +19,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Django
 *.log
@@ -32,6 +33,7 @@ venv/
 env/
 ENV/
 orbital/
+.env
 
 # IDE
 .idea/
@@ -41,4 +43,10 @@ orbital/
 
 # OS
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
