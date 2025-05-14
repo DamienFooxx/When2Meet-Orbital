@@ -1,0 +1,24 @@
+# Node
+node_modules/
+*.log
+
+# React Native / Metro
+.expo/
+.expo-shared/
+
+# iOS
+ios/Pods/
+ios/build/
+*.xcworkspace
+*.xcodeproj/xcuserdata/
+
+# Android
+android/.gradle/
+android/app/build/
+
+# Env
+.env
+.env.*
+
+# macOS
+.DS_Store
