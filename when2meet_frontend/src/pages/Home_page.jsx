@@ -21,16 +21,13 @@ const Home_page = () => {
       <Image source = {require("../assets/flower.png")} style = {styles.bannerImage}/>
       <Text style = {styles.title}>When2Meet</Text>
       <Text style = {styles.subtitle}>One Link to Share, One Time to Meet.</Text>
+
       <View style = {styles.buttonContainer}>
-        <TouchableOpacity style = {[
-            styles.loginButtonWrapper,
-        {backgroundColor: colors.primary},
-    ]}
-    onPress={handleLogin}
-    >
+        <TouchableOpacity style = {[styles.loginButtonWrapper]} onPress={handleLogin}>
             <Text style = {styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
-        <TouchableOpacity style = {[styles.loginButtonWrapper]} onPress = {handleSignup}>
+
+        <TouchableOpacity style = {[styles.signupButtonWrapper]} onPress = {handleSignup}>
             <Text style = {styles.signupButtonText}>Sign-up</Text>
         </TouchableOpacity>
 
@@ -85,13 +82,20 @@ const styles = StyleSheet.create({
         backgroundColor: colors.primary,
         borderRadius: 98,
     },
+    signupButtonWrapper :{
+        justifyContent: "center",
+        alignItems: "center",
+        width: "50%",
+        borderRadius: 98,
+    },
     loginButtonText: {
-        color: colors.primary,
+        color: colors.white,
         fontSize: 18,
         fontFamily: fonts.SemiBold,
     },
     signupButtonText: {
         fontSize: 18,
         fontFamily: fonts.SemiBold,
+        color: colors.primary,
     },
 });

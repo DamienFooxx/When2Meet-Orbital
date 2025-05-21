@@ -1,7 +1,8 @@
 export const colors = {
-    white: "#F8FAFC",
-    primary: "45484A",
-    secondary: "BCCCDC",
-    gray: "#D9EAFD",
-    blue: "#274c77",
+    white: "#FFFFFF",
+    primary: "#134074",
+    lightBlue: "#E1ECF7",
+    container: "#F8F9FB",
+    containerText: "#828282",
+    dropdownContainer: "#ECEFF4",
 };
