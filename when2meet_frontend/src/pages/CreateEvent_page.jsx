@@ -133,11 +133,6 @@ const CreateEvent_page = ({ visible, onClose, onCreate }) => {
                 {/* Dummy calendar representation */}
                 <View style = {styles.calendarBox}><Text>[ Calendar grid placeholder ]</Text></View>
 
-                <Text style = {styles.sectionTitle}>Add Users</Text>
-                <TouchableOpacity style = {styles.input}>
-                    <Text style = {styles.username}>Find Username</Text>
-                </TouchableOpacity>
-
             </ScrollView>
         </SafeAreaView>
     </Modal>
