@@ -20,6 +20,17 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+*.pot
+__pypackages__/
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+.pyre/
+.scrapy/
+celerybeat-schedule
 
 # Django
 *.log
@@ -27,6 +38,19 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 media
+credentials/firebase.json
+OAuth client.json
+orbitalwhen2meet.json
+orbitalwhen2meet_firebase.json
+
+# MySQL / SQL
+*.sql
+*.db
+
+# Firebase
+firebase-debug.log
+.firebaserc
+.firebase/
 
 # Virtual Environment
 venv/
@@ -40,13 +64,38 @@ orbital/
 .vscode/
 *.swp
 *.swo
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Node
+# Node / React Native
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.expo/
+.expo-shared/
+npm-debug.log
+yarn.lock
+package-lock.json
+metro-cache/
+android/.gradle/
+android/app/build/
+ios/Pods/
+ios/build/
+*.keystore
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+
+# Testing / Coverage
+test-results/
+junit-*.xml
+
+# Secret Credentials
+.env
