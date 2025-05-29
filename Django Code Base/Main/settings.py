@@ -154,14 +154,13 @@ SITE_ID = 1
 REST_USE_JWT = True
 
 # AllAuth settings
-<<<<<<<< HEAD:Django Code Base/Main/settings.py
 ACCOUNT_LOGIN_METHODS = ['email']
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 
 # Disable email verification in dev
 ACCOUNT_EMAIL_VERIFICATION      = 'none'
 ACCOUNT_CONFIRM_EMAIL_ON_GET    = False
-========
+
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -180,7 +179,6 @@ SOCIALACCOUNT_PROVIDERS = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-<<<<<<<< HEAD:Django Code Base/Main/settings.py
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny', # Change to IsAuthenticated when deployed
