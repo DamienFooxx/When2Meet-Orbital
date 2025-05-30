@@ -1,5 +1,5 @@
 from django.urls import path, include
-from.views import GoogleLogin
+from .views import GoogleLogin
 from .views import GoogleCalendarFreeBusyView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
@@ -9,12 +9,6 @@ accounts/urls.py
 
 Routes authentication endpoints for the accounts app, including Google OAuth.
 """
-
-class GoogleLogin(SocialLoginView):
-    """
-    Handles Google OAuth login for the When2Meet app using dj-rest-auth and allauth.
-    """
-    adapter_class = GoogleOAuth2Adapter
 
 urlpatterns = [
     path('auth/', include('dj_rest_auth.urls')),  # login/logout/password reset
