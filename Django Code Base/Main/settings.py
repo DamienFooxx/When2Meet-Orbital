@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+# =====================
+# Path and Environment
+# =====================
 from pathlib import Path
 import os 
 from dotenv import load_dotenv
@@ -21,6 +24,9 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+# =====================
+# Security
+# =====================
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -33,7 +39,9 @@ DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 
+# =====================
 # Application definition
+# =====================
 
 INSTALLED_APPS = [
     'corsheaders',
@@ -53,6 +61,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'accounts',
+    'groups',
 ]
 
 MIDDLEWARE = [
@@ -86,7 +95,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Main.wsgi.application'
 
+# =====================
 # Database
+# =====================
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
@@ -100,7 +111,9 @@ DATABASES = {
     }
 }
 
+# =====================
 # Password validation
+# =====================
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -119,7 +132,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# =====================
 # Internationalization
+# =====================
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-gb'
@@ -131,26 +146,33 @@ USE_I18N = True
 USE_TZ = True
 
 
+# =====================
 # Static files (CSS, JavaScript, Images)
+# =====================
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
 
+# =====================
 # Default primary key field type
+# =====================
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# =====================
+# Authentication and Social Auth
+# =====================
 # Authentication backends
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-# Site ID
+# Site ID for django.contrib.sites
 SITE_ID = 1
 
-# Use dj-rest-auth
+# Use dj-rest-auth for JWT authentication
 REST_USE_JWT = True
 
 # AllAuth settings
@@ -161,7 +183,7 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION      = 'none'
 ACCOUNT_CONFIRM_EMAIL_ON_GET    = False
 
-
+# Social account provider settings for Google
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
@@ -176,6 +198,9 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+# =====================
+# Django REST Framework
+# =====================
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
