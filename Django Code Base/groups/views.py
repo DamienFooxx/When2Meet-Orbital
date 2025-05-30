@@ -3,7 +3,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Group, GroupMembership
-from .serializers import GroupSerializer, GroupMembershipSerializer
+from .serializer import GroupSerializer, GroupMembershipSerializer
 
 """
 groups/views.py
@@ -12,7 +12,7 @@ Contains viewsets for managing groups and group memberships.
 """
 
 # Create your views here.
-class GroupViewSet(viewsets.Model.ViewSet):
+class GroupViewSet(viewsets.ModelViewSet):
     """
     ViewSet for listing, creating, and managing groups.
     Only authenticated users can access these endpoints.
@@ -67,11 +67,22 @@ class GroupViewSet(viewsets.Model.ViewSet):
                 'error' : 'Already a group member.'
             }, status = status.HTTP_200_OK)
 
-        # Checks if group is full, keeping it low for dev until search algo is efficient enough to allow big groups
+        # Checks if group is full, keeping it low for now until search algo is efficient enough to allow big groups
         if group.group_memberships.count() >= 10:
             return Response({
                 'error' : 'Group is full.'
             }, status = status.HTTP_403_FORBIDDEN)
+
+        # Ask user for confirmation first before joining
+        if not confirm:
+            return Response({
+                'confirmation_needed': True,
+                'group_name': group.name,
+                'message': f'Do you want to join the group "{group.name}"?',
+                'group_info': {
+                    'name': group.name,
+                }
+            }, status=status.HTTP_200_OK)
 
         # Add User as participant
         GroupMembership.objects.create(
@@ -85,6 +96,52 @@ class GroupViewSet(viewsets.Model.ViewSet):
             'group_name' : group.name
         }, status = status.HTTP_201_CREATED)
 
+    @action(detail = True, methods = ['post'], url_path = 'leave')
+    def leave_group(self, request, pk = None):
+        """
+        Allows users to leave the group
+        If they are the last member, prompt for confirmation before deleting the group.
+        Prevents last organiser from leaving without assigning another organiser.
+        """
+        group = self.get_object()
+        profile = Profile.objects.get(user = request.user)
+        membership = GroupMembership.objects.filter(group = group, profile = profile).first()
+        
+        if not membership:
+            return Response({
+                'error' : 'Not a memeber of the group.'
+            }, status = status.HTTP_400_BAD_REQUEST)
+        
+        member_count = GroupMembership.objects.filter(group = group).count()
+
+        # Automatically delete Group if there are no members left
+        if member_count == 1:
+            # Confirmation message
+            confirm = request.data.get('confirm_delete', False)
+            if not confirm:
+                return Response({
+                    'warning' : f'You are the last member of "{group.name}". Leaving the group will cause the group to be deleted. Confirm by sending {"confirm_delete": true} in your request.'
+                }, status = status.HTTP_400_BAD_REQUEST)
+            # If confirmed
+            group.delete()
+            return Response({
+                'message': f'Group "{group.name}" deleted as you were the last member.'
+            }, status = status.HTTP_200_OK)
+
+        # Checks if they are the last organiser
+        if membership.role == 'organiser':
+            organiser_count = GroupMembership.objects.filter(group = group, role = 'organiser').count()
+            # Checks if person leaving is the last organiser left in the group
+            if organiser_count == 0:
+                return Response({
+                    'error' : 'You are the last organiser of the group. Assign another member as an organiser before leaving.'
+                }, status = status.HTTP_403_FORBIDDEN)
+
+        # Let the user leave the group
+        membership.delete()
+        return Response({
+            'message': f'You have left the group "{group.name}".'
+        }, status=status.HTTP_200_OK)
 
 
 
