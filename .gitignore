@@ -100,3 +100,4 @@ junit-*.xml
 # Secret Credentials
 .env
 .gitignore
+.plist

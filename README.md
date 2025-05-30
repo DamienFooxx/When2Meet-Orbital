@@ -34,7 +34,7 @@ pip install -r requirements.txt
 ```
 
 4. **Configure Environment Variables**
-copy .env.example to a new .env and follow the instructions.
+copy .env.example to a new .env
 
 5. **Configure Database**
 Set up a local postgreSQL database.
