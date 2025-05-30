@@ -2,6 +2,7 @@ from django.urls import path, include
 from.views import GoogleLogin
 from .views import GoogleCalendarFreeBusyView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from dj_rest_auth.registration.views import SocialLoginView
 
 """
 accounts/urls.py
