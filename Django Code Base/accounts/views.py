@@ -15,12 +15,6 @@ Contains custom authentication views, including Google OAuth login.
 """
 
 # Create your views here.
-class GoogleLogin(SocialLoginView):
-    """
-    Handles Google OAuth login for the When2Meet app using dj-rest-auth and allauth.
-    """
-    adapter_class = GoogleOAuth2Adapter
-
 class GoogleCalendarFreeBusyView(APIView):
     """
     API endpoint to fetch a user's busy slots from their Google Calendar using the FreeBusy API.
