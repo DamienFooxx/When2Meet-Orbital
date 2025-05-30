@@ -10,6 +10,9 @@ Routes authentication endpoints for the accounts app, including Google OAuth.
 """
 
 class GoogleLogin(SocialLoginView):
+    """
+    Handles Google OAuth login for the When2Meet app using dj-rest-auth and allauth.
+    """
     adapter_class = GoogleOAuth2Adapter
 
 urlpatterns = [
