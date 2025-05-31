@@ -1,9 +1,10 @@
 from django.shortcuts import render
+from django.db import models
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Group, GroupMembership
-from .serializer import GroupSerializer, GroupMembershipSerializer
+from .serializer import GroupSerializer, GroupMembershipSerializer, GroupMembershipListSerializer
 
 """
 groups/views.py
@@ -143,5 +144,24 @@ class GroupViewSet(viewsets.ModelViewSet):
             'message': f'You have left the group "{group.name}".'
         }, status=status.HTTP_200_OK)
 
+    @action(detail = True, methods = ['get'], url_path = 'members')
+    def list_members(self, request, pk = None):
+        """
+        Lists all group members, organisers appear at the top
+        """
+        group = self.get_object()
+        memberships = group.group_membership.select_related('profile_user').all()
+
+        # Ordered by role, organisers first, then join by username alphabetically
+        memberships = memberships.order_by(
+            models.Case(
+                models.When(role = 'organiser', then = 0),
+                models.When(role = 'particpant', then = 1),
+                output_field = models.IntegerField(),
+            ),
+            'profile_user_name'
+        )
+        serializer = GroupMembershipListSerializer(memberships, many = True)
+        return Response(serializer.data)
 
 
