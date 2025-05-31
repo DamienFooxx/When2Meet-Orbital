@@ -19,26 +19,55 @@ const Login_page = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
-    // need to change!!! CHANGE THIS
+    // Google login
     const handleGoogleLogin = async () => {
         try {
+            // ensure Google Play Services are available
             await GoogleSignin.hasPlayServices();
+
+            // prompt user to sign in
             const userInfo = await GoogleSignin.signIn();
-            console.log('Google user info: ', userInfo);
+            const idToken = userInfo.idToken;
+
+            console.log('Google ID Token:', idToken);
+
+            // send idToken to Django backend
+            const response = await axios.post(`${BASE_URL}/api/auth/google/`, {
+                access_token: idToken,
+            });
+
+            const token = response.data.key;
+
+            // store token in local storage
+            await AsyncStorage.setItem('authToken', token);
+            await AsyncStorage.setItem('isLoggedIn', 'true');
+
+            // set default header for all axios requests
+            axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+
+            Alert.alert('Google login successful');
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Main'}],
+            });
         } catch (error) {
-            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-                Alert.alert('Cancelled');
-            } else {
-                console.error('Google Sign-In error', error);
-                Alert.alert('Google Sign-In Failed', error.message);
-            }
+            const message = 
+                error.response?.data?.non_field_errors?.[0] ||
+                error.response?.data?.detail ||
+                error.message;
+
+            console.error('Google login failed:', message);
+            Alert.alert('Google login failed', message);
         }
     };
 
     useEffect(() => {
         GoogleSignin.configure({
-            webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
-            iosClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
+            webClientId: '873882924328-epmb47lfrmsj7jsbc4t656eeeglkb5ld.apps.googleusercontent.com',
+            iosClientId: '873882924328-0c4rh1v3m2rvfvqmk6r8rnqidgnmipm1.apps.googleusercontent.com',
+            offlineAccess: true,
+            forceCodeForRefreshToken: true,
+            scopes: ['profile', 'email'],
         });
     }, []);
 
