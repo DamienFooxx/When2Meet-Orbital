@@ -3,6 +3,7 @@ from django.db import models
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from accounts.models import Profile
 from .models import Group, GroupMembership
 from .serializer import GroupSerializer, GroupMembershipSerializer, GroupMembershipListSerializer
 
@@ -75,6 +76,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             }, status = status.HTTP_403_FORBIDDEN)
 
         # Ask user for confirmation first before joining
+        confirm = request.data.get('confirm_join')
         if not confirm:
             return Response({
                 'confirmation_needed': True,
@@ -110,7 +112,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         
         if not membership:
             return Response({
-                'error' : 'Not a memeber of the group.'
+                'error' : 'Not a member of the group.'
             }, status = status.HTTP_400_BAD_REQUEST)
         
         member_count = GroupMembership.objects.filter(group = group).count()
@@ -121,7 +123,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             confirm = request.data.get('confirm_delete', False)
             if not confirm:
                 return Response({
-                    'warning' : f'You are the last member of "{group.name}". Leaving the group will cause the group to be deleted. Confirm by sending {"confirm_delete": true} in your request.'
+                    'warning' : f'You are the last member of "{group.name}". Leaving the group will cause the group to be deleted. Confirm by sending {{"confirm_delete": true}} in your request.'
                 }, status = status.HTTP_400_BAD_REQUEST)
             # If confirmed
             group.delete()
@@ -133,7 +135,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         if membership.role == 'organiser':
             organiser_count = GroupMembership.objects.filter(group = group, role = 'organiser').count()
             # Checks if person leaving is the last organiser left in the group
-            if organiser_count == 0:
+            if organiser_count == 1:
                 return Response({
                     'error' : 'You are the last organiser of the group. Assign another member as an organiser before leaving.'
                 }, status = status.HTTP_403_FORBIDDEN)
@@ -150,16 +152,16 @@ class GroupViewSet(viewsets.ModelViewSet):
         Lists all group members, organisers appear at the top
         """
         group = self.get_object()
-        memberships = group.group_membership.select_related('profile_user').all()
+        memberships = group.group_memberships.select_related('profile__user').all()
 
         # Ordered by role, organisers first, then join by username alphabetically
         memberships = memberships.order_by(
             models.Case(
                 models.When(role = 'organiser', then = 0),
-                models.When(role = 'particpant', then = 1),
+                models.When(role = 'participant', then = 1),
                 output_field = models.IntegerField(),
             ),
-            'profile_user_name'
+            'profile__user__username'
         )
         serializer = GroupMembershipListSerializer(memberships, many = True)
         return Response(serializer.data)
