@@ -7,6 +7,8 @@ from .serializers import FreeBusyRequestSerializer
 import requests
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from rest_framework.response import Response
+from .models import Profile
+from rest_framework import status
 
 """
 accounts/views.py
@@ -19,6 +21,38 @@ class GoogleLogin(SocialLoginView):
     Handles Google OAuth login for the When2Meet app using dj-rest-auth and allauth.
     """
     adapter_class = GoogleOAuth2Adapter
+
+class ProfileView(APIView):
+    """
+    API endpoint to get and update user profile information.
+    Requires authentication.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        Get the authenticated user's profile information.
+        """
+        profile = Profile.objects.get(user=request.user)
+        return Response({
+            'name': profile.name,
+            'location': profile.location,
+            'unique_id': profile.unique_id
+        })
+
+    def put(self, request):
+        """
+        Update the authenticated user's profile information.
+        """
+        profile = Profile.objects.get(user=request.user)
+        profile.name = request.data.get('name', profile.name)
+        profile.location = request.data.get('location', profile.location)
+        profile.save()
+        return Response({
+            'name': profile.name,
+            'location': profile.location,
+            'unique_id': profile.unique_id
+        })
 
 # Create your views here.
 class GoogleCalendarFreeBusyView(APIView):
