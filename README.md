@@ -1,3 +1,46 @@
+# When2Meet Frontend
+
+This is the React Native frontend for When2Meet mobile app, built with TypeScript
+
+-- 
+
+## Tech Stack
+- [React Native](https://reactnative.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [React Navigation](https://reactnavigation.org/)
+- [Axios](https://axios-http.com/)
+- [Google Sign-In](https://github.com/react-native-google-signin/google-signin)
+- [AsyncStorage](https://react-native-async-storage.github.io/async-storage/)
+
+## Initial Setup
+1. **Clone the Repository**
+```bash
+git clone https://github.com/DamienFooxx/When2Meet-Orbital.git
+cd When2Meet-Orbital
+```
+
+2. **Install Dependencies**
+```bash
+npm install
+```
+
+3. **Set Up Environment Variables**
+Create a `.env` file in the root of the frontend folder or configure your `config.js` to define your backend base URL:
+```ts
+// utils/config.js
+export const BASE_URL = 'http://<YOUR_BACKEND_IP>:8000';
+```
+
+4. **Start the Metro Bundler**
+```bash
+npx react-native start
+```
+
+5. **Run on iOS**
+```bash
+npx react-native run-ios
+```
+
 # When2Meet Backend
 
 A Django-based backend for the When2Meet clone application, providing REST APIs for event scheduling and time slot management.
