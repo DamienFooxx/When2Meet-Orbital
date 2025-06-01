@@ -1,10 +1,18 @@
-# When2Meet Frontend
+# When2Meet setup guide
+when2meet aims to make group hang outs easier by integrating google calendar syncs, auto scheduling and smart polls/locations
 
-This is the React Native frontend for When2Meet mobile app, built with TypeScript
-
--- 
+# Table of Contents
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [How to Setup](#how-to-setup)
+- [Troubleshooting Common Issues](#troubleshooting-common-issues)
+- [Notes](#notes)
+- [License](#license)
+--- 
 
 ## Tech Stack
+**Frontend**
+This is the React Native frontend for When2Meet mobile app, built with TypeScript
 - [React Native](https://reactnative.dev/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [React Navigation](https://reactnavigation.org/)
@@ -12,285 +20,166 @@ This is the React Native frontend for When2Meet mobile app, built with TypeScrip
 - [Google Sign-In](https://github.com/react-native-google-signin/google-signin)
 - [AsyncStorage](https://react-native-async-storage.github.io/async-storage/)
 
-## Initial Setup
-1. **Clone the Repository**
+**Backend**
+This is the Django backend for When2Meet mobile app.
+- [Django](https://www.djangoproject.com/)
+- [Django REST Framework](https://www.django-rest-framework.org/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [psycopg2](https://pypi.org/project/psycopg2/)
+- [django-allauth](https://django-allauth.readthedocs.io/en/latest/)
+- [dj-rest-auth](https://dj-rest-auth.readthedocs.io/en/latest/)
+- [Google OAuth2](https://developers.google.com/identity/protocols/oauth2)
+
+## Prerequisites
+
+Before you begin setting up the When2Meet application, ensure you have the following prerequisites installed and configured:
+
+### Required Software
+- **Python**: Version 3.8 or higher. You can download it from [python.org](https://www.python.org/downloads/).
+- **Django**: Version 3.2 or higher. You can install it using pip: `pip install django`.
+- **Node.js**: Version 14 or higher. You can download it from [nodejs.org](https://nodejs.org/).
+- **npm**: Usually comes with Node.js. You can check your version by running `npm -v`.
+- **PostgreSQL**: Version 12 or higher. You can download it from [postgresql.org](https://www.postgresql.org/download/).
+- **Git**: For version control. You can download it from [git-scm.com](https://git-scm.com/downloads).
+
+### Development Tools
+- **Code Editor**: A code editor like [Visual Studio Code](https://code.visualstudio.com/).
+
+### Additional Tools
+- **Metro Bundler**: Required for running the React Native application. It comes with React Native, but ensure it's installed and configured correctly.
+
+Please ensure that you have fulfilled the prequisites for testing this application.
+
+## How to Setup
+### Step 1. Clone the Repository
 ```bash
 git clone https://github.com/DamienFooxx/When2Meet-Orbital.git
+# Navigate to the When2Meet-Orbital directory
 cd When2Meet-Orbital
 ```
 
-2. **Install Dependencies**
-```bash
-npm install
-```
-
-3. **Set Up Environment Variables**
-Create a `.env` file in the root of the frontend folder or configure your `config.js` to define your backend base URL:
-```ts
-// utils/config.js
-export const BASE_URL = 'http://<YOUR_BACKEND_IP>:8000';
-```
-
-4. **Start the Metro Bundler**
-```bash
-npx react-native start
-```
-
-5. **Run on iOS**
-```bash
-npx react-native run-ios
-```
-
-# When2Meet Backend
-
-A Django-based backend for the When2Meet clone application, providing REST APIs for event scheduling and time slot management.
-
-## Table of Contents
-- [Initial Setup](#initial-setup)
-- [API Documentation](#api-documentation)
-  - [Authentication](#authentication)
-  - [Events](#events)
-  - [Time Slots](#time-slots)
-- [Frontend Integration](#frontend-integration)
-- [Development Tools](#development-tools)
-- [Troubleshooting](#troubleshooting)
-
-## Initial Setup
-
-1. **Clone the Repository**
-```bash
-git clone https://github.com/DamienFooxx/When2Meet-Orbital.git
-cd When2Meet-Orbital
-```
-
-2. **Create and Activate Virtual Environment**
+### Step 2. Create and Activate Virtual Environment
 ```bash
 # For macOS/Linux
-python -m venv venv
-source venv/bin/activate
+python -m venv w2w
+source w2w/bin/activate
 
 # For Windows
-python -m venv venv
-.\venv\Scripts\activate
+python -m venv w2w
+.\w2w\Scripts\activate
 ```
 
-3. **Install Dependencies**
+### Step 3. Install Dependencies
 ```bash
+# Install dependencies for backend
+cd ./Django\ Code\ Base/
 pip install -r requirements.txt
+# Move to frontend directory
+cd ..
+cd when2meet_frontend 
+# Install dependencies for frontend
+npm install 
 ```
 
-4. **Apply Database Migrations**
+### Step 4. Set Up Environment Variables
+Create a `.env` file in the root of the frontend folder or configure your `config.js` to define your backend base URL:
+These are for the frontend.
+```ts
+// While in when2meet_frontend directory
+// utils/config.js
+export const BASE_URL = 'http://127.0.0.1:8000/';
+```
+**Navigate to Django Code Base Directory**
+Rename ".env.example" file to just ".env"
+
+### Step 5. Install Database
+Set up a local postgreSQL database.
+**for macOS**
 ```bash
-cd when2meet_backend
+# If not already installed
+brew install postgresql
+# After installation
+brew services start postgresql
+```
+**for Windows**
+download and run the PostgreSQL installer
+
+The pyscopg2-binary shouldve been downloaded already in step 3 when installing dependencies
+
+### Step 6. Setting up DB
+Open the postgresql interactive shell using
+```bash
+psql postgres
+```
+Then follow the postgreSQL_setupDB.sql script, inserting line by line
+```bash
+CREATE DATABASE when2meet;
+CREATE USER admin WITH PASSWORD 'orbital2425';
+ALTER ROLE admin SET client_encoding TO 'utf8;
+ALTER ROLE admin SET default_transaction_isolation TO 'read committed';
+ALTER ROLE admin SET timezone TO 'ASIA/SINGAPORE';
+GRANT ALL PRIVILEGES ON DATABASE when2meet TO admin;
+ALTER DATABASE when2meet OWNER TO admin;
+-- type \l to check if the database is setup correctly
+```
+
+### Step 7. Apply Database Migrations
+In the Django Code Base directory, input this into the terminal
+```bash
 python manage.py migrate
 ```
 
-5. **Create a Superuser (Admin Account)**
-```bash
-python manage.py createsuperuser
-```
-
-6. **Run the Development Server**
+### Step 8. Run the Development Server
 ```bash
 python manage.py runserver
 ```
 The server will start at `http://127.0.0.1:8000/`
+Navigate to the website using the url.
+It should say "When2Meet Backend is running!.
 
-## API Documentation
-
-### Authentication
-
-All authenticated endpoints require the header: `Authorization: Token your-auth-token`
-
-#### Register
-- **Endpoint**: `POST /api/auth/registration/`
-- **Body**:
-```json
-{
-  "email": "user@example.com",
-  "password1": "your_password",
-  "password2": "your_password"
-}
-```
-
-#### Login
-- **Endpoint**: `POST /api/auth/login/`
-- **Body**:
-```json
-{
-  "email": "user@example.com",
-  "password": "your_password"
-}
-```
-- **Response**:
-```json
-{
-  "key": "your-auth-token"
-}
-```
-
-#### Logout
-- **Endpoint**: `POST /api/auth/logout/`
-- **Requires**: Authentication
-
-### Events
-
-#### List/Create Events
-- **Endpoint**: `GET/POST /api/events/`
-- **Requires**: Authentication
-- **POST Body**:
-```json
-{
-  "title": "Team Meeting",
-  "description": "Weekly sync",
-  "start_date": "2024-05-10T09:00:00Z",
-  "end_date": "2024-05-10T10:00:00Z"
-}
-```
-
-#### Get/Update/Delete Event
-- **Endpoint**: `GET/PUT/DELETE /api/events/{id}/`
-- **Requires**: Authentication
-
-#### Join Event
-- **Endpoint**: `POST /api/events/{id}/join/`
-- **Requires**: Authentication
-
-#### Leave Event
-- **Endpoint**: `POST /api/events/{id}/leave/`
-- **Requires**: Authentication
-
-### Time Slots
-
-#### List/Create TimeSlots
-- **Endpoint**: `GET/POST /api/timeslots/`
-- **Requires**: Authentication
-- **POST Body**:
-```json
-{
-  "event": 1,
-  "start_time": "2024-05-10T09:00:00Z",
-  "end_time": "2024-05-10T10:00:00Z",
-  "is_available": true
-}
-```
-
-#### Get/Update/Delete TimeSlot
-- **Endpoint**: `GET/PUT/DELETE /api/timeslots/{id}/`
-- **Requires**: Authentication
-
-## Frontend Integration
-
-### Example Flutter API Service
-
-```dart
-class ApiService {
-  final String baseUrl = 'http://127.0.0.1:8000/api';
-  String? token;
-
-  // Login
-  Future<void> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/auth/login/'),
-      body: {
-        'email': email,
-        'password': password,
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      token = data['key'];
-    }
-  }
-
-  // Get Events
-  Future<List<Event>> getEvents() async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/events/'),
-      headers: {'Authorization': 'Token $token'},
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Event.fromJson(json)).toList();
-    }
-    throw Exception('Failed to load events');
-  }
-
-  // Create Event
-  Future<Event> createEvent(String title, String description, 
-                          DateTime startDate, DateTime endDate) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/events/'),
-      headers: {
-        'Authorization': 'Token $token',
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'title': title,
-        'description': description,
-        'start_date': startDate.toIso8601String(),
-        'end_date': endDate.toIso8601String(),
-      }),
-    );
-
-    if (response.statusCode == 201) {
-      return Event.fromJson(json.decode(response.body));
-    }
-    throw Exception('Failed to create event');
-  }
-}
-```
-
-## Development Tools
-
-### Admin Interface
-- Access at `http://127.0.0.1:8000/admin/`
-- Use superuser credentials to log in
-- Useful for managing data directly
-
-### API Response Formats
-- All endpoints return JSON
-- Standard HTTP status codes:
-  - 200: OK
-  - 201: Created
-  - 400: Bad Request
-  - 401: Unauthorized
-  - 403: Forbidden
-  - 404: Not Found
-
-## Troubleshooting
-
-### Common Issues
-
-1. **CORS Issues**
-   - The backend accepts requests from any origin during development
-   - For production, specify allowed origins in settings
-
-2. **Authentication Issues**
-   - Include token in all authenticated requests
-   - Token format: `Authorization: Token your-auth-token`
-   - Check token expiration
-
-3. **DateTime Format**
-   - Use ISO 8601 format: `YYYY-MM-DDTHH:mm:ssZ`
-   - Django handles timezone conversions
-
-### Database Reset
-If you need to reset the database:
+### Step 9. Start the Metro Bundler
 ```bash
-rm db.sqlite3
-python manage.py migrate
-python manage.py createsuperuser
+npx react-native start
 ```
 
-## Contributing
+### Step 10. **Run on iOS**
+```bash
+npx react-native run-ios
+```
+## Troubleshooting Common Issues
 
-1. Create a new branch for your feature
-2. Make your changes
-3. Submit a pull request
+### Database Connection Issues
+- **Error**: Unable to connect to PostgreSQL.
+    - **Solution**: Ensure PostgreSQL is running. On macOS, use `brew services start postgresql`. On Windows, check the PostgreSQL service in the Services app.
+
+### Migration Errors
+- **Error**: `No migrations to apply` or `django.db.utils.OperationalError`.
+    - **Solution**: Ensure you are in the correct directory (`Django Code Base`) and that your virtual environment is activated. Run `python manage.py migrate` again.
+
+### Environment Variables
+- **Error**: Missing environment variables.
+    - **Solution**: Ensure you have created a `.env` file in the root of the frontend folder and the `Django Code Base` directory, and that it contains the necessary variables.
+
+### Frontend Build Issues
+- **Error**: Metro Bundler fails to start.
+    - **Solution**: Ensure you are in the `when2meet_frontend` directory and that all dependencies are installed. Run `npm install` again if necessary.
+
+### API Endpoint Issues
+- **Error**: 404 Not Found when accessing API endpoints.
+    - **Solution**: Check the URL patterns in your `urls.py` files to ensure they are correctly defined and included in the main URL configuration.
+
+### Authentication Issues
+- **Error**: Unable to authenticate with Google OAuth.
+    - **Solution**: Ensure your Google OAuth credentials are correctly set up in the Google Cloud Console and that the redirect URIs are properly configured.
+
+### General Issues
+- **Error**: Any other unexpected errors.
+    - **Solution**: Check the console output for error messages, ensure all dependencies are up to date, and consult the documentation for the specific libraries you are using.
+
+## Notes
+- Ensure you handle errors gracefully and store the authentication token securely.
+- Replace `http://127.0.0.1:8000` with your actual API base URL in production.
 
 ## License
+This project is licensed under the GNU General Public License - see the LICENSE file for details 
 
-This project is licensed under the MIT License - see the LICENSE file for details 
