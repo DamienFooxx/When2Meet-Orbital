@@ -27,7 +27,7 @@
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
-		<false/>
+		<true/>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
@@ -65,5 +65,8 @@
         <array>
         <string>com.googleusercontent.apps.873882924328-0c4rh1v3m2rvfvqmk6r8rnqidgnmipm1</string>
         </array>
+    </dict>
+    </array>
+
 </dict>
 </plist>
