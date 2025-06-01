@@ -3,6 +3,8 @@ import React, {useState} from 'react';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import CreateEvent_page from './CreateEvent_page';
 
@@ -113,9 +115,14 @@ const Main_page = () => {
           <Ionicons name = "home-outline" size = {24} color = {'black'}/>
         </TouchableOpacity>
 
+        {/* create group */}
+        <TouchableOpacity style = {styles.buttomButton} onPress = {() => navigation.navigate('CreateGroup')}>
+            <AntDesign name = "addusergroup" size = {24} color = {'black'}/>
+        </TouchableOpacity>
+
         {/* create event */}
         <TouchableOpacity style = {styles.bottomButton} onPress = {() => setModalVisible(true)}>
-          <Ionicons name = "add-circle" size = {45} color = {colors.primary}/>
+          <MaterialIcons name = "event" size = {24} color = {'black'}/>
         </TouchableOpacity>
         
         {/* profile */}
