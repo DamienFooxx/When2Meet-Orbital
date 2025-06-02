@@ -423,7 +423,7 @@ rbenv install 3.4.4.
 gem install bundler -v 2.6.9
 gem install cocoapods
 ```
-### Step 9. Start the Metro Bundler
+### Step 10. Start the Metro Bundler
 ```bash
 # Navigate to frontend directory
 cd ./Frontend/
@@ -431,14 +431,14 @@ npx react-native start
 # Enter control-C
 ```
 
-### Step 10. **Run on iOS**
+### Step 11. **Run on iOS**
 ```bash
 cd ios
 pod install
 npx react-native run-ios
 ```
 
-### Step 11. **Test**
+### Step 12. **Test**
 You should see
 Welcome to REACT NATIVE v0.xx
 type "r" into the terminal
