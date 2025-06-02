@@ -319,12 +319,12 @@ cd When2Meet-Orbital
 ### Step 2. Create and Activate Virtual Environment
 ```bash
 # For macOS/Linux
-python -m venv w2w
-source w2w/bin/activate
+python -m venv w2m
+source w2m/bin/activate
 
 # For Windows
-python -m venv w2w
-.\w2w\Scripts\activate
+python -m venv w2m
+.\w2m\Scripts\activate
 ```
 
 ### Step 3. Install Dependencies
@@ -334,7 +334,7 @@ cd ./Django\ Code\ Base/
 pip install -r requirements.txt
 # Move to frontend directory
 cd ..
-cd when2meet_frontend 
+cd Frontend
 # Install dependencies for frontend
 npm install 
 ```
@@ -345,7 +345,7 @@ npm install
   - Open Command Prompt.
   - Run:
     ```cmd
-    ipconfig
+    ipconfig | findstr /i "IPv4"
     ```
   - Look for the `IPv4 Address` under your WiFi adapter (e.g., `192.168.x.x`).
 
@@ -353,26 +353,14 @@ npm install
   - Open Terminal.
   - Run:
     ```bash
-    ifconfig
+    ifconfig getifaddr en0
     ```
-  - Find `en0` or `en1` (your WiFi adapter).
-  - Look for the line starting with `inet` (e.g., `inet 192.168.x.x`).
-
-- **Linux:**  
-  - Open Terminal.
-  - Run:
-    ```bash
-    hostname -I
-    ```
-  - Use the IP address shown (e.g., `192.168.1.42`).
-
----
 
 **Update Your Config to Use Your Local IP**
 Type into the command line
 ```js
 // config.js example
-export const BASE_URL = 'http://192.168.x.x:8000/';
+export BASE_URL='http://192.168.x.x:8000/'
 ```
 
 **Navigate to Django Code Base Directory**
@@ -400,18 +388,20 @@ psql postgres
 Then follow the postgreSQL_setupDB.sql script, inserting line by line
 ```bash
 CREATE DATABASE when2meet;
+\c when2meet
 CREATE USER admin WITH PASSWORD 'orbital2425';
-ALTER ROLE admin SET client_encoding TO 'utf8;
+ALTER ROLE admin SET client_encoding TO 'utf8';
 ALTER ROLE admin SET default_transaction_isolation TO 'read committed';
 ALTER ROLE admin SET timezone TO 'ASIA/SINGAPORE';
 GRANT ALL PRIVILEGES ON DATABASE when2meet TO admin;
-ALTER DATABASE when2meet OWNER TO admin;
+\
 -- type \l to check if the database is setup correctly
 ```
 
 ### Step 7. Apply Database Migrations
 In the Django Code Base directory, input this into the terminal
 ```bash
+cd ./Django\ Code\ Base/
 python manage.py makemigrations
 python manage.py migrate
 ```
@@ -424,15 +414,27 @@ The server will start at the url shown after the line "Starting development serv
 Navigate to the website using the url.
 It should say "When2Meet Backend is running!.
 
+### Step 9. Install necessary packages
+```bash
+cd ./Frontend/
+brew install rbenv
+rbenv init
+rbenv install 3.4.4.
+gem install bundler -v 2.6.9
+gem install cocoapods
+```
 ### Step 9. Start the Metro Bundler
 ```bash
 # Navigate to frontend directory
-cd when2meet_frontend
+cd ./Frontend/
 npx react-native start
+# Enter control-C
 ```
 
 ### Step 10. **Run on iOS**
 ```bash
+cd ios
+pod install
 npx react-native run-ios
 ```
 
