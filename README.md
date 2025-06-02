@@ -308,9 +308,10 @@ Before you begin setting up the When2Meet application, ensure you have the follo
 
 Please ensure that you have fulfilled the prequisites for testing this application.
 
-If you are a peer team evaluating this project and require read-only access to clone the repository, please email us your GitHub username so we can add you as a viewer.
 
  ## Contact Emails
+
+ If you are a peer team evaluating this project and require read-only access to clone the repository, please email us your GitHub username so we can add you as a viewer.
 
 Damien Foo: damienfoo@u.nus.edu
 
