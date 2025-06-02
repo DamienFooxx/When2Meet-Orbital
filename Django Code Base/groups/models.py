@@ -42,7 +42,7 @@ class GroupMembership(models.Model):
     }
 
     group = models.ForeignKey(Group, on_delete = models.CASCADE, related_name = 'group_memberships')  # The group this membership belongs to
-    profile = models.ForeignKey(Group, on_delete = models.CASCADE, related_name = 'profile_memberships')  # The user profile in the group
+    profile = models.ForeignKey(Profile, on_delete = models.CASCADE, related_name = 'profile_memberships')  # The user profile in the group
     role = models.CharField(max_length = 20, choices = ROLE_CHOICES, default = 'participant')  # Role in the group
     joined_at = models.DateTimeField(auto_now_add = True)  # When the user joined the group
 
