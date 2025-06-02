@@ -308,6 +308,16 @@ Before you begin setting up the When2Meet application, ensure you have the follo
 
 Please ensure that you have fulfilled the prequisites for testing this application.
 
+If you are a peer team evaluating this project and require read-only access to clone the repository, please email us your GitHub username so we can add you as a viewer.
+
+ ## Contact Emails
+
+Damien Foo: damienfoo@u.nus.edu
+
+Joanne Koe: e1355447@u.nus.edu
+
+Once added, you will be able to clone the private repository and test the app according to the setup instructions above.
+
 ## How to Setup
 ### Step 1. Clone the Repository
 ```bash
