@@ -23,7 +23,7 @@ class Group(models.Model):
     Represents a user-created group for scheduling events.
     Linked to the Profile model as the creator.
     """
-    name = models.CharField(max_length = 100)  # Name of the group
+    name = models.CharField(max_length = 100, min_length = 1)  # Name of the group
     created_at = models.DateTimeField(auto_now_add = True)  # Timestamp of group creation
     invite_code = models.CharField(max_length = 10, unique = True, default = generate_group_code)  # Unique code for joining
     creator = models.ForeignKey(Profile, on_delete = models.CASCADE, related_name = "created_groups", null = True, blank = True)  # Group creator
@@ -31,15 +31,18 @@ class Group(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['-created_at']  # Most recent groups first
+
 class GroupMembership(models.Model):
     """
     Represents a user's membership in a group, with a role (organiser or participant).
     Enforces unique membership per user per group.
     """
-    ROLE_CHOICES = {
+    ROLE_CHOICES = (
         ('organiser', 'Organiser'),
         ('participant', 'Participant'),
-    }
+    )
 
     group = models.ForeignKey(Group, on_delete = models.CASCADE, related_name = 'group_memberships')  # The group this membership belongs to
     profile = models.ForeignKey(Profile, on_delete = models.CASCADE, related_name = 'profile_memberships')  # The user profile in the group
