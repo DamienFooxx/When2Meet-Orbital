@@ -6,6 +6,9 @@ django-allauth==0.62.0
 python-dotenv==1.1.0
 python-decouple==3.8
 cryptography==42.0.5
+django-countries==9.0.1
+django-localflavor==3.1.0
+geopy==2.4.1
 
 # DB Drivers
 psycopg2-binary==2.9.10

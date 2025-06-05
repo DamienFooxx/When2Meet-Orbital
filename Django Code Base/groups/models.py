@@ -24,6 +24,7 @@ class Group(models.Model):
     Linked to the Profile model as the creator.
     """
     name = models.CharField(max_length = 100, min_length = 1)  # Name of the group
+    description = models.TextField(blank = True)
     created_at = models.DateTimeField(auto_now_add = True)  # Timestamp of group creation
     invite_code = models.CharField(max_length = 10, unique = True, default = generate_group_code)  # Unique code for joining
     creator = models.ForeignKey(Profile, on_delete = models.CASCADE, related_name = "created_groups", null = True, blank = True)  # Group creator
@@ -45,7 +46,7 @@ class GroupMembership(models.Model):
     )
 
     group = models.ForeignKey(Group, on_delete = models.CASCADE, related_name = 'group_memberships')  # The group this membership belongs to
-    profile = models.ForeignKey(Profile, on_delete = models.CASCADE, related_name = 'profile_memberships')  # The user profile in the group
+    user = models.ForeignKey(Profile, on_delete = models.CASCADE, related_name = 'profile_memberships')  # The user profile in the group
     role = models.CharField(max_length = 20, choices = ROLE_CHOICES, default = 'participant')  # Role in the group
     joined_at = models.DateTimeField(auto_now_add = True)  # When the user joined the group
 
@@ -53,5 +54,5 @@ class GroupMembership(models.Model):
         unique_together = ('group', 'profile')  # Ensures a user can only join a group once
     
     def __str__(self):
-        return f"{self.profile.user.username} in {self.group.name} ({self.role})"
+        return f"{self.profile.name} in {self.group.name} ({self.role})"
 
