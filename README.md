@@ -364,7 +364,7 @@ npm install
   - Open Terminal.
   - Run:
     ```bash
-    ifconfig getifaddr en0
+    ipconfig getifaddr en0
     ```
 
 **Update Your Config to Use Your Local IP**
