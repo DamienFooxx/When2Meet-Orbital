@@ -4,14 +4,29 @@ import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
-const Profile_page = () => {
-    const navigation = useNavigation();
+const Profile_page = ({ navigation }) => {
+
+    const handleLogout = async () => {
+        try {
+            // clear stored auth token and flags
+            await AsyncStorage.removeItem('authToken');
+            await AsyncStorage.removeItem('isLoggedIn');
+
+            // revoke and sign out from google
+            await GoogleSignin.revokeAccess();
+            await GoogleSignin.signOut();
+
+            // navigate to login
+            navigation.replace('Login');
+        } catch (error) {
+            console.error('Logout failed:', error);
+            Alert.alert('Error', 'Failed to sign out. Please try again');
+        }
+    }
     
-    const handleLogout = () => {
-        console.log('Logout pressed');
-        navigation.replace('Login');
-    };
 
   return (
     <View style = {styles.container}>

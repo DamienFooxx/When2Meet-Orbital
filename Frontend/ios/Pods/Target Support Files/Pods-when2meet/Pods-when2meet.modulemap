@@ -1,0 +1,6 @@
+module Pods_when2meet {
+  umbrella header "Pods-when2meet-umbrella.h"
+
+  export *
+  module * { export * }
+}

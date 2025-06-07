@@ -26,14 +26,24 @@ const Login_page = () => {
             await GoogleSignin.hasPlayServices();
 
             // prompt user to sign in
+            await GoogleSignin.signOut();
             const userInfo = await GoogleSignin.signIn();
-            const idToken = userInfo.idToken;
+            console.log('Google userInfo:', userInfo);
+
+            if (!userInfo || !userInfo.user) {
+                throw new Error('Google sign-in failed or was cancelled.');
+            }
+            const { idToken, accessToken } = await GoogleSignin.getTokens();
+
+            if (!accessToken) {
+                throw new Error('Missing access token from Google Sign-In');
+            }
 
             console.log('Google ID Token:', idToken);
 
             // send idToken to Django backend
             const response = await axios.post(`${BASE_URL}/api/auth/google/`, {
-                access_token: idToken,
+                access_token: accessToken,
             });
 
             const token = response.data.key;
@@ -63,8 +73,8 @@ const Login_page = () => {
 
     useEffect(() => {
         GoogleSignin.configure({
-            webClientId: '873882924328-epmb47lfrmsj7jsbc4t656eeeglkb5ld.apps.googleusercontent.com',
-            iosClientId: '873882924328-0c4rh1v3m2rvfvqmk6r8rnqidgnmipm1.apps.googleusercontent.com',
+            webClientId: '686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4.apps.googleusercontent.com',
+            iosClientId: '686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4.apps.googleusercontent.com',
             offlineAccess: true,
             forceCodeForRefreshToken: true,
             scopes: ['profile', 'email'],

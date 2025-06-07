@@ -63,10 +63,16 @@
     <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-        <string>com.googleusercontent.apps.873882924328-0c4rh1v3m2rvfvqmk6r8rnqidgnmipm1</string>
+        <string>com.googleusercontent.apps.686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4</string>
         </array>
     </dict>
     </array>
+
+    <key>LSApplicationQueriesSchemes</key>
+  <array>
+    <string>google</string>
+    <string>com.googleusercontent.apps.686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4</string>
+  </array>
 
 </dict>
 </plist>
