@@ -5,6 +5,7 @@ import axios from 'axios';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { BASE_URL } from '../utils/config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CreateGroup_page = () => {
     const [groupName, setGroupName] = useState('');
@@ -22,11 +23,16 @@ const CreateGroup_page = () => {
 
     const createGroup = async () => {
         try {
-            await axios.post(`${BASE_URL}/api/groups/`, {
+            const token = await AsyncStorage.getItem('authToken');
+            if (!token) throw new Error("Not loggined in");
+
+            axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+
+            const response = await axios.post(`${BASE_URL}/api/groups`, {
                 name: groupName,
-                members: members,
             });
-            Alert.alert('Success', 'Group created');
+
+            Alert.alert('Success', `Group "${response.data.name}" created`);
             navigation.goBack();
         } catch (error) {
             console.error(error);
