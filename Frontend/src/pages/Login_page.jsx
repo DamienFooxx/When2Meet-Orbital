@@ -27,13 +27,13 @@ const Login_page = () => {
 
             // prompt user to sign in
             const userInfo = await GoogleSignin.signIn();
-            const idToken = userInfo.idToken;
+            const { accessToken } = await GoogleSignin.getTokens();
 
-            console.log('Google ID Token:', idToken);
+            console.log('Google ID Token:', accessToken);
 
             // send idToken to Django backend
             const response = await axios.post(`${BASE_URL}/api/auth/google/`, {
-                access_token: idToken,
+                access_token: accessToken,
             });
 
             const token = response.data.key;
