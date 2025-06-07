@@ -376,6 +376,7 @@ export BASE_URL='http://192.168.x.x:8000/'
 
 **Navigate to Django Code Base Directory**
 Rename ".env.example" file to just ".env"
+**Navigate to the .env file and replace the CORS_ALLOWED_ORIGIN variable with your IP Address**
 
 ### Step 5. Install Database
 Set up a local postgreSQL database.
