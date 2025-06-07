@@ -10,7 +10,7 @@ Contains viewsets for managing groups and group memberships.
 """
 
 # Create your views here.
-class GroupViewSet(viewserts.Model.ViewSet):
+class GroupViewSet(viewsets.Model.ViewSet):
     """
     ViewSet for listing, creating, and managing groups.
     Only authenticated users can access these endpoints.
