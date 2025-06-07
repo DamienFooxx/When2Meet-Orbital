@@ -30,6 +30,7 @@ const CreateGroup_page = () => {
 
             const response = await axios.post(`${BASE_URL}/api/groups`, {
                 name: groupName,
+                members: members,
             });
 
             Alert.alert('Success', `Group "${response.data.name}" created`);
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
         fontFamily: fonts.SemiBold,
     },
     input: {
-        backgroundColor: colors.container,
+        backgroundColor: colors.containerText,
         borderRadius: 10,
         padding: 15,
         marginBottom: 15,

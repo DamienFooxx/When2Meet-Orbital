@@ -116,7 +116,7 @@ const Main_page = () => {
         </TouchableOpacity>
 
         {/* create group */}
-        <TouchableOpacity style = {styles.buttomButton} onPress = {() => navigation.navigate('CreateGroup')}>
+        <TouchableOpacity style = {styles.bottomButton} onPress = {() => navigation.navigate('CreateGroup')}>
             <AntDesign name = "addusergroup" size = {24} color = {'black'}/>
         </TouchableOpacity>
 
