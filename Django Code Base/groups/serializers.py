@@ -23,10 +23,16 @@ class GroupSerializer(serializers.ModelSerializer):
 
         # Add members by email
         for email in members_emails:
-            try:
-                member_profile = Profile.objects.get(user__email=email)
-                GroupMembership.objects.create(group=group, profile=member_profile, role='member')
-            except Profile.DoesNotExist:
-                continue  # skip if no such profile
+            member_profile = Profile.objects.filter(user__email = email).first()
 
+            # skip if not found or is the creator
+            if not member_profile or member_profile.id == profile.id:
+                continue
+
+            # avoid duplicate memberships
+            if not GroupMembership.objects.filter(group=group, profile=member_profile).exists():
+                GroupMembership.objects.create(group=group, profile=member_profile, role='member')
+
+            else:
+                print(f"[!] Skipped member (duplicate or not found): {email}")
         return group

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets, permissions
 from .models import Group, GroupMembership
 from .serializers import GroupSerializer
+from accounts.models import Profile
 
 """
 groups/views.py
