@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, permissions
 from .models import Group, GroupMembership
-from .serializers import GroupSerializer, GroupMembershipSerializer
+from .serializers import GroupSerializer
 
 """
 groups/views.py
@@ -10,7 +10,7 @@ Contains viewsets for managing groups and group memberships.
 """
 
 # Create your views here.
-class GroupViewSet(viewsets.Model.ViewSet):
+class GroupViewSet(viewsets.ModelViewSet):
     """
     ViewSet for listing, creating, and managing groups.
     Only authenticated users can access these endpoints.
