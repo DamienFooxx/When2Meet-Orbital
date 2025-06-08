@@ -21,6 +21,20 @@ const CreateGroup_page = () => {
         }
     };
 
+    const removeMember = (email) => {
+        Alert.alert(
+            "Remove Member",
+            `Remove ${email} from the group?`,
+            [
+                { text: "Cancel", style: "cancel" },
+                { text: "Remove", style: "destructive", onPress: () => {
+                    setMembers(members.filter(m => m !== email));
+                    }
+                }
+            ]
+        );
+    };
+
     const createGroup = async () => {
         try {
             const token = await AsyncStorage.getItem('authToken');
@@ -80,8 +94,12 @@ const CreateGroup_page = () => {
 
             <FlatList
                 data = {members}
-                keyExtractor={(item) => item}
-                renderItem={( { item }) => <Text style = {styles.member}>{item}</Text>}
+                keyExtractor={({ item }) => item}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress = {() => removeMember(item)}>
+                        <Text style = {styles.member}>{item}</Text>
+                    </TouchableOpacity>
+                )}
                 ListEmptyComponent={<Text style = {styles.member}>No members yet</Text>} 
             />
 
@@ -121,7 +139,7 @@ const styles = StyleSheet.create({
         fontFamily: fonts.SemiBold,
     },
     input: {
-        backgroundColor: colors.containerText,
+        backgroundColor: colors.container,
         borderRadius: 10,
         padding: 15,
         marginBottom: 15,
