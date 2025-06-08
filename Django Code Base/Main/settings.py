@@ -76,6 +76,8 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True # for dev only - use whitelist for prod
+
 ROOT_URLCONF = 'Main.urls'
 
 TEMPLATES = [
