@@ -23,7 +23,8 @@ class Profile(models.Model):
         max_length = 8,
         unique = True,
         default = generate_unique_id,
-        editable = False  # Prevents manual editing in admin
+        editable = False, # Prevents manual editing in admin
+        primary_key = True
     )
 
     def __str__(self):
