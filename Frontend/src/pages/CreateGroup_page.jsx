@@ -28,7 +28,7 @@ const CreateGroup_page = () => {
 
             axios.defaults.headers.common['Authorization'] = `Token ${token}`;
 
-            const response = await axios.post(`${BASE_URL}/api/groups`, {
+            const response = await axios.post(`${BASE_URL}/api/groups/`, {
                 name: groupName,
                 members: members,
             });
