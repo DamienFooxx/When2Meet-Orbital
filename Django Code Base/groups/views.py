@@ -38,3 +38,12 @@ class GroupViewSet(viewsets.ModelViewSet):
         )
 
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            print("Serializer errors:", serializer.errors)
+            return Response(serializer.errors, status = 400)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=201)
+
+

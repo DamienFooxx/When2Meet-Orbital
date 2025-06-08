@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Group, GroupMembership
-from accounts.models import Profile  # adjust if needed
+from accounts.models import Profile
+from django.db import transaction
 
 class GroupSerializer(serializers.ModelSerializer):
     members = serializers.ListField(
@@ -17,22 +18,33 @@ class GroupSerializer(serializers.ModelSerializer):
         user = request.user
         profile = Profile.objects.get(user=user)
 
-        # Create group and add creator
-        group = Group.objects.create(name=validated_data['name'], creator=profile)
-        GroupMembership.objects.create(group=group, profile=profile, role='organiser')
 
-        # Add members by email
-        for email in members_emails:
-            member_profile = Profile.objects.filter(user__email = email).first()
+        # prevents duplicate group names before creating
+        if Group.objects.filter(name=validated_data['name'], creator=profile).exists():
+            raise serializers.ValidationError("You already have a group with this name.")
+        
+        with transaction.atomic():
+        # Create group and add creator       
+            group = Group.objects.create(name=validated_data['name'], creator=profile)
+            
+            # add creator as organiser
+            GroupMembership.objects.get_or_create(group=group, profile=profile, role='organiser')
 
-            # skip if not found or is the creator
-            if not member_profile or member_profile.id == profile.id:
-                continue
+            # Add members by email
+            unique_emails = set([email.lower().strip() for email in members_emails])
 
-            # avoid duplicate memberships
-            if not GroupMembership.objects.filter(group=group, profile=member_profile).exists():
-                GroupMembership.objects.create(group=group, profile=member_profile, role='member')
+            for email in members_emails:
+                member_profile = Profile.objects.filter(user__email = email).first()
 
-            else:
-                print(f"[!] Skipped member (duplicate or not found): {email}")
+                # skip if not found or is the creator
+                if not member_profile or member_profile.id == profile.id:
+                    continue
+
+                # avoid duplicate memberships
+                GroupMembership.objects.get_or_create(
+                    group=group,
+                    profile=member_profile,
+                    defaults={'role': 'member'}
+                )
+
         return group
