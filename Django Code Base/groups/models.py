@@ -26,9 +26,9 @@ class Group(models.Model):
     name = models.CharField(max_length = 100)  # Name of the group
     created_at = models.DateTimeField(auto_now_add = True)  # Timestamp of group creation
     invite_code = models.CharField(max_length = 10, unique = True, default = generate_group_code)  # Unique code for joining
-    creator = models.ForeignKey(Profile, on_delete = models.CASCADE, related_name = "created_groups", null = True, blank = True)  # Group creator
+    creator = models.ForeignKey('accounts.Profile', on_delete = models.CASCADE, related_name = "created_groups", null = True, blank = True)  # Group creator
     members = models.ManyToManyField(
-        'Profile',
+        'accounts.Profile',
         through='GroupMembership',
         related_name='groups'
     )
