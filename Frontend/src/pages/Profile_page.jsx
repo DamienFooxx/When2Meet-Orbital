@@ -4,9 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
+import { useUser } from '../context/UserContext';
 
 const Profile_page = () => {
     const navigation = useNavigation();
+    const { user } = useUser(); // access user
     
     const handleLogout = () => {
         console.log('Logout pressed');
@@ -26,8 +28,8 @@ const Profile_page = () => {
       </View>
       <View style = {styles.profileHeader}>
           <Ionicons name = "person-outline" size = {60} color = {'black'}/>
-          <Text style = {styles.username}>username</Text>
-          <Text style = {styles.email}>xxxxx@gmail.com</Text>
+          <Text style = {styles.username}>{user?.username || 'No username'}</Text>
+          <Text style = {styles.email}>{user?.email || 'No email'}</Text>
       </View>
 
       {/* Options */}
