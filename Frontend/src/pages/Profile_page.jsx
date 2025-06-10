@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
-
+import { useUser } from '../context/UserContext';
 const Profile_page = () => {
     const navigation = useNavigation();
     
