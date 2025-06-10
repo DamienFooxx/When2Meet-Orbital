@@ -8,6 +8,7 @@ import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { BASE_URL } from '../utils/config';
 import { useNavigation } from '@react-navigation/native';
+import { useUser } from '../context/UserContext';
   
 const Signup_page = () => {
     {/* state hooks */}
@@ -18,6 +19,7 @@ const Signup_page = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const { login } = useUser();
 
     {/* sign up function */}
     const handleSignupRequest = async() => {
@@ -46,6 +48,8 @@ const Signup_page = () => {
             });
 
             if (response.status === 201 || response.status === 200) {
+                const userData = { username, email };
+                await login(userData);
                 Alert.alert('Signup successful');
                 navigation.navigate('Login');
             }
