@@ -5,7 +5,9 @@ dj-rest-auth==7.0.1
 django-allauth==0.62.0
 python-dotenv==1.1.0
 python-decouple==3.8
+python-dateutil==2.9.0
 cryptography==42.0.5
+celery==5.5.3
 
 # DB Drivers
 psycopg2-binary==2.9.10

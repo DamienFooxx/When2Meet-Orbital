@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'accounts',
     'groups',
+    'availcalendar',
 ]
 
 MIDDLEWARE = [
@@ -147,6 +148,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+# API Keys
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
 # =====================
 # Static files (CSS, JavaScript, Images)
@@ -178,15 +181,6 @@ SITE_ID = 1
 REST_USE_JWT = True
 
 # AllAuth settings
-'''
-ACCOUNT_LOGIN_METHODS = ['email']
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-
-# Disable email verification in dev
-ACCOUNT_EMAIL_VERIFICATION      = 'none'
-ACCOUNT_CONFIRM_EMAIL_ON_GET    = False
-'''
-
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
