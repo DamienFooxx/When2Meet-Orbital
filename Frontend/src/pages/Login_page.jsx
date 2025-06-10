@@ -47,7 +47,16 @@ const Login_page = () => {
 
             // set default header for all axios requests
             axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+            
+            // fetch user profile from backend
+            const profileRes = await axios.get(`${BASE_URL}/api/profile/`);
+            const userData = {
+                username: profileRes.data.username,
+                email: profileRes.data.email,
+            };
 
+            await login(userData);
+            
             Alert.alert('Google login successful');
             navigation.reset({
                 index: 0,
@@ -95,8 +104,11 @@ const Login_page = () => {
                 axios.defaults.headers.common['Authorization'] = `Token ${token}`;
                 
                 // fetch user profile using email
-                const profileRes = await axios.get(`${BASE_URL}/api/user/profile/?email=${email}`);
-                const userData = profileRes.data; // expect { username, email}
+                const profileRes = await axios.get(`${BASE_URL}/api/profile/`);
+                const userData = {
+                    username: profileRes.data.username,
+                    email: profileRes.data.email,
+                };
 
                 await login(userData);
                 Alert.alert('Login successful!');
