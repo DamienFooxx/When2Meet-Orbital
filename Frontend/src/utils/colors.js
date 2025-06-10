@@ -5,4 +5,5 @@ export const colors = {
     container: "#F8F9FB",
     containerText: "#828282",
     dropdownContainer: "#ECEFF4",
+    brownBackground: "#faf7f5",
 };

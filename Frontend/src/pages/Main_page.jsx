@@ -5,18 +5,14 @@ import { fonts } from '../utils/fonts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import CreateEvent_page from './CreateEvent_page';
 
 const Main_page = () => {
   const navigation = useNavigation();
-
+  const route = useRoute();
   const [searchText, setSearchText] = useState('');
-
-  const [upcomingEvents, setUpcomingEvents] = useState([
-    // Example:
-    // {id: 1, title: 'Event 1', desc: '...', host: false}
-  ]);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
 
   const [invitations, setInvitations] = useState([]);
 
@@ -28,6 +24,16 @@ const Main_page = () => {
     setEvents(prev => [...prev, newEvent]);
     setModalVisible(false);
   }
+
+  useFocusEffect(
+    React.useCallback(() => {
+        const { newGroup } = route.params || {};
+        if (newGroup) {
+            setUpcomingEvents((prev) => [...prev, newGroup]);
+            navigation.setParams({ newGroup: null });
+        }
+    }, [route.params])
+  );
 
   return (
     <View style = {styles.container}>
@@ -67,7 +73,11 @@ const Main_page = () => {
 
       {upcomingEvents.length > 0 ? (
         upcomingEvents.map((event) => (
-          <View key = {event.id} style = {styles.eventCard}>
+          <TouchableOpacity
+            key = {event.id}
+            style = {styles.event}
+            onPress = {() => navigation.navigate('GroupDetail', { group: event })}
+            >
             <Text style = {styles.eventTitle}>
               {event.title} {event.host ? '(Host)' : ''}
             </Text>
@@ -75,12 +85,12 @@ const Main_page = () => {
               {event.description || 'No description provided'}
             </Text>
             <Text style = {styles.eventDetails}>
-              Date: {event.date || 'To be announced'}
+              Date: {event.date || 'To be confirmed'}
             </Text>
             <Text style = {styles.eventDetails}>
               Participants: {event.participants?.join(', ') || 'None yet'}
             </Text>
-          </View>
+          </TouchableOpacity>
         ))
       ) : (
         <View style = {styles.noEventContainer}>

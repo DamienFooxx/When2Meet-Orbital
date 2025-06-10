@@ -94,7 +94,7 @@ const CreateGroup_page = () => {
 
             <FlatList
                 data = {members}
-                keyExtractor={({ item }) => item}
+                keyExtractor={(item) => item}
                 renderItem={({ item }) => (
                     <TouchableOpacity onPress = {() => removeMember(item)}>
                         <Text style = {styles.member}>{item}</Text>
