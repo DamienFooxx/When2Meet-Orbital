@@ -5,7 +5,7 @@ import { fonts } from '../utils/fonts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import CreateEvent_page from './CreateEvent_page';
 
 const Main_page = () => {
@@ -132,7 +132,7 @@ const Main_page = () => {
 
         {/* create event */}
         <TouchableOpacity style = {styles.bottomButton} onPress = {() => setModalVisible(true)}>
-          <MaterialIcons name = "event" size = {24} color = {'black'}/>
+          <Ionicons name = "add-circle" size = {24} color = {'black'}/>
         </TouchableOpacity>
         
         {/* calendar */}
