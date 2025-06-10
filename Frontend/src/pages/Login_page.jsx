@@ -56,7 +56,6 @@ const Login_page = () => {
             };
 
             await login(userData);
-            
             Alert.alert('Google login successful');
             navigation.reset({
                 index: 0,
