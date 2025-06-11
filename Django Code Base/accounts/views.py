@@ -40,6 +40,8 @@ class ProfileView(APIView):
         """
         profile = Profile.objects.get(user=request.user)
         return Response({
+            'username': request.user.username,
+            'email': request.user.email,
             'name': profile.name,
             'location': profile.location,
             'unique_id': profile.unique_id
