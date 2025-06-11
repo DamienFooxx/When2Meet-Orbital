@@ -10,6 +10,5 @@ ENVVAR_SETTINGS_PREFIX = "BASESETTINGS_"
 include(
     'base.py',
     'custom.py',
-    'templates/settings.dev.py',
     'envvars.py',
 )

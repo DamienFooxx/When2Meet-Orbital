@@ -2,7 +2,7 @@
 # Path and Environment
 # =====================
 from pathlib import Path
-import os 
+import os
 from dotenv import load_dotenv
 from decouple import config
 
@@ -196,6 +196,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny', # Change to IsAuthenticated when deployed
+        'rest_framework.permissions.AllowAny',  # Change to IsAuthenticated when deployed
     ],
 }
