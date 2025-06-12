@@ -12,7 +12,7 @@ const Main_page = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const [searchText, setSearchText] = useState('');
-  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [groups, setGroups] = useState([]);
 
   const [invitations, setInvitations] = useState([]);
 
@@ -71,66 +71,40 @@ const Main_page = () => {
         <Ionicons name = "chevron-forward-circle" size = {25} color = {colors.primary}/>
       </View>
 
-      {upcomingEvents.length > 0 ? (
-        upcomingEvents.map((event) => (
+      {groups.length > 0 ? (
+        groups.map((group, index) => (
           <TouchableOpacity
-            key = {event.id}
-            style = {styles.event}
-            onPress = {() => navigation.navigate('GroupDetail', { group: event })}
+            key = {index}
+            style = {styles.groupCard}
+            onPress = {() => navigation.navigate('GroupDetail', { group })}
             >
-            <Text style = {styles.eventTitle}>
-              {event.title} {event.host ? '(Host)' : ''}
-            </Text>
-            <Text style = {styles.eventDetails}>
-              {event.description || 'No description provided'}
-            </Text>
-            <Text style = {styles.eventDetails}>
-              Date: {event.date || 'To be confirmed'}
-            </Text>
-            <Text style = {styles.eventDetails}>
-              Participants: {event.participants?.join(', ') || 'None yet'}
+            <Text style = {styles.groupName}>{group.name || group.title}</Text>
+            <Text style = {styles.groupMembers}>
+                Members: {Array.isArray(group.members || group.participants)
+                ? (group.members || group.participants).join(', ')
+                : 'None'}
             </Text>
           </TouchableOpacity>
         ))
       ) : (
         <View style = {styles.noEventContainer}>
-        <Text style = {styles.noEventText}>No upcoming events</Text>
+        <Text style = {styles.noEventText}>No groups yet</Text>
         </View>
       )}
 
-      {/* invitations */}
-      <View style = {styles.activitiesContainer}>
-        <Text style = {styles.activitiesText}>Invitations</Text>
-        <Ionicons name = "chevron-forward-circle" size = {25} color = {colors.primary}/>
-      </View>
-
-      {invitations.length > 0 ? (
-        invitations.map((invite) => (
-          <View key = {invite.id} style = {styles.invitationCard}>
-            <Text style = {styles.invitationSender}>
-              @{invite.sender} invites you to...
-            </Text>
-            <Text style = {styles.invitationEvent}>{invite.eventTitile}</Text>
-          </View>
-        ))
-      ) : (
-        <View style = {styles.noEventContainer}>
-        <Text style = {styles.noEventText}>No invitations</Text>
-        </View>
-      )}
-
+    
       <View style = {styles.bottomContainer}>
         {/* home */}
         <TouchableOpacity style = {styles.bottomButton}>
           <Ionicons name = "home-outline" size = {24} color = {'black'}/>
         </TouchableOpacity>
 
-        {/* create group */}
-        <TouchableOpacity style = {styles.bottomButton} onPress = {() => navigation.navigate('CreateGroup')}>
-            <AntDesign name = "addusergroup" size = {24} color = {'black'}/>
+        {/* invitations */}
+        <TouchableOpacity style = {styles.bottomButton} onPress = {() => navigation.navigate('Invitations')}>
+            <Ionicons name = "mail-unread" size = {24} color = {'black'}/>
         </TouchableOpacity>
 
-        {/* create event */}
+        {/* create event/group */}
         <TouchableOpacity style = {styles.bottomButton} onPress = {() => setModalVisible(true)}>
           <Ionicons name = "add-circle" size = {24} color = {'black'}/>
         </TouchableOpacity>
@@ -270,6 +244,22 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
 
+  groupCard: {
+    backgroundColor: colors.container,
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
+  },
+  groupName: {
+    fontFamily: fonts.SemiBold,
+    fontSize: 15,
+    color: colors.primary,
+  },
+  groupMembers: {
+    fontFamily: fonts.Regular,
+    fontSize: 13,
+    color: colors.primary,
+  },
   bottomContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
