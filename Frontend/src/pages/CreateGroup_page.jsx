@@ -48,7 +48,8 @@ const CreateGroup_page = () => {
             });
 
             Alert.alert('Success', `Group "${response.data.name}" created`);
-            navigation.goBack();
+            // sends the event details to main
+            navigation.navigate('Main', { newGroup: response.data });
         } catch (error) {
             console.error(error);
             Alert.alert('Error', 'Failed to create group');
