@@ -74,8 +74,8 @@ const Login_page = () => {
 
     useEffect(() => {
         GoogleSignin.configure({
-            webClientId: '873882924328-epmb47lfrmsj7jsbc4t656eeeglkb5ld.apps.googleusercontent.com',
-            iosClientId: '873882924328-0c4rh1v3m2rvfvqmk6r8rnqidgnmipm1.apps.googleusercontent.com',
+            webClientId: '686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4.apps.googleusercontent.com',
+            iosClientId: '686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4.apps.googleusercontent.com',
             offlineAccess: true,
             forceCodeForRefreshToken: true,
             scopes: ['profile', 'email'],

@@ -29,7 +29,7 @@ const Main_page = () => {
     React.useCallback(() => {
         const { newGroup } = route.params || {};
         if (newGroup) {
-            setUpcomingEvents((prev) => [...prev, newGroup]);
+            setGroups((prev) => [...prev, newGroup]);
             navigation.setParams({ newGroup: null });
         }
     }, [route.params])
@@ -105,7 +105,7 @@ const Main_page = () => {
         </TouchableOpacity>
 
         {/* create event/group */}
-        <TouchableOpacity style = {styles.bottomButton} onPress = {() => setModalVisible(true)}>
+        <TouchableOpacity style = {styles.bottomButton} onPress = {() => navigation.navigate('Create')}>
           <Ionicons name = "add-circle" size = {24} color = {'black'}/>
         </TouchableOpacity>
         

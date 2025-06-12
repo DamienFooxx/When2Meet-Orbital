@@ -10,12 +10,14 @@ import Login_page from './src/pages/Login_page';
 import Signup_page from './src/pages/Signup_page';
 import Main_page from './src/pages/Main_page';
 import Profile_page from './src/pages/Profile_page';
+import Create_page from './src/pages/Create_page';
 import CreateGroup_page from './src/pages/CreateGroup_page';
+import CreateEvent_page from './src/pages/CreateEvent_page';
 import Invitation_page from './src/pages/Invitation_page';
 
 // context
 import { UserProvider } from './src/context/UserContext';
-import Invitation_page from './src/pages/Invitation_page';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -47,6 +49,8 @@ const App = () => {
             <Stack.Screen name={"Profile"} component = {Profile_page}/>
             <Stack.Screen name={"CreateGroup"} component = {CreateGroup_page}/> 
             <Stack.Screen name={"Invitations"} component = {Invitation_page}/>
+            <Stack.Screen name={"CreateEvent"} component = {CreateEvent_page}/>
+            <Stack.Screen name={"Create"} component = {Create_page}/>
         </Stack.Navigator>
         </NavigationContainer>
     </UserProvider>

@@ -59,11 +59,11 @@ const CreateGroup_page = () => {
   return (
     <View style = {styles.container}>
         <View style = {styles.headerContainer}>
-            <TouchableOpacity style = {styles.cancelContainer} onPress = {() => navigation.goBack()}>
+            <TouchableOpacity style = {styles.cancelContainer} onPress = {() => navigation.navigate('Main')}>
               <Text style = {styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
             
-            <Text style = {styles.headerText}>Create New Event</Text>
+            <Text style = {styles.headerText}>Create New Group</Text>
       
             <TouchableOpacity 
                 onPress = {createGroup}
