@@ -202,8 +202,16 @@ class GroupViewSet(viewsets.ModelViewSet):
         profile = Profile.objects.get(user=self.request.user)
         return Group.objects.filter(
             group_memberships__profile=profile,
+        ).distinct()
+    
+    def list(self, request, *args, **kwargs):
+        profile = Profile.objects.get(user=request.user)
+        queryset = Group.objects.filter(
+            group_memberships__profile=profile,
             group_memberships__is_accepted=True
         ).distinct()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 

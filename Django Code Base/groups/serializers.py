@@ -64,7 +64,10 @@ class GroupSerializer(serializers.ModelSerializer):
                     GroupMembership.objects.get_or_create(
                         group=group,
                         profile=member_profile,
-                        defaults={'role': 'member', 'is_accepted': False}
+                        defaults={
+                            'role': 'member', 
+                            'is_accepted': False
+                        }
                     )
                     print("Member added:", email)
                 except Profile.DoesNotExist:
