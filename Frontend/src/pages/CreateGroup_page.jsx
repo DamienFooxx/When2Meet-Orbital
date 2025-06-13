@@ -13,11 +13,24 @@ const CreateGroup_page = () => {
     const [members, setMembers] = useState([]);
     const navigation = useNavigation();
 
-    const addMember = () => {
+    const addMember = async () => {
         const trimmed = newMember.trim();
-        if (trimmed && !members.includes(trimmed)) {
-            setMembers([...members, trimmed]);
-            setNewMember('');
+        if (trimmed && !members.includes(trimmed)) return;
+
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+
+            const res = await axios.get(`${BASE_URL}/api/users/check/?email=${trimmed}`);
+            if (res.data.exists) {
+                setMembers([...members, trimmed]);
+                setNewMember('');
+            } else {
+                Alert.alert("User not found", "The entered email does not match any registered user.");
+            }
+        } catch (err) {
+            console.error(err);
+            Alert.alert("Error", "Failed to check user existence")
         }
     };
 
