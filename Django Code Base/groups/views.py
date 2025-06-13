@@ -1,11 +1,12 @@
-from django.shortcuts import render
 from django.db import models
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from accounts.models import Profile
 from .models import Group, GroupMembership
-from .serializer import GroupSerializer, GroupMembershipSerializer, GroupMembershipListSerializer
+from .serializers import GroupSerializer, GroupMembershipListSerializer
+
 
 """
 groups/views.py
@@ -33,11 +34,11 @@ class GroupViewSet(viewsets.ModelViewSet):
         # Save the group and set creator
         group = serializer.save(creator = profile)
 
-        #Create membership to set creator as organiser by default automatically
-        GroupMembership.objects.create(
-            group = group,
-            profile = profile,
-            role = 'organiser'
+        GroupMembership.objects.get_or_create(
+            group=group,
+            profile=profile,
+            role='organiser',
+            is_accepted=True
         )
 
     @action(detail = False, methods = ['post'], url_path = 'join-by-code')
@@ -58,7 +59,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         # Checks if the Group with that invite code exists
         except Group.DoesNotExist:
             return Response({
-                'error': 'Invalide invite code or Group does not exist.'
+                'error': 'Invalid invite code or Group does not exist.'
             }, status = status.HTTP_404_NOT_FOUND)
 
         profile = Profile.objects.get(user = request.user)
@@ -87,11 +88,12 @@ class GroupViewSet(viewsets.ModelViewSet):
                 }
             }, status=status.HTTP_200_OK)
 
-        # Add User as participant
+        # Add User as member
         GroupMembership.objects.create(
             group = group,
             profile = profile,
-            role = 'participant'
+            role = 'member',
+            is_accepted = True
         )
 
         return Response({
@@ -158,12 +160,58 @@ class GroupViewSet(viewsets.ModelViewSet):
         memberships = memberships.order_by(
             models.Case(
                 models.When(role = 'organiser', then = 0),
-                models.When(role = 'participant', then = 1),
+                models.When(role = 'member', then = 1),
                 output_field = models.IntegerField(),
             ),
             'profile__user__username'
         )
         serializer = GroupMembershipListSerializer(memberships, many = True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], url_path='invitations', permission_classes=[IsAuthenticated])
+    def invitations(self, request):
+        profile = Profile.objects.get(user=request.user)
+
+        memberships = GroupMembership.objects.filter(
+            profile=profile,
+            is_accepted=False
+        ).select_related('group')
+
+        groups = [membership.group for membership in memberships]
+        serializer = GroupSerializer(groups, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'], url_path='accept-invitation')
+    def accept_invitation(self, request, pk=None):
+        group = self.get_object()
+        profile = Profile.objects.get(user=request.user)
+
+        membership = GroupMembership.objects.filter(
+            group=group, profile=profile, is_accepted=False
+        ).first()
+
+        if not membership:
+            return Response({'error': 'No pending invitation.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        membership.is_accepted = True
+        membership.save()
+
+        return Response({'message': f'You have joined the group "{group.name}".'}, status=status.HTTP_200_OK)
+    
+    def get_queryset(self):
+        profile = Profile.objects.get(user=self.request.user)
+        return Group.objects.filter(
+            group_memberships__profile=profile,
+        ).distinct()
+    
+    def list(self, request, *args, **kwargs):
+        profile = Profile.objects.get(user=request.user)
+        queryset = Group.objects.filter(
+            group_memberships__profile=profile,
+            group_memberships__is_accepted=True
+        ).distinct()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 
