@@ -24,7 +24,7 @@ const Invitation_page = () => {
         try {
             setLoading(true);
             const res = await axios.get(`${BASE_URL}/groups/invitations/`, {
-                headers: { Authorization: `Bearer ${user.token}` }
+                headers: { Authorization: `Token ${user.token}` }
             });
             setInvitations(res.data);
         } catch (err) {
