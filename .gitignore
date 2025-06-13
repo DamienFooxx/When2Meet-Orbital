@@ -88,6 +88,8 @@ android/app/build/
 ios/Pods/
 ios/build/
 *.xscworkspace
+*.xcuserstate
+*.xcuserdata
 *.keystore
 *.jks
 *.p8

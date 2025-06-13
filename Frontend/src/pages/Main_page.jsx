@@ -76,6 +76,25 @@ const Main_page = () => {
         <Ionicons name = "chevron-forward-circle" size = {25} color = {colors.primary}/>
       </View>
 
+      {events.length > 0 ? (
+        events.map((event, index) => (
+            <TouchableOpacity
+                key = {index}
+                style = {styles.eventCard}
+                onPress = {() => navigation.navigate('EventDetail', { event })}
+            >
+                <Text style = {styles.eventTitle}>{event.title}</Text>
+                <Text style = {styles.eventDetails}>{event.description || 'No description provided'}</Text>
+                <Text style = {styles.eventDetails}>Mode: {event.mode || 'Not set'}</Text>
+                <Text style = {styles.eventDetails}>Duration: {event.duration || 'Not set'}</Text>
+            </TouchableOpacity>
+        ))
+      ) : (
+        <View style = {styles.noEventContainer}>
+            <Text style = {styles.noEventText}>No events yet</Text>
+        </View>
+      )}
+
       {/* groups */}
       <View style = {styles.activitiesContainer}>
         <Text style = {styles.activitiesText}>Groups</Text>
