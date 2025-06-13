@@ -44,9 +44,16 @@ const Invitation_page = () => {
     const acceptInvitation = async (groupId) => {
         try {
             await axios.post(`${BASE_URL}/api/groups/${groupId}/accept-invitation/`, {}, {
-            headers: { Authorization: `Token ${user.token}` }
+                headers: { Authorization: `Token ${user.token}` }
             });
-            fetchInvitations(); // Refresh list
+            // fetch group details after accepting
+            const res = await axios.get(`${BASE_URL}/api/groups/${groupId}`, {
+                headers: { Authorization: `Token ${user.token}` }
+            });
+
+            const group = res.data;
+
+            navigation.navigate("GroupDetail", { group });
         } catch (err) {
             console.error("Accept failed", err);
             Alert.alert("Error", "Could not accept invitation.");

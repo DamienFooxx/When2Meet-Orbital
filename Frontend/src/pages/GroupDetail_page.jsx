@@ -19,7 +19,6 @@ const GroupDetail_page = () => {
   return (
     <ScrollView contentContainerStyle = {styles.container}>
       <Text style = {styles.title}>{group.title}</Text>
-      <Text style = {styles.description}>{group.description || 'No description provided'}</Text>
       <Text style = {styles.sectionHeader}>Participants:</Text>
       {group.participants?.length > 0 ? (
         group.participants.map((email, idx) => (
@@ -49,12 +48,6 @@ const styles = StyleSheet.create({
         fontFamily: fonts.SemiBold,
         color: colors.primary,
         marginBottom: 8,
-    },
-    description: {
-        fontSize: 16,
-        fontFamily: fonts.Regular,
-        color: colors.containerText,
-        marginBottom: 16,
     },
     sectionHeader: {
         fontSize: 18,
