@@ -3,6 +3,14 @@ from .models import Group, GroupMembership
 from accounts.models import Profile
 from django.db import transaction
 
+class GroupMembershipListSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='profile.user.username')
+    name = serializers.CharField(source='profile.name')
+
+    class Meta:
+        model = GroupMembership
+        fields = ['id', 'username', 'name', 'role', 'joined_at']
+
 class GroupSerializer(serializers.ModelSerializer):
     members = serializers.ListField(
         child=serializers.EmailField(), write_only=True, required=False

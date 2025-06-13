@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from accounts.models import Profile
 from .models import Group, GroupMembership
-from .serializer import GroupSerializer, GroupMembershipSerializer, GroupMembershipListSerializer
+from .serializers import GroupSerializer, GroupMembershipListSerializer
 
 """
 groups/views.py
