@@ -11,6 +11,8 @@ cryptography==45.0.4
 celery==5.5.3
 PyYAML==6.0.2
 split-settings==1.0.0
+geopy>=2.0
+django-countries>=7.2
 
 # DB Drivers
 psycopg2-binary==2.9.10

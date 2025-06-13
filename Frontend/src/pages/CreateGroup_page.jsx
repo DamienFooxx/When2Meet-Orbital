@@ -15,7 +15,7 @@ const CreateGroup_page = () => {
 
     const addMember = async () => {
         const trimmed = newMember.trim();
-        if (trimmed && !members.includes(trimmed)) return;
+        if (!trimmed && members.includes(trimmed)) return;
 
         try {
             const token = await AsyncStorage.getItem('authToken');
@@ -57,12 +57,18 @@ const CreateGroup_page = () => {
 
             const response = await axios.post(`${BASE_URL}/api/groups/`, {
                 name: groupName,
-                members: members,
+                members: members, // backend will send invitations
             });
 
             Alert.alert('Success', `Group "${response.data.name}" created`);
-            // sends the event details to main
-            navigation.navigate('Main', { newGroup: response.data });
+            // sends the group details to main (for host only)
+            navigation.navigate('Main', { 
+                newGroup: {
+                    ...response.data, // data returned from backend (group info)
+                is_host: true  // manually added in frontend to label user as host
+                }
+            });
+
         } catch (error) {
             console.error(error);
             Alert.alert('Error', 'Failed to create group');

@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0002_remove_profile_id_alter_profile_unique_id'),
+        ('accounts', '0001_initial'),
         ('groups', '0010_alter_group_unique_together'),
     ]
 
