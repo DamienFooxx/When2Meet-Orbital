@@ -38,10 +38,19 @@ class GroupSerializer(serializers.ModelSerializer):
             group = Group.objects.create(name=validated_data['name'], creator=profile)
             
             # add creator as organiser
-            GroupMembership.objects.get_or_create(group=group, profile=profile, role='organiser')
+            GroupMembership.objects.get_or_create(
+                group=group, 
+                profile=profile, 
+                role='organiser', 
+                is_accepted=True
+            )
             print("Organiser added.")
 
-            unique_emails = set(email.lower().strip() for email in members_emails if email.strip())
+            unique_emails = set(
+                email.lower().strip()
+                for email in members_emails 
+                if email and email.strip()
+            )
             print("Inviting members:", unique_emails)
 
             for email in unique_emails:
@@ -55,7 +64,7 @@ class GroupSerializer(serializers.ModelSerializer):
                     GroupMembership.objects.get_or_create(
                         group=group,
                         profile=member_profile,
-                        defaults={'role': 'member'}
+                        defaults={'role': 'member', 'is_accepted': False}
                     )
                     print("Member added:", email)
                 except Profile.DoesNotExist:

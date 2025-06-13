@@ -23,7 +23,7 @@ const Invitation_page = () => {
     const fetchInvitations = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`${BASE_URL}/groups/invitations/`, {
+            const res = await axios.get(`${BASE_URL}/api/groups/invitations/`, {
                 headers: { Authorization: `Token ${user.token}` }
             });
             setInvitations(res.data);

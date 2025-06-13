@@ -14,6 +14,7 @@ import Create_page from './src/pages/Create_page';
 import CreateGroup_page from './src/pages/CreateGroup_page';
 import CreateEvent_page from './src/pages/CreateEvent_page';
 import Invitation_page from './src/pages/Invitation_page';
+import GroupDetail_page from './src/pages/GroupDetail_page';
 
 // context
 import { UserProvider } from './src/context/UserContext';
@@ -51,6 +52,7 @@ const App = () => {
             <Stack.Screen name={"Invitations"} component = {Invitation_page}/>
             <Stack.Screen name={"CreateEvent"} component = {CreateEvent_page}/>
             <Stack.Screen name={"Create"} component = {Create_page}/>
+            <Stack.Screen name={"GroupDetail"} component = {GroupDetail_page}/>
         </Stack.Navigator>
         </NavigationContainer>
     </UserProvider>

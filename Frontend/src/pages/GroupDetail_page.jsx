@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
         padding: 24,
+        paddingTop: 80,
         backgroundColor: colors.brownBackground,
     },
 

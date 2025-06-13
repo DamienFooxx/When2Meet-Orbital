@@ -41,17 +41,19 @@ class Group(models.Model):
 
 class GroupMembership(models.Model):
     """
-    Represents a user's membership in a group, with a role (organiser or participant).
+    Represents a user's membership in a group, with a role (organiser or member).
     Enforces unique membership per user per group.
     """
     ROLE_CHOICES = {
         ('organiser', 'Organiser'),
-        ('participant', 'Participant'),
+        ('member', 'Member'),
+        ('invited', 'Invited'),
     }
 
     group = models.ForeignKey(Group, on_delete = models.CASCADE, related_name = 'group_memberships')  # The group this membership belongs to
     profile = models.ForeignKey(Profile, on_delete = models.CASCADE, related_name = 'profile_memberships')  # The user profile in the group
-    role = models.CharField(max_length = 20, choices = ROLE_CHOICES, default = 'participant')  # Role in the group
+    role = models.CharField(max_length = 20, choices = ROLE_CHOICES, default = 'member')  # Role in the group
+    is_accepted = models.BooleanField(default=False)
     joined_at = models.DateTimeField(auto_now_add = True)  # When the user joined the group
 
     class Meta:
