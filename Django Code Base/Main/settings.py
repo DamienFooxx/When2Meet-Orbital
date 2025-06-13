@@ -178,12 +178,8 @@ SITE_ID = 1
 REST_USE_JWT = True
 
 # AllAuth settings
-ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_SIGNUP_FIELDS = [
-    'email*',
-    'password1*',
-    'password2*'
-]
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_LOGIN_METHODS = {'email'}
 
 # Disable email veriification (for development)
 ACCOUNT_EMAIL_VERIFICATION = 'none'
