@@ -15,11 +15,6 @@ accounts/views.py
 
 Contains custom authentication views, including Google OAuth login.
 """
-class GoogleLogin(SocialLoginView):
-    """
-    Handles Google OAuth login for the When2Meet app using dj-rest-auth and allauth.
-    """
-    adapter_class = GoogleOAuth2Adapter
 
 class GoogleLogin(SocialLoginView):
     """
