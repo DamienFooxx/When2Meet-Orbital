@@ -9,12 +9,36 @@ from allauth.socialaccount.models import SocialAccount, SocialToken
 from rest_framework.response import Response
 from .models import Profile
 from rest_framework import status
+from django.contrib.auth import get_user_model
+import traceback
 
 """
 accounts/views.py
 
 Contains custom authentication views, including Google OAuth login.
 """
+
+User = get_user_model()
+
+class CheckUserByEmail(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            email = request.query_params.get('email', '').strip()
+            print("Received email:", email)
+
+            if not email:
+                return Response({'exists': False, 'error': 'No email provided'}, status=400)
+
+            exists = User.objects.filter(email__iexact=email).exists()
+            print("User exists:", exists)
+
+            return Response({'exists': exists})
+        except Exception as e:
+            print("Exception:", e)
+            traceback.print_exc()
+            return Response({'exists': False, 'error': str(e)}, status=500)
 
 class GoogleLogin(SocialLoginView):
     """

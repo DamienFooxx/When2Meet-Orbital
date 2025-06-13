@@ -97,7 +97,7 @@ ios/.xcconfig
 ios/.DS_Store
 
 # Xcode
-*.xcodeproj/project.xscworkspace/xcuserdata
+*.xcodeproj/when2meet.xscworkspace/xcuserdata
 *.xscworkspace/xcuserdata
 *.xcuserstate
 *.xcscmblueprint

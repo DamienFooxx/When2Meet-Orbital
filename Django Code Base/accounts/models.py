@@ -1,10 +1,13 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django_countries.fields import CountryField
+from django.core.exceptions import ValidationError
 from geopy.geocoders import GoogleV3
 import string
 import random
 import os
+
+User = get_user_model()
 
 geolocator = GoogleV3(api_key=os.getenv('GOOGLE_MAPS_API_KEY'))
 
