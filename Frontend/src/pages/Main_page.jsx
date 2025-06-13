@@ -18,19 +18,24 @@ const Main_page = () => {
 
   {/* create event */}
   const [events, setEvents] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
 
   const handleAddEvent = (newEvent) => {
     setEvents(prev => [...prev, newEvent]);
     setModalVisible(false);
   }
 
+  {/* call created group/event */}
   useFocusEffect(
     React.useCallback(() => {
-        const { newGroup } = route.params || {};
+        const { newGroup, newEvent } = route.params || {};
         if (newGroup) {
             setGroups((prev) => [...prev, newGroup]);
             navigation.setParams({ newGroup: null });
+        }
+
+        if (newEvent) {
+            setEvents(prev => [...prev, newEvent]);
+            navigation.setParams({ newEvent: null});
         }
     }, [route.params])
   );
@@ -76,7 +81,7 @@ const Main_page = () => {
         <Text style = {styles.activitiesText}>Groups</Text>
         <Ionicons name = "chevron-forward-circle" size = {25} color = {colors.primary}/>
       </View>
-      
+
       {groups.length > 0 ? (
         groups.map((group, index) => (
           <TouchableOpacity
@@ -127,11 +132,6 @@ const Main_page = () => {
 
       </View>
       
-      <CreateEvent_page
-        visible = {modalVisible}
-        onClose = {() => setModalVisible(false)}
-        onCreate = {handleAddEvent}
-      />
     </View>
   )
 }
