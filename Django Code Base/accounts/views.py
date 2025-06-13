@@ -61,7 +61,6 @@ class ProfileView(APIView):
             'unique_id': profile.unique_id
         })
 
-# Create your views here.
 class GoogleCalendarFreeBusyView(APIView):
     """
     API endpoint to fetch a user's busy slots from their Google Calendar using the FreeBusy API.

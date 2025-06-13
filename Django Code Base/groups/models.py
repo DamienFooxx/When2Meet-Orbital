@@ -1,7 +1,7 @@
 from django.db import models
 import string
 import random
-from accounts.models import Profile
+from accounts.models import Profile, Location
 
 """
 groups/models.py
