@@ -3,12 +3,8 @@ from django.db import models
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.exceptions import ValidationError
-from rest_framework import status
-from django.contrib.auth.models import User
 from accounts.models import Profile
-from .models import Group, GroupMembership, GroupInvitation
+from .models import Group, GroupMembership
 from .serializer import GroupSerializer, GroupMembershipSerializer, GroupMembershipListSerializer
 
 """
@@ -169,25 +165,5 @@ class GroupViewSet(viewsets.ModelViewSet):
         )
         serializer = GroupMembershipListSerializer(memberships, many = True)
         return Response(serializer.data)
-    
-    def perform_create(self, serializer):
-        serializer.save(creator=self.request.user.profile)
-        GroupMembership.objects.create(
-            group=serializer.instance,
-            user=self.request.user,
-            role="organiser"
-        )
-
-        participants = self.request.data.get("participants", [])
-        
-        for username in participants:
-            if not User.objects.filter(username=username).exists():
-                raise ValidationError(f"User '{username}' does not exist.")
-            
-        group = serializer.instance
-
-        for username in participants:
-            user = User.objects.get(username=username)
-            GroupInvitation.objects.create(group=group, user=user, status="pending")
 
 

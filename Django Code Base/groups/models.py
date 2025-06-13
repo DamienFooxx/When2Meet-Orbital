@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 import string
 import random
 from accounts.models import Profile, Location
@@ -61,18 +60,3 @@ class GroupMembership(models.Model):
     def __str__(self):
         return f"{self.profile.user.username} in {self.group.name} ({self.role})"
 
-class GroupInvitation(models.Model):
-    group = models.ForeignKey("Group", on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    status = models.CharField(
-        max_length=10,
-        choices=[("pending", "Pending"), ("accepted", "Accepted")],
-                 default="pending"
-    )
-    invited_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ("group", "user")
-    
-    def __str__(self):
-        return f"Invitation to {self.user.username} for group {self.group.name} ({self.status})"

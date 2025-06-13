@@ -178,7 +178,7 @@ SITE_ID = 1
 REST_USE_JWT = True
 
 # AllAuth settings
-ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = [
     'email*',
     'password1*',

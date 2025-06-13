@@ -6,8 +6,7 @@ import string
 import random
 import os
 
-def get_geolocator():
-    geolocator = GoogleV3(api_key=os.getenv('GOOGLE_MAPS_API_KEY'))
+geolocator = GoogleV3(api_key=os.getenv('GOOGLE_MAPS_API_KEY'))
 
 class Location(models.Model):
     '''
@@ -36,7 +35,7 @@ class Location(models.Model):
         full_address = ", ".join(components)
 
         # ask Google to geocode
-        location = get_geolocator().geocode(full_address)
+        location = geolocator.geocode(full_address)
         if location is None:
             raise ValidationError("Address not found: please enter a valid street/postal code.")  
 

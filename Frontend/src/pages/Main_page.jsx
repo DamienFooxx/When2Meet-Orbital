@@ -29,12 +29,12 @@ const Main_page = () => {
     React.useCallback(() => {
         const { newGroup, newEvent } = route.params || {};
         if (newGroup) {
-            setGroups((prev) => [...prev, newGroup]);
+            setGroups((prev) => [newGroup, ...prev]);
             navigation.setParams({ newGroup: null });
         }
 
         if (newEvent) {
-            setEvents(prev => [...prev, newEvent]);
+            setEvents(prev => [newEvent, ...prev]);
             navigation.setParams({ newEvent: null});
         }
     }, [route.params])
@@ -108,10 +108,10 @@ const Main_page = () => {
             style = {styles.groupCard}
             onPress = {() => navigation.navigate('GroupDetail', { group })}
             >
-            <Text style = {styles.groupName}>{group.name || group.title}</Text>
+            <Text style = {styles.groupName}>{group.name || group.title} {group.is_organiser ? '(Organiser)': ''}</Text>
             <Text style = {styles.groupMembers}>
-                Members: {Array.isArray(group.members || group.participants)
-                ? (group.members || group.participants).join(', ')
+                Members: {Array.isArray(group.members) && group.members.length > 0
+                ? group.members.join(', ')
                 : 'None'}
             </Text>
           </TouchableOpacity>

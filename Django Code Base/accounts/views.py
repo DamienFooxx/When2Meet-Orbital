@@ -9,14 +9,18 @@ from allauth.socialaccount.models import SocialAccount, SocialToken
 from rest_framework.response import Response
 from .models import Profile
 from rest_framework import status
-from django.contrib.auth import get_user_model
-from rest_framework.decorators import api_view, permission_classes
 
 """
 accounts/views.py
 
 Contains custom authentication views, including Google OAuth login.
 """
+class GoogleLogin(SocialLoginView):
+    """
+    Handles Google OAuth login for the When2Meet app using dj-rest-auth and allauth.
+    """
+    adapter_class = GoogleOAuth2Adapter
+
 class GoogleLogin(SocialLoginView):
     """
     Handles Google OAuth login for the When2Meet app using dj-rest-auth and allauth.
@@ -107,16 +111,3 @@ class GoogleCalendarFreeBusyView(APIView):
         # Returns the busy slots from "primary" calendar
         busy_slots = freebusy.get("calendars", {}).get("primary", {}).get("busy", [])
         return Response({"busy": busy_slots})
-    
-User = get_user_model()
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def check_user_exists(request):
-    """
-    Check if a user with the given email address exists.
-    GET /api/users/check/?email=xxx@example.com
-    """
-    email = request.query_params.get('email')
-    exists = User.objects.filter(email=email).exists()
-    return Response({'exists': exists})

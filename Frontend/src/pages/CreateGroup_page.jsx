@@ -48,32 +48,31 @@ const CreateGroup_page = () => {
         );
     };
 
-    const createGroup = async () => {
+    const handleCreateGroup = async () => {
         try {
             const token = await AsyncStorage.getItem('authToken');
-            if (!token) throw new Error("Not loggined in");
-
             axios.defaults.headers.common['Authorization'] = `Token ${token}`;
 
-            const response = await axios.post(`${BASE_URL}/api/groups/`, {
-                name: groupName,
-                members: members, // backend will send invitations
-            });
-
-            Alert.alert('Success', `Group "${response.data.name}" created`);
-            // sends the group details to main (for host only)
-            navigation.navigate('Main', { 
+            const response = await axios.post(
+                `${BASE_URL}/api/groups/`,
+                {
+                    name: groupName,
+                    members: members,
+                }
+            );
+            Alert.alert('Success', `Group created`);
+            navigation.navigate('Main', {
                 newGroup: {
-                    ...response.data, // data returned from backend (group info)
-                is_host: true  // manually added in frontend to label user as host
+                    ...response.data,
+                    is_organiser: true,
                 }
             });
-
         } catch (error) {
-            console.error(error);
+            console.error('Group creation failed:', error.response?.data || error.message);
             Alert.alert('Error', 'Failed to create group');
         }
     };
+
 
   return (
     <View style = {styles.container}>
@@ -85,7 +84,7 @@ const CreateGroup_page = () => {
             <Text style = {styles.headerText}>Create New Group</Text>
       
             <TouchableOpacity 
-                onPress = {createGroup}
+                onPress = {handleCreateGroup}
                 style = {[styles.createButton, !(groupName && members.length) && { opacity: 0.5 }]}
                 disabled = {!groupName || members.length === 0}>
                 <Text style = {styles.createText}>New</Text>
