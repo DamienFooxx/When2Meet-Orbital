@@ -31,14 +31,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         user = self.request.user
         profile = Profile.objects.get(user = user)
         # Save the group and set creator
-        group = serializer.save(creator = profile)
-
-        #Create membership to set creator as organiser by default automatically
-        GroupMembership.objects.create(
-            group = group,
-            profile = profile,
-            role = 'organiser'
-        )
+        serializer.save(creator = profile)
 
     @action(detail = False, methods = ['post'], url_path = 'join-by-code')
     def join_by_code(self, request):

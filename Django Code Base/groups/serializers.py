@@ -15,10 +15,12 @@ class GroupSerializer(serializers.ModelSerializer):
     members = serializers.ListField(
         child=serializers.EmailField(), write_only=True, required=False
     )
+    creator = serializers.ReadOnlyField(source='creator.user.username')
+    invite_code = serializers.ReadOnlyField()
 
     class Meta:
         model = Group
-        fields = ['id', 'name', 'members']  # Add other fields if needed
+        fields = ['id', 'name', 'invite_code', 'created_at', 'creator', 'members']  # Add other fields if needed
 
     def create(self, validated_data):
         members_emails = validated_data.pop('members', [])
@@ -37,22 +39,29 @@ class GroupSerializer(serializers.ModelSerializer):
             
             # add creator as organiser
             GroupMembership.objects.get_or_create(group=group, profile=profile, role='organiser')
+            print("Organiser added.")
 
-            # Add members by email
-            unique_emails = set([email.lower().strip() for email in members_emails])
+            unique_emails = set(email.lower().strip() for email in members_emails if email.strip())
+            print("Inviting members:", unique_emails)
 
-            for email in members_emails:
-                member_profile = Profile.objects.filter(user__email = email).first()
+            for email in unique_emails:
+                try:
+                    print("Inviting:", email)
+                    member_profile = Profile.objects.get(user__email=email)
+                    if member_profile == profile:
+                        print("Skipping organiser email.")
+                        continue
 
-                # skip if not found or is the creator
-                if not member_profile or member_profile.id == profile.id:
+                    GroupMembership.objects.get_or_create(
+                        group=group,
+                        profile=member_profile,
+                        defaults={'role': 'member'}
+                    )
+                    print("Member added:", email)
+                except Profile.DoesNotExist:
+                    print("User with email not found:", email)
                     continue
-
-                # avoid duplicate memberships
-                GroupMembership.objects.get_or_create(
-                    group=group,
-                    profile=member_profile,
-                    defaults={'role': 'member'}
-                )
-
+                except Exception as e:
+                    print("ERROR inviting", email, ":", str(e))
+                    raise e
         return group
