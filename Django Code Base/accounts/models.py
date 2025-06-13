@@ -34,7 +34,7 @@ class Location(models.Model):
             self.postalcode,
             self.city,
             self.country.name
-        ])
+                  ])
         full_address = ", ".join(components)
 
         # ask Google to geocode
