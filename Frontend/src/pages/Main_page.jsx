@@ -6,7 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import CreateEvent_page from './CreateEvent_page';
+import Invitation_page from './Invitation_page';
 
 const Main_page = () => {
   const navigation = useNavigation();

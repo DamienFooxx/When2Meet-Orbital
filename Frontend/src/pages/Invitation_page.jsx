@@ -1,12 +1,15 @@
-import { StyleSheet, Text, View, Flatlist, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useUser } from '../context/UserContext'
 import axios from 'axios';
 import { BASE_URL } from '../utils/config';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
+import { useNavigation } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Invitation_page = () => {
+    const navigation = useNavigation();
     const { user, isLoadingUser } = useUser();
     const [invitations, setInvitations] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -44,7 +47,7 @@ const Invitation_page = () => {
         }
     };
 
-    const renderiTem = ({ item }) => {
+    const renderItem = ({ item }) => {
         <View style = {styles.card}>
             <Text style = {styles.groupName}>{item.group_name}</Text>
             <Text style = {styles.inviter}>Invited by: {item.inviter_name}</Text>
@@ -69,11 +72,17 @@ const Invitation_page = () => {
 
   return (
     <View style = {styles.container}>
-        <Text style = {styles.header}>Invitations</Text>
-        <Flatlist
+        <View style = {styles.topBar}>
+            <TouchableOpacity onPress={() => navigation.navigate('Main')}>
+                <Ionicons name="chevron-back-outline" size={24} color={colors.primary}/>
+            </TouchableOpacity>
+            <Text style = {styles.header}>Invitations</Text>
+        </View>
+
+        <FlatList
             data = {invitations}
             keyExtractor={item => item.id.toString()}
-            renderiTem={renderiTem}
+            renderItem={renderItem}
             ListEmptyComponent={<Text style={styles.noInvites}>No invitations</Text>}
         />
     </View>
@@ -86,8 +95,14 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        paddingTop: 60,
+        paddingTop: 80,
         backgroundColor: colors.white,
+    },
+    topBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+        gap: 10,
     },
     loadingContainer: {
         flex: 1,
@@ -97,8 +112,7 @@ const styles = StyleSheet.create({
     },
     header: {
         fontSize: 22,
-        fontFamily: fonts.Medium,
-        marginBottom: 20,
+        fontFamily: fonts.SemiBold,
         color: colors.primary,
     },
     noInvites: {
