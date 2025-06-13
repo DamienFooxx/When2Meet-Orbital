@@ -49,7 +49,7 @@ const App = () => {
             <Stack.Screen name={"Main"} component = {Main_page}/>
             <Stack.Screen name={"Profile"} component = {Profile_page}/>
             <Stack.Screen name={"CreateGroup"} component = {CreateGroup_page}/> 
-            <Stack.Screen name={"Invitations"} component = {Invitation_page}/>
+            <Stack.Screen name={"Invitation"} component = {Invitation_page}/>
             <Stack.Screen name={"CreateEvent"} component = {CreateEvent_page}/>
             <Stack.Screen name={"Create"} component = {Create_page}/>
             <Stack.Screen name={"GroupDetail"} component = {GroupDetail_page}/>

@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { useUser } from '../context/UserContext'
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useUser } from '../context/UserContext';
 import axios from 'axios';
 import { BASE_URL } from '../utils/config';
 import { colors } from '../utils/colors';
@@ -14,18 +15,23 @@ const Invitation_page = () => {
     const [invitations, setInvitations] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
+    useFocusEffect(
+        useCallback(() => {
+        console.log('useEffect triggered', {isLoadingUser, user});
         if (!isLoadingUser && user?.token) {
             fetchInvitations();
         }
-    }, [isLoadingUser, user]);
+      }, [isLoadingUser, user])
+    );
 
     const fetchInvitations = async () => {
         try {
+            console.log("fetching invitations...")
             setLoading(true);
             const res = await axios.get(`${BASE_URL}/api/groups/invitations/`, {
                 headers: { Authorization: `Token ${user.token}` }
             });
+            console.log("fetched invitations:", res.data)
             setInvitations(res.data);
         } catch (err) {
             console.error("Failed to fetch invitations", err);
@@ -35,12 +41,44 @@ const Invitation_page = () => {
         }
     };
 
-    const renderItem = ({ item }) => {
+    const acceptInvitation = async (groupId) => {
+        try {
+            await axios.post(`${BASE_URL}/api/groups/${groupId}/accept-invitation/`, {}, {
+            headers: { Authorization: `Token ${user.token}` }
+            });
+            fetchInvitations(); // Refresh list
+        } catch (err) {
+            console.error("Accept failed", err);
+            Alert.alert("Error", "Could not accept invitation.");
+        }
+        };
+
+    const declineInvitation = async (groupId) => {
+        try {
+            await axios.post(`${BASE_URL}/api/groups/${groupId}/leave/`, {}, {
+            headers: { Authorization: `Token ${user.token}` }
+            });
+            fetchInvitations(); // Refresh list
+        } catch (err) {
+            console.error("Decline failed", err);
+            Alert.alert("Error", "Could not decline invitation.");
+        }
+        };
+
+    const renderItem = ({ item }) => (
         <View style = {styles.card}>
             <Text style = {styles.groupName}>{item.name}</Text>
             <Text style = {styles.inviter}>Group Code: {item.invite_code}</Text>
+            <View style={{ flexDirection: 'row', gap: 20 }}>
+            <TouchableOpacity onPress={() => acceptInvitation(item.id)}>
+                <Text style={styles.actions}>Accept</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => declineInvitation(item.id)}>
+                <Text style={styles.decline}>Decline</Text>
+            </TouchableOpacity>
+            </View>
         </View>
-    };
+    );
 
     if (isLoadingUser || loading) {
         return (
@@ -122,7 +160,7 @@ const styles = StyleSheet.create({
     },
     actions: {
         color: 'green',
-        fontfamily: fonts.Medium,
+        fontFamily: fonts.Medium,
         fontSize: 14,
     },
     decline: {

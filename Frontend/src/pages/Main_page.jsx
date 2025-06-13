@@ -147,7 +147,7 @@ const Main_page = () => {
         </TouchableOpacity>
 
         {/* invitations */}
-        <TouchableOpacity style = {styles.bottomButton} onPress = {() => navigation.navigate('Invitations')}>
+        <TouchableOpacity style = {styles.bottomButton} onPress = {() => navigation.navigate('Invitation')}>
             <Ionicons name = "mail-unread" size = {24} color = {'black'}/>
         </TouchableOpacity>
 
