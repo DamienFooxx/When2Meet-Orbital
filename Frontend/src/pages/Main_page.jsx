@@ -71,6 +71,12 @@ const Main_page = () => {
         <Ionicons name = "chevron-forward-circle" size = {25} color = {colors.primary}/>
       </View>
 
+      {/* groups */}
+      <View style = {styles.activitiesContainer}>
+        <Text style = {styles.activitiesText}>Groups</Text>
+        <Ionicons name = "chevron-forward-circle" size = {25} color = {colors.primary}/>
+      </View>
+      
       {groups.length > 0 ? (
         groups.map((group, index) => (
           <TouchableOpacity
