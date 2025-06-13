@@ -55,7 +55,7 @@ const Invitation_page = () => {
 
     const declineInvitation = async (groupId) => {
         try {
-            await axios.post(`${BASE_URL}/api/groups/${groupId}/leave/`, {}, {
+            await axios.post(`${BASE_URL}/api/groups/${groupId}/decline-invitation/`, {}, {
             headers: { Authorization: `Token ${user.token}` }
             });
             fetchInvitations(); // Refresh list
@@ -70,12 +70,21 @@ const Invitation_page = () => {
             <Text style = {styles.groupName}>{item.name}</Text>
             <Text style = {styles.inviter}>Group Code: {item.invite_code}</Text>
             <View style={{ flexDirection: 'row', gap: 20 }}>
-            <TouchableOpacity onPress={() => acceptInvitation(item.id)}>
-                <Text style={styles.actions}>Accept</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => declineInvitation(item.id)}>
-                <Text style={styles.decline}>Decline</Text>
-            </TouchableOpacity>
+                <TouchableOpacity onPress={() => acceptInvitation(item.id)}>
+                    <Text style={styles.actions}>Accept</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                    Alert.alert(
+                        "Confirm Decline",
+                        "Are you sure you want to decline this invitation?",
+                        [
+                            { text: "Cancel", style: "cancel"},
+                            { text: "Yes", onPress: () => declineInvitation(item.id) }
+                        ]
+                    );
+                }}>
+                    <Text style = {styles.decline}>Decline</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );

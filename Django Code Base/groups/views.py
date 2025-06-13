@@ -198,6 +198,23 @@ class GroupViewSet(viewsets.ModelViewSet):
 
         return Response({'message': f'You have joined the group "{group.name}".'}, status=status.HTTP_200_OK)
     
+    @action(detail=True, methods=['post'], url_path='decline-invitation')
+    def decline_invitation(self, request, pk=None):
+        group = self.get_object()
+        profile = Profile.objects.get(user=request.user)
+
+        membership = GroupMembership.objects.filter(
+            group=group,
+            profile=profile,
+            is_accepted=False
+        ).first()
+
+        if not membership:
+            return Response({'error': 'No pending invitation to decline'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        membership.delete()
+
+        return Response({'message': f'You have declined the invitation to join "{group.name}".'}, status=status.HTTP_200_OK)
     def get_queryset(self):
         profile = Profile.objects.get(user=self.request.user)
         return Group.objects.filter(
