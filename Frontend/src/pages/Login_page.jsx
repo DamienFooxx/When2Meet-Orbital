@@ -38,6 +38,7 @@ const Login_page = () => {
             const response = await axios.post(`${BASE_URL}/api/auth/google/`, {
                 access_token: accessToken,
             });
+            console.log("login response:", response.data)
 
             const token = response.data.key;
 
@@ -51,9 +52,12 @@ const Login_page = () => {
             // fetch user profile from backend
             const profileRes = await axios.get(`${BASE_URL}/api/profile/`);
             const userData = {
+                token,
                 username: profileRes.data.username,
                 email: profileRes.data.email,
             };
+
+            console.log("stored user data with token:", userData);
 
             await login(userData);
             Alert.alert('Google login successful');
@@ -61,6 +65,7 @@ const Login_page = () => {
                 index: 0,
                 routes: [{ name: 'Main'}],
             });
+
         } catch (error) {
             const message = 
                 error.response?.data?.non_field_errors?.[0] ||

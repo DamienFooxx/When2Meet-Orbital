@@ -3,10 +3,10 @@ import React, {useState} from 'react';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import Invitation_page from './Invitation_page';
+import axios from 'axios';
+import { BASE_URL } from '../utils/config';
+import { useUser } from '../context/UserContext';
 
 const Main_page = () => {
   const navigation = useNavigation();
@@ -15,6 +15,7 @@ const Main_page = () => {
   const [groups, setGroups] = useState([]);
 
   const [invitations, setInvitations] = useState([]);
+  const { user } = useUser();
 
   {/* create event */}
   const [events, setEvents] = useState([]);
@@ -24,9 +25,24 @@ const Main_page = () => {
     setModalVisible(false);
   }
 
+  {/* retrieve created groups */}
+  const fetchGroups = async () => {
+    try {
+        console.log("Using token:", user?.token);
+        const res = await axios.get(`${BASE_URL}/api/groups/`, {
+            headers: { Authorization: `Token ${user?.token}`}
+        });
+        setGroups(res.data);
+    } catch (err) {
+        console.error("Failed to load groups", err);
+    }
+  };
+
   {/* call created group/event */}
   useFocusEffect(
     React.useCallback(() => {
+        fetchGroups();  // fetch backend data
+
         const { newGroup, newEvent } = route.params || {};
         if (newGroup) {
             setGroups((prev) => [newGroup, ...prev]);
@@ -39,6 +55,7 @@ const Main_page = () => {
         }
     }, [route.params])
   );
+
 
   return (
     <View style = {styles.container}>

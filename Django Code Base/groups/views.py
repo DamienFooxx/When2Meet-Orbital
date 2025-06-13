@@ -3,9 +3,11 @@ from django.db import models
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from accounts.models import Profile
 from .models import Group, GroupMembership
 from .serializers import GroupSerializer, GroupMembershipListSerializer
+
 
 """
 groups/views.py
@@ -158,5 +160,23 @@ class GroupViewSet(viewsets.ModelViewSet):
         )
         serializer = GroupMembershipListSerializer(memberships, many = True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], url_path='invitations', permission_classes=[IsAuthenticated])
+    def invitations(self, request):
+        profile = Profile.objects.get(user=request.user)
+
+        memberships = GroupMembership.objects.filter(
+            profile=profile,
+        ).exclude(role='organiser').select_related('group')
+
+        groups = [membership.group for membership in memberships]
+        serializer = GroupSerializer(groups, many=True)
+        return Response(serializer.data)
+    
+    def get_queryset(self):
+        profile = Profile.objects.get(user=self.request.user)
+        return Group.objects.filter(group_memberships__profile=profile).distinct()
+    
+
 
 

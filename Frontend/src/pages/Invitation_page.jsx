@@ -35,30 +35,10 @@ const Invitation_page = () => {
         }
     };
 
-    const handleResponse = async (inviteId, action) => {
-        try {
-            await axios.post(`${BASE_URL}/groups/invitations/${inviteId}/${action}/`, {}, {
-                headers: { Authorization: `Bearer ${user.token}`}
-            });
-            setInvitations(prev => prev.filter(invite => invite.id !== inviteId));
-        } catch (err) {
-            console.error(`Failed to ${action} invitation`, err);
-            Alert.alert("Error", `Could not ${action} invitation`);
-        }
-    };
-
     const renderItem = ({ item }) => {
         <View style = {styles.card}>
-            <Text style = {styles.groupName}>{item.group_name}</Text>
-            <Text style = {styles.inviter}>Invited by: {item.inviter_name}</Text>
-            <View style = {styles.actions}>
-                <TouchableOpacity onPress={() => handleResponse(item.id, 'accept')}>
-                    <Text style = {styles.accept}>Accept</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleResponse(item.id, 'decline')}>
-                    <Text style = {styles.decline}>Decline</Text>
-                </TouchableOpacity>
-            </View>
+            <Text style = {styles.groupName}>{item.name}</Text>
+            <Text style = {styles.inviter}>Group Code: {item.invite_code}</Text>
         </View>
     };
 
@@ -81,7 +61,7 @@ const Invitation_page = () => {
 
         <FlatList
             data = {invitations}
-            keyExtractor={item => item.id.toString()}
+            keyExtractor={(item) => item.id.toString()}
             renderItem={renderItem}
             ListEmptyComponent={<Text style={styles.noInvites}>No invitations</Text>}
         />
