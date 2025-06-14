@@ -177,20 +177,24 @@ class GroupViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='accept-invitation')
     def accept_invitation(self, request, pk=None):
         group = self.get_object()
-        profile = Profile.objects.get(user=request.user)
 
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
         membership = GroupMembership.objects.filter(
             group=group, profile=profile, is_accepted=False
         ).first()
 
         if not membership:
-            return Response({'error': 'No pending invitation.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'No pending invitations.'}, status=status.HTTP_400_BAD_REQUEST)
         
         membership.is_accepted = True
         membership.save()
 
         return Response({'message': f'You have joined the group "{group.name}".'}, status=status.HTTP_200_OK)
-    
+       
     @action(detail=True, methods=['post'], url_path='decline-invitation')
     def decline_invitation(self, request, pk=None):
         group = self.get_object()
