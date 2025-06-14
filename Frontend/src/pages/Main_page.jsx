@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Alert } from 'react-native';
 import React, {useState} from 'react';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
@@ -17,7 +17,7 @@ const Main_page = () => {
   const [invitations, setInvitations] = useState([]);
   const { user } = useUser();
 
-  {/* create event */}
+  //create event
   const [events, setEvents] = useState([]);
 
   const handleAddEvent = (newEvent) => {
@@ -25,7 +25,7 @@ const Main_page = () => {
     setModalVisible(false);
   }
 
-  {/* retrieve created groups */}
+  //retrieve created groups
   const fetchGroups = async () => {
     try {
         console.log("Using token:", user?.token);
@@ -38,7 +38,33 @@ const Main_page = () => {
     }
   };
 
-  {/* call created group/event */}
+  // delete event
+    const confirmDeleteGroup = (groupId) => {
+    Alert.alert(
+        'Delete Group',
+        'Are you sure you want to delete this group',
+        [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Delete', style: 'destructive', onPress: () => handleDelete(groupId) }
+        ]
+    );
+  };
+
+  const handleDelete = async (groupId) => {
+    try {
+        // cretes a HTTP delete request
+        await axios.delete(`${BASE_URL}/api/groups/${groupId}/`, {
+            headers: { Authorization: `Token ${user.token}` },
+        });
+        Alert.alert('Deleted', 'Group has been deleted');
+        fetchGroups(); // refresh list after deletion
+    } catch (err) {
+        console.error('Failed to delete group:', err);
+        Alet.alert('Error', 'Could not delete group.');
+    }
+  };
+
+  // call created group/event
   useFocusEffect(
     React.useCallback(() => {
         fetchGroups();  // fetch backend data
@@ -120,18 +146,33 @@ const Main_page = () => {
 
       {groups.length > 0 ? (
         groups.map((group, index) => (
-          <TouchableOpacity
-            key = {index}
-            style = {styles.groupCard}
-            onPress = {() => navigation.navigate('GroupDetail', { group })}
-            >
-            <Text style = {styles.groupName}>{group.name || group.title} {group.is_organiser ? '(Organiser)': ''}</Text>
-            <Text style = {styles.groupMembers}>
-                Members: {Array.isArray(group.members) && group.members.length > 0
-                ? group.members.join(', ')
-                : 'None'}
-            </Text>
-          </TouchableOpacity>
+          <View key = {index} style = {styles.groupCardWrapper}>
+            <TouchableOpacity
+                key={index}
+                style={styles.groupCard}
+                onPress={() => navigation.navigate('GroupDetail', { group })}
+                >
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text style={styles.groupName}>
+                    {group.name || group.title} {group.is_organiser ? '(Organiser)' : ''}
+                    </Text>
+
+                    {/* DELETE BUTTON */}
+                    {group.is_organiser && (
+                    <TouchableOpacity onPress={() => confirmDeleteGroup(group.id)}>
+                        <Ionicons name="trash-outline" size={20} color="red" />
+                    </TouchableOpacity>
+                    )}
+                </View>
+
+                <Text style={styles.groupMembers}>
+                    Members:{' '}
+                    {Array.isArray(group.members) && group.members.length > 0
+                    ? group.members.join(', ')
+                    : 'None'}
+                </Text>
+            </TouchableOpacity>
+          </View>
         ))
       ) : (
         <View style = {styles.noEventContainer}>
@@ -285,7 +326,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.primary,
   },
-
+  groupCardWrapper:{
+    position: 'relative',
+    marginBottom: 12,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+  },
   groupCard: {
     backgroundColor: colors.container,
     borderRadius: 10,

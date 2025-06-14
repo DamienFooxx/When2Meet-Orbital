@@ -20,7 +20,18 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        fields = ['id', 'name', 'invite_code', 'created_at', 'creator', 'members']  # Add other fields if needed
+        fields = ['id', 'name', 'invite_code', 'created_at', 'creator', 'members', 'is_organiser']  # Add other fields if needed
+
+    is_organiser = serializers.SerializerMethodField()
+
+    def get_is_organiser(self, group):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            profile = Profile.objects.get(user=request.user)
+            return GroupMembership.objects.filter(
+                group=group, profile=profile, role='organiser'
+            ).exists()
+        return False
 
     def create(self, validated_data):
         members_emails = validated_data.pop('members', [])
