@@ -148,7 +148,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         """
         group = self.get_object()
         memberships = group.group_memberships.select_related('profile__user').all()
-
+        print(f"Group: {group.name}, Memberships: {memberships.count()}")
         # Ordered by role, organisers first, then join by username alphabetically
         memberships = memberships.order_by(
             models.Case(

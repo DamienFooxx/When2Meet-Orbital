@@ -46,7 +46,14 @@ const Invitation_page = () => {
             await axios.post(`${BASE_URL}/api/groups/${groupId}/accept-invitation/`, {}, {
                 headers: { Authorization: `Token ${user.token}` }
             });
+
             fetchInvitations(); // refresh list
+
+            // notify the main page to refresh the group list (this is key)
+            if (navigation?.state?.params?.fetchGroups) {
+                console.log("notified main page");
+                navigation.state.params.fetchGroups(); // call fetchGroups in the Main page
+            }
         } catch (err) {
             console.error("Accept failed", err);
             Alert.alert("Error", "Could not accept invitation.");

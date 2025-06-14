@@ -1,12 +1,19 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import React from 'react';
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { useRoute } from '@react-navigation/native';
+import { useUser } from '../context/UserContext';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
+import { BASE_URL } from '../utils/config';
+import axios from 'axios';
 
 const GroupDetail_page = () => {
-    const { params } = useRoute()
-    const { group } = params || {}
+    const { params } = useRoute();
+    const { group } = params || {};
+    const [members, setMembers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const { user } = useUser();
 
     if (!group) {
         return (
@@ -16,18 +23,67 @@ const GroupDetail_page = () => {
         )
     }
 
-  return (
+    // fetch members
+    useEffect(() => {
+        if (!group) return; 
+
+        const fetchMembers = async () => {
+            try {
+                const res = await axios.get(`${BASE_URL}/api/groups/${group.id}/members/`, {
+                    headers: { Authorization: `Token ${user.token}` }, // ensure authentication
+                });
+                setMembers(res.data);
+                setLoading(false);
+            } catch (err) {
+                console.error('Failed to fetch members:', err);
+                setError('Could not fetch members');
+                setLoading(false);
+            }
+        };
+        fetchMembers();
+    }, [group.id, user.token]); // fetch members whenever the group ID or user token changes
+    
+    // handle loading state
+    if (loading) {
+        return (
+            <View style = {styles.container}>
+                <ActivityIndicator size='large' color={colors.primary}/>
+            </View>
+        );
+    }
+
+    // handle error state
+    if (error) {
+        return (
+            <View style = {styles.container}>
+                <Text style = {styles.title}>{error}</Text>
+            </View>
+        )
+    }
+  
+
+    return (
     <ScrollView contentContainerStyle = {styles.container}>
-      <Text style = {styles.title}>{group.title}</Text>
-      <Text style = {styles.sectionHeader}>Participants:</Text>
-      {group.participants?.length > 0 ? (
-        group.participants.map((email, idx) => (
-            <Text key = {idx} style = {styles.participant}>{email}</Text>
-        ))
-      ) : (
-        <Text style = {styles.participant}>No participants listed.</Text>
-      )}
-      <Text style = {styles.sectionHeader}>Date:</Text>
+        <Text style={styles.title}>{group.name}</Text>
+        <Text style={styles.sectionHeader}>Participants:</Text>
+
+        {/* Display members */}
+        {members.length > 0 ? (
+            members.map((member, idx) => (
+                <View key={member?.profile?.id || idx} style={styles.participantContainer}>
+                    <Text style={styles.participant}>{member?.profile?.username || 'Unknown'}</Text>
+                    <Text style={styles.participantRole}>Role: {member.role}</Text>
+                    <Text style={styles.participantStatus}>
+                        Status: {member.is_accepted ? 'Accepted' : 'Pending'}
+                    </Text>
+                </View>
+            ))
+        ) : (
+            <Text style={styles.participant}>No participants listed.</Text>
+        )}
+
+        <Text style={styles.sectionHeader}>Date:</Text>
+
       <Text style = {styles.participant}>{group.date || 'To be confirmed'}</Text>
     </ScrollView>
   )

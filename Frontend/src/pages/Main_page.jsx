@@ -17,7 +17,7 @@ const Main_page = () => {
   const [invitations, setInvitations] = useState([]);
   const { user } = useUser();
 
-  //create event
+  // create event
   const [events, setEvents] = useState([]);
 
   const handleAddEvent = (newEvent) => {
@@ -25,14 +25,20 @@ const Main_page = () => {
     setModalVisible(false);
   }
 
-  //retrieve created groups
+  // retrieve created groups
   const fetchGroups = async () => {
     try {
         console.log("Using token:", user?.token);
         const res = await axios.get(`${BASE_URL}/api/groups/`, {
             headers: { Authorization: `Token ${user?.token}`}
         });
-        setGroups(res.data);
+        // filter groups to show only accepted members
+        const updatedGroups = res.data.map(group => ({
+            ...group,
+            members: Array.isArray(group.members) ? group.members.filter(member => member.is_accepted) : [],
+        }));
+        console.log('fetched group data:', res.data);
+        setGroups(updatedGroups);
     } catch (err) {
         console.error("Failed to load groups", err);
     }
