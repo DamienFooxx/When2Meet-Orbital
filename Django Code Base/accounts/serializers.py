@@ -1,10 +1,22 @@
 from rest_framework import serializers
+from accounts.models import Profile
 
 """
 accounts/serializers.py
 
 Contains serializers to validate and parse incoming request data for the accounts app.
 """
+
+class ProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Profile model.
+    """
+    username = serializers.CharField(source='user.username')
+    name = serializers.CharField(source='name')
+
+    class Meta:
+        model = Profile
+        fields = ['id', 'username', 'name']
 
 class FreeBusyRequestSerializer(serializers.Serializer):
     """

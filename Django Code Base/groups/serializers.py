@@ -1,15 +1,21 @@
 from rest_framework import serializers
-from .models import Group, GroupMembership
+from .models import Group, GroupMembership, Profile
 from accounts.models import Profile
 from django.db import transaction
 
 class GroupMembershipListSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='profile.user.username')
-    name = serializers.CharField(source='profile.name')
+    """
+    Serializer for GroupMembership that includes the profile data.
+    """
+    profile = serializers.SerializerMethodField()
 
     class Meta:
         model = GroupMembership
-        fields = ['id', 'username', 'name', 'role', 'joined_at']
+        fields = ['id', 'profile', 'role', 'joined_at']
+
+    def get_profile(self, obj):
+        from accounts.serializers import ProfileSerializer
+        return ProfileSerializer(obj.profile).data
 
 class GroupSerializer(serializers.ModelSerializer):
     members = serializers.ListField(
