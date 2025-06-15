@@ -8,10 +8,11 @@ class GroupMembershipListSerializer(serializers.ModelSerializer):
     Serializer for GroupMembership that includes the profile data.
     """
     profile = serializers.SerializerMethodField()
+    is_accepted = serializers.BooleanField()
 
     class Meta:
         model = GroupMembership
-        fields = ['id', 'profile', 'role', 'joined_at']
+        fields = ['id', 'profile', 'role', 'joined_at', 'is_accepted']
 
     def get_profile(self, obj):
         from accounts.serializers import ProfileSerializer

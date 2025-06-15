@@ -48,12 +48,6 @@ const Invitation_page = () => {
 
             fetchInvitations(); // refresh list
 
-            // notify the main page to refresh the group list (this is key)
-            if (params?.fetchGroups) {
-                console.log("notified main page");
-                params.fetchGroups(); // call fetchGroups in the Main page
-            }
-
             Alert.alert("Success", "You have joined the group")
         } catch (err) {
             console.error("Accept failed", err);
