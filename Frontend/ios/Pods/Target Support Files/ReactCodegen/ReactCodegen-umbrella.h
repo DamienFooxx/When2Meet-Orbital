@@ -45,6 +45,8 @@
 #import "react/renderer/components/safeareacontext/States.h"
 #import "rnasyncstorage/rnasyncstorage.h"
 #import "rnasyncstorageJSI.h"
+#import "rnclipboard/rnclipboard.h"
+#import "rnclipboardJSI.h"
 #import "rngesturehandler_codegen/rngesturehandler_codegen.h"
 #import "rngesturehandler_codegenJSI.h"
 #import "RNGoogleSignInCGen/RNGoogleSignInCGen.h"

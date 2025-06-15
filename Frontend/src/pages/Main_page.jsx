@@ -7,14 +7,13 @@ import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/nativ
 import axios from 'axios';
 import { BASE_URL } from '../utils/config';
 import { useUser } from '../context/UserContext';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const Main_page = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const [searchText, setSearchText] = useState('');
   const [groups, setGroups] = useState([]);
-
-  const [invitations, setInvitations] = useState([]);
   const { user } = useUser();
 
   // create event
@@ -163,10 +162,22 @@ const Main_page = () => {
                 style={styles.groupCard}
                 onPress={() => navigation.navigate('GroupDetail', { group })}
                 >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={styles.groupName}>
-                    {group.name || group.title} {group.is_organiser ? '(Organiser)' : ''}
-                    </Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                    <View style={{ flex: 1}}>
+                        <Text style={styles.groupName}>
+                        {group.name || group.title} {group.is_organiser ? '(Organiser)' : ''}
+                        </Text>
+                </View>
+                    {/* COPY LINK ICON */}
+                    <TouchableOpacity
+                        onPress = {() => {
+                            Clipboard.setString(group.invite_code);
+                            Alert.alert('Copied', 'Group code copied to clipboard');
+                        }}
+                        style = {{ marginHorizontal: 8}}
+                    >
+                        <Ionicons name = 'link-outline' size = {20} color = {colors.containerText}/>
+                    </TouchableOpacity>
 
                     {/* DELETE BUTTON */}
                     {group.is_organiser && (
@@ -174,6 +185,8 @@ const Main_page = () => {
                         <Ionicons name="trash-outline" size={20} color="red" />
                     </TouchableOpacity>
                     )}
+
+                    
                 </View>
 
             </TouchableOpacity>

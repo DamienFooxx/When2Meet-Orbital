@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
@@ -15,6 +15,7 @@ const GroupDetail_page = () => {
     const [error, setError] = useState(null);
     const { user } = useUser();
     const [ groupDetails, setGroupDetails] = useState(null);
+    const navigation = useNavigation();
 
     if (!group) {
         return (
@@ -73,7 +74,14 @@ const GroupDetail_page = () => {
 
     return (
     <ScrollView contentContainerStyle = {styles.container}>
+        {/* group name */}
         <Text style={styles.title}>{group.name}</Text>
+        
+        {/* group code */}
+        <Text style={styles.groupCodeLabel}>Group Code:</Text>
+        <Text style={styles.groupCode}>{groupDetails.invite_code}</Text>
+        
+        {/* participants */}
         <Text style={styles.sectionHeader}>Participants:</Text>
 
         {/* Display members */}
@@ -125,6 +133,18 @@ const styles = StyleSheet.create({
         color: colors.primary,
         marginBottom: 8,
     },
+    groupCodeLabel: {
+        fontSize: 14, 
+        fontFamily: fonts.SemiBold,
+        color: colors.primary,
+        marginTop: 4,
+    },
+    groupCode: {
+        fontSize: 20,
+        fontFamily: fonts.Light,
+        color: colors.primary,
+        marginBottom: 12,
+    },
     sectionHeader: {
         fontSize: 18,
         fontFamily: fonts.SemiBold,
@@ -139,7 +159,7 @@ const styles = StyleSheet.create({
     participant: {
         fontSize: 15,
         fontFamily: fonts.SemiBold,
-        color: colors.darkBlue,
+        color: colors.prima,
         marginBottom: 4,
     },
     participantStatus: {
