@@ -70,21 +70,27 @@ const GroupDetail_page = () => {
         {/* Display members */}
         {members.length > 0 ? (
             members.map((member, idx) => (
-                <View key={member?.profile?.id || idx} style={styles.participantContainer}>
-                    <Text style={styles.participant}>{member?.profile?.username || 'Unknown'}</Text>
-                    <Text style={styles.participantRole}>Role: {member.role}</Text>
-                    <Text style={styles.participantStatus}>
-                        Status: {member.is_accepted ? 'Accepted' : 'Pending'}
+                <View 
+                    key={member?.profile?.id || idx} 
+                    style={styles.participantContainer}
+                >
+                    <Text style={[
+                        styles.participant,
+                        member.role === 'organiser' && styles.organiserText
+                    ]}>
+                        {member.role === 'organiser' ? `${member?.profile?.username}` : member?.profile?.username || 'Unknown'}
                     </Text>
+                    {member.role !== 'organiser' && (
+                        <Text style={styles.participantStatus}>
+                            Status: {member.is_accepted ? 'Accepted' : 'Pending'}
+                        </Text>
+                    )}
+                    
                 </View>
             ))
         ) : (
             <Text style={styles.participant}>No participants listed.</Text>
         )}
-
-        <Text style={styles.sectionHeader}>Date:</Text>
-
-      <Text style = {styles.participant}>{group.date || 'To be confirmed'}</Text>
     </ScrollView>
   )
 }
@@ -98,7 +104,12 @@ const styles = StyleSheet.create({
         paddingTop: 80,
         backgroundColor: colors.brownBackground,
     },
-
+    participantContainer: {
+        backgroundColor: colors.greyBlue,
+        padding: 16,
+        borderRadius: 8,
+        marginBottom: 6,
+    },
     title: {
         fontSize: 24,
         fontFamily: fonts.SemiBold,
@@ -112,11 +123,20 @@ const styles = StyleSheet.create({
         marginBottom: 6,
         color: colors.primary,
     },
+    organiserText: {
+        fontFamily: fonts.SemiBold,
+        color: colors.darkBlue,
+    },
     participant: {
         fontSize: 15,
-        fontFamily: fonts.Regular,
-        color: colors.containerText,
+        fontFamily: fonts.SemiBold,
+        color: colors.darkBlue,
         marginBottom: 4,
     },
+    participantStatus: {
+        fontSize: 13,
+        fontFamily: fonts.Regular,
+        color: colors.containerText,
+    }
 
 })

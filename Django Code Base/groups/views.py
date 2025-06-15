@@ -146,20 +146,29 @@ class GroupViewSet(viewsets.ModelViewSet):
         """
         Lists all group members, organisers appear at the top
         """
-        group = self.get_object()
-        memberships = group.group_memberships.select_related('profile__user').all()
-        print(f"Group: {group.name}, Memberships: {memberships.count()}")
-        # Ordered by role, organisers first, then join by username alphabetically
-        memberships = memberships.order_by(
-            models.Case(
-                models.When(role = 'organiser', then = 0),
-                models.When(role = 'member', then = 1),
-                output_field = models.IntegerField(),
-            ),
-            'profile__user__username'
-        )
-        serializer = GroupMembershipListSerializer(memberships, many = True)
-        return Response(serializer.data)
+        try:
+            print("Fetching group:", pk)
+            group = self.get_object()
+            print("Group fetched:", group.name)
+
+
+            memberships = group.group_memberships.select_related('profile__user').all()
+            print("Memberships found:", memberships.count())
+            
+            # Ordered by role, organisers first, then join by username alphabetically
+            memberships = memberships.order_by(
+                models.Case(
+                    models.When(role = 'organiser', then = 0),
+                    models.When(role = 'member', then = 1),
+                    output_field = models.IntegerField(),
+                ),
+                'profile__user__username'
+            )
+            serializer = GroupMembershipListSerializer(memberships, many = True)
+            return Response(serializer.data)
+        except Exception as e:
+            print("Error in list_members:", e)
+            return Response({"error": str(e)}, status=500)
     
     @action(detail=False, methods=['get'], url_path='invitations', permission_classes=[IsAuthenticated])
     def invitations(self, request):

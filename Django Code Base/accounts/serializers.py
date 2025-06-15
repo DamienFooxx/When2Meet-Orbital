@@ -12,11 +12,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     Serializer for Profile model.
     """
     username = serializers.CharField(source='user.username')
-    name = serializers.CharField(source='name')
+    name = serializers.CharField() # assume `name` is a field in your Profile model
 
     class Meta:
         model = Profile
-        fields = ['id', 'username', 'name']
+        fields = ['username', 'name']
 
 class FreeBusyRequestSerializer(serializers.Serializer):
     """
