@@ -1,11 +1,13 @@
-import { StyleSheet, Text, View, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { BASE_URL } from '../utils/config';
+import { Alert } from 'react-native';
 import axios from 'axios';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const GroupDetail_page = () => {
     const { params } = useRoute();
@@ -53,6 +55,33 @@ const GroupDetail_page = () => {
         fetchData();
     }, [group.id, user.token]); // fetch members whenever the group ID or user token changes
     
+    // leave group
+    const leaveGroup = async () => {
+        Alert.alert(
+            'Leave group',
+            'Are you sure you want to leave this group?',
+            [
+                { text: 'Cancel', style: 'cancel'},
+                {
+                    text: 'Leave',
+                    style: 'destructive',
+                    onPress: async() => {
+                        try {
+                            const res = await axios.post(`${BASE_URL}/api/groups/${group.id}/leave/`, {}, {
+                                headers: { Authorization: `Token ${user.token}` },
+                            });
+                            Alert.alert("Left group", "You have left the group.");
+                            navigation.goBack();
+                        } catch (err) {
+                            const message = err.response?.data?.detail || 'Could not leave group'
+                            Alert.alert('Error', message)
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     // handle loading state
     if (loading || !groupDetails) {
         return (
@@ -74,8 +103,17 @@ const GroupDetail_page = () => {
 
     return (
     <ScrollView contentContainerStyle = {styles.container}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
         {/* group name */}
         <Text style={styles.title}>{group.name}</Text>
+
+        {/* leave group */}
+        {groupDetails?.is_organiser !== true && (
+            <TouchableOpacity onPress={leaveGroup}>
+                <Ionicons name='log-out-outline' size={24} color={colors.containerText}/>
+            </TouchableOpacity>
+        )}
+        </View>
         
         {/* group code */}
         <Text style={styles.groupCodeLabel}>Group Code:</Text>
