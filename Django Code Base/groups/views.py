@@ -147,13 +147,8 @@ class GroupViewSet(viewsets.ModelViewSet):
         Lists all group members, organisers appear at the top
         """
         try:
-            print("Fetching group:", pk)
             group = self.get_object()
-            print("Group fetched:", group.name)
-
-
             memberships = group.group_memberships.select_related('profile__user').all()
-            print("Memberships found:", memberships.count())
             
             # Ordered by role, organisers first, then join by username alphabetically
             memberships = memberships.order_by(

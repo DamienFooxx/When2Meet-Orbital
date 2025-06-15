@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Alert } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -28,7 +28,6 @@ const Main_page = () => {
   // retrieve created groups
   const fetchGroups = async () => {
     try {
-        console.log("Using token:", user?.token);
         const res = await axios.get(`${BASE_URL}/api/groups/`, {
             headers: { Authorization: `Token ${user?.token}`}
         });
@@ -37,7 +36,6 @@ const Main_page = () => {
             ...group,
             members: Array.isArray(group.members) ? group.members.filter(member => member.is_accepted) : [],
         }));
-        console.log('fetched group data:', res.data);
         setGroups(updatedGroups);
     } catch (err) {
         console.error("Failed to load groups", err);
@@ -76,6 +74,7 @@ const Main_page = () => {
         fetchGroups();  // fetch backend data
 
         const { newGroup, newEvent } = route.params || {};
+
         if (newGroup) {
             setGroups((prev) => [newGroup, ...prev]);
             navigation.setParams({ newGroup: null });
@@ -85,8 +84,14 @@ const Main_page = () => {
             setEvents(prev => [newEvent, ...prev]);
             navigation.setParams({ newEvent: null});
         }
+
+        return () => {};
     }, [route.params])
   );
+
+  useEffect(() => {
+    navigation.setParams({ fetchGroups });
+  }, []);
 
 
   return (
@@ -171,12 +176,6 @@ const Main_page = () => {
                     )}
                 </View>
 
-                <Text style={styles.groupMembers}>
-                    Members:{' '}
-                    {Array.isArray(group.members) && group.members.length > 0
-                    ? group.members.join(', ')
-                    : 'None'}
-                </Text>
             </TouchableOpacity>
           </View>
         ))
@@ -274,6 +273,7 @@ const styles = StyleSheet.create({
   activitiesContainer: {
     flexDirection: 'row',
     marginTop: 20,
+    marginBottom: 20,
     alignItems: 'left',
   },
 
@@ -334,7 +334,6 @@ const styles = StyleSheet.create({
   },
   groupCardWrapper:{
     position: 'relative',
-    marginBottom: 12,
   },
   deleteButton: {
     position: 'absolute',

@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState} from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
+import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import { BASE_URL } from '../utils/config';
 import { colors } from '../utils/colors';
@@ -14,6 +15,7 @@ const Invitation_page = () => {
     const { user, isLoadingUser } = useUser();
     const [invitations, setInvitations] = useState([]);
     const [loading, setLoading] = useState(false);
+    const { params } = useRoute();
 
     useFocusEffect(
         useCallback(() => {
@@ -26,15 +28,12 @@ const Invitation_page = () => {
 
     const fetchInvitations = async () => {
         try {
-            console.log("fetching invitations...")
             setLoading(true);
             const res = await axios.get(`${BASE_URL}/api/groups/invitations/`, {
                 headers: { Authorization: `Token ${user.token}` }
             });
-            console.log("fetched invitations:", res.data)
             setInvitations(res.data);
         } catch (err) {
-            console.error("Failed to fetch invitations", err);
             Alert.alert("Error", "Could not load invitations");
         } finally {
             setLoading(false);
@@ -50,10 +49,12 @@ const Invitation_page = () => {
             fetchInvitations(); // refresh list
 
             // notify the main page to refresh the group list (this is key)
-            if (navigation?.state?.params?.fetchGroups) {
+            if (params?.fetchGroups) {
                 console.log("notified main page");
-                navigation.state.params.fetchGroups(); // call fetchGroups in the Main page
+                params.fetchGroups(); // call fetchGroups in the Main page
             }
+
+            Alert.alert("Success", "You have joined the group")
         } catch (err) {
             console.error("Accept failed", err);
             Alert.alert("Error", "Could not accept invitation.");

@@ -14,6 +14,7 @@ const GroupDetail_page = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { user } = useUser();
+    const [ groupDetails, setGroupDetails] = useState(null);
 
     if (!group) {
         return (
@@ -25,14 +26,22 @@ const GroupDetail_page = () => {
 
     // fetch members
     useEffect(() => {
-        if (!group) return; 
+        if (!group.id) return; 
 
-        const fetchMembers = async () => {
+        const fetchData = async () => {
             try {
-                const res = await axios.get(`${BASE_URL}/api/groups/${group.id}/members/`, {
+                // Fetch group details
+                const groupRes = await axios.get(`${BASE_URL}/api/groups/${group.id}/`, {
+                    headers: { Authorization: `Token ${user.token}` }
+                });
+                setGroupDetails(groupRes.data);
+
+                // Fetch group members
+                const membersRes = await axios.get(`${BASE_URL}/api/groups/${group.id}/members/`, {
                     headers: { Authorization: `Token ${user.token}` }, // ensure authentication
                 });
-                setMembers(res.data);
+                setMembers(membersRes.data);
+
                 setLoading(false);
             } catch (err) {
                 console.error('Failed to fetch members:', err);
@@ -40,11 +49,11 @@ const GroupDetail_page = () => {
                 setLoading(false);
             }
         };
-        fetchMembers();
+        fetchData();
     }, [group.id, user.token]); // fetch members whenever the group ID or user token changes
     
     // handle loading state
-    if (loading) {
+    if (loading || !groupDetails) {
         return (
             <View style = {styles.container}>
                 <ActivityIndicator size='large' color={colors.primary}/>
