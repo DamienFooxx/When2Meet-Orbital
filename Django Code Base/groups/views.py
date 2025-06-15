@@ -6,13 +6,14 @@ from rest_framework.permissions import IsAuthenticated
 from accounts.models import Profile
 from .models import Group, GroupMembership
 from .serializers import GroupSerializer, GroupMembershipListSerializer
-
+from django.contrib.auth import get_user_model
 
 """
 groups/views.py
 
 Contains viewsets for managing groups and group memberships.
 """
+User = get_user_model()
 
 # Create your views here.
 class GroupViewSet(viewsets.ModelViewSet):
@@ -33,6 +34,55 @@ class GroupViewSet(viewsets.ModelViewSet):
         profile = Profile.objects.get(user = user)
         # Save the group and set creator
         serializer.save(creator = profile)
+    
+    @action(detail=True, methods=['post'], url_path='invite')
+    def invite_users(self, request, pk=None):
+        """
+        Invite one or more users to a group using email addresses.
+        Accepts 'identifier' (string) or 'identifiers' (list).
+        """
+        group = self.get_object()
+        profile = Profile.objects.get(user=request.user)
+
+        identifiers = request.data.get('identifier') or request.data.get('identifiers')
+
+        if not identifiers:
+            return Response({'error': 'No email(s) provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if isinstance(identifiers, str):
+            identifiers = [identifiers]
+
+        invited = []
+        already_members = []
+        not_found = []
+
+        for email in identifiers:
+            email = email.strip().lower()
+
+            try:
+                user = User.objects.get(email__iexact=email)
+                target_profile = Profile.objects.get(user=user)
+            except (User.DoesNotExist, Profile.DoesNotExist):
+                not_found.append(email)
+                continue
+
+            if group.group_memberships.filter(profile=target_profile).exists():
+                already_members.append(email)
+                continue
+
+            group.group_memberships.create(
+                profile=target_profile,
+                role='member',
+                is_accepted=False
+            )
+            invited.append(email)
+
+        return Response({
+            'message': f'{len(invited)} invited, {len(already_members)} already in group, {len(not_found)} not found.',
+            'invited': invited,
+            'already_members': already_members,
+            'not_found': not_found
+        }, status=status.HTTP_200_OK)
 
     @action(detail = False, methods = ['post'], url_path = 'join-by-code')
     def join_by_code(self, request):

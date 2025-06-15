@@ -55,6 +55,10 @@ const GroupDetail_page = () => {
         fetchData();
     }, [group.id, user.token]); // fetch members whenever the group ID or user token changes
     
+    // invite more users
+    const navigateToInvite = () => {
+        navigation.navigate('Invite', { group });
+    }
     // leave group
     const leaveGroup = async () => {
         Alert.alert(
@@ -106,13 +110,22 @@ const GroupDetail_page = () => {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
         {/* group name */}
         <Text style={styles.title}>{group.name}</Text>
+        
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>   
+                {groupDetails?.is_organiser === true && (        
+                    <>
+                    {/* invite more users */}
+                    <TouchableOpacity onPress={navigateToInvite} style={{ marginRight: 12}}>
+                        <Ionicons name='person-add-outline' size={24} color={colors.containerText} />
+                    </TouchableOpacity>
+                    {/* leave group */}
 
-        {/* leave group */}
-        {groupDetails?.is_organiser !== true && (
-            <TouchableOpacity onPress={leaveGroup}>
-                <Ionicons name='log-out-outline' size={24} color={colors.containerText}/>
-            </TouchableOpacity>
-        )}
+                    <TouchableOpacity onPress={leaveGroup}>
+                        <Ionicons name='log-out-outline' size={24} color={colors.containerText}/>
+                    </TouchableOpacity>
+                    </>
+                )}
+            </View>
         </View>
         
         {/* group code */}
@@ -173,13 +186,13 @@ const styles = StyleSheet.create({
     },
     groupCodeLabel: {
         fontSize: 14, 
-        fontFamily: fonts.SemiBold,
+        fontFamily: fonts.Light,
         color: colors.primary,
         marginTop: 4,
     },
     groupCode: {
         fontSize: 20,
-        fontFamily: fonts.Light,
+        fontFamily: fonts.Medium,
         color: colors.primary,
         marginBottom: 12,
     },
