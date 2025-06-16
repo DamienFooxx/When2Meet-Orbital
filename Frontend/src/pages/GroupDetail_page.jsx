@@ -118,11 +118,15 @@ const GroupDetail_page = () => {
                     <TouchableOpacity onPress={navigateToInvite} style={{ marginRight: 12}}>
                         <Ionicons name='person-add-outline' size={24} color={colors.containerText} />
                     </TouchableOpacity>
-                    {/* leave group */}
+                    </>
+                )}
 
-                    <TouchableOpacity onPress={leaveGroup}>
-                        <Ionicons name='log-out-outline' size={24} color={colors.containerText}/>
-                    </TouchableOpacity>
+                {groupDetails?.is_organiser === false && (
+                    <>
+                        {/* leave group */}
+                        <TouchableOpacity onPress={leaveGroup}>
+                            <Ionicons name='log-out-outline' size={24} color={colors.containerText}/>
+                        </TouchableOpacity>
                     </>
                 )}
             </View>
