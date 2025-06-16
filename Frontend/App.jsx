@@ -10,10 +10,18 @@ import Login_page from './src/pages/Login_page';
 import Signup_page from './src/pages/Signup_page';
 import Main_page from './src/pages/Main_page';
 import Profile_page from './src/pages/Profile_page';
+
+import Create_page from './src/pages/Create_page';
 import CreateGroup_page from './src/pages/CreateGroup_page';
+import CreateEvent_page from './src/pages/CreateEvent_page';
+import Invitation_page from './src/pages/Invitation_page';
+import GroupDetail_page from './src/pages/GroupDetail_page';
+import InviteUser_page from './src/pages/InviteUser_page';
 
 // context
 import { UserProvider } from './src/context/UserContext';
+
+
 
 const Stack = createNativeStackNavigator();
 
@@ -38,12 +46,17 @@ const App = () => {
             headerShown: false
             }}
             > 
-            <Stack.Screen name={"Home"} component = {Home_page}/>
-            <Stack.Screen name={"Login"} component = {Login_page}/>
-            <Stack.Screen name={"Signup"} component = {Signup_page}/>
-            <Stack.Screen name={"Main"} component = {Main_page}/>
-            <Stack.Screen name={"Profile"} component = {Profile_page}/>
-            <Stack.Screen name={"CreateGroup"} component = {CreateGroup_page}/> 
+            <Stack.Screen name={"Home"} component={Home_page}/>
+            <Stack.Screen name={"Login"} component={Login_page}/>
+            <Stack.Screen name={"Signup"} component={Signup_page}/>
+            <Stack.Screen name={"Main"} component={Main_page}/>
+            <Stack.Screen name={"Profile"} component={Profile_page}/>
+            <Stack.Screen name={"CreateGroup"} component={CreateGroup_page}/> 
+            <Stack.Screen name={"Invitation"} component={Invitation_page}/>
+            <Stack.Screen name={"CreateEvent"} component={CreateEvent_page}/>
+            <Stack.Screen name={"Create"} component={Create_page}/>
+            <Stack.Screen name={"GroupDetail"} component={GroupDetail_page}/>
+            <Stack.Screen name={"Invite"} component={InviteUser_page}/>
         </Stack.Navigator>
         </NavigationContainer>
     </UserProvider>

@@ -6,13 +6,14 @@ from rest_framework.permissions import IsAuthenticated
 from accounts.models import Profile
 from .models import Group, GroupMembership
 from .serializers import GroupSerializer, GroupMembershipListSerializer
-
+from django.contrib.auth import get_user_model
 
 """
 groups/views.py
 
 Contains viewsets for managing groups and group memberships.
 """
+User = get_user_model()
 
 # Create your views here.
 class GroupViewSet(viewsets.ModelViewSet):
@@ -32,14 +33,56 @@ class GroupViewSet(viewsets.ModelViewSet):
         user = self.request.user
         profile = Profile.objects.get(user = user)
         # Save the group and set creator
-        group = serializer.save(creator = profile)
+        serializer.save(creator = profile)
+    
+    @action(detail=True, methods=['post'], url_path='invite')
+    def invite_users(self, request, pk=None):
+        """
+        Invite one or more users to a group using email addresses.
+        Accepts 'identifier' (string) or 'identifiers' (list).
+        """
+        group = self.get_object()
+        profile = Profile.objects.get(user=request.user)
 
-        GroupMembership.objects.get_or_create(
-            group=group,
-            profile=profile,
-            role='organiser',
-            is_accepted=True
-        )
+        identifiers = request.data.get('identifier') or request.data.get('identifiers')
+
+        if not identifiers:
+            return Response({'error': 'No email(s) provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if isinstance(identifiers, str):
+            identifiers = [identifiers]
+
+        invited = []
+        already_members = []
+        not_found = []
+
+        for email in identifiers:
+            email = email.strip().lower()
+
+            try:
+                user = User.objects.get(email__iexact=email)
+                target_profile = Profile.objects.get(user=user)
+            except (User.DoesNotExist, Profile.DoesNotExist):
+                not_found.append(email)
+                continue
+
+            if group.group_memberships.filter(profile=target_profile).exists():
+                already_members.append(email)
+                continue
+
+            group.group_memberships.create(
+                profile=target_profile,
+                role='member',
+                is_accepted=False
+            )
+            invited.append(email)
+
+        return Response({
+            'message': f'{len(invited)} invited, {len(already_members)} already in group, {len(not_found)} not found.',
+            'invited': invited,
+            'already_members': already_members,
+            'not_found': not_found
+        }, status=status.HTTP_200_OK)
 
     @action(detail = False, methods = ['post'], url_path = 'join-by-code')
     def join_by_code(self, request):
@@ -153,20 +196,24 @@ class GroupViewSet(viewsets.ModelViewSet):
         """
         Lists all group members, organisers appear at the top
         """
-        group = self.get_object()
-        memberships = group.group_memberships.select_related('profile__user').all()
-
-        # Ordered by role, organisers first, then join by username alphabetically
-        memberships = memberships.order_by(
-            models.Case(
-                models.When(role = 'organiser', then = 0),
-                models.When(role = 'member', then = 1),
-                output_field = models.IntegerField(),
-            ),
-            'profile__user__username'
-        )
-        serializer = GroupMembershipListSerializer(memberships, many = True)
-        return Response(serializer.data)
+        try:
+            group = self.get_object()
+            memberships = group.group_memberships.select_related('profile__user').all()
+            
+            # Ordered by role, organisers first, then join by username alphabetically
+            memberships = memberships.order_by(
+                models.Case(
+                    models.When(role = 'organiser', then = 0),
+                    models.When(role = 'member', then = 1),
+                    output_field = models.IntegerField(),
+                ),
+                'profile__user__username'
+            )
+            serializer = GroupMembershipListSerializer(memberships, many = True)
+            return Response(serializer.data)
+        except Exception as e:
+            print("Error in list_members:", e)
+            return Response({"error": str(e)}, status=500)
     
     @action(detail=False, methods=['get'], url_path='invitations', permission_classes=[IsAuthenticated])
     def invitations(self, request):
@@ -178,31 +225,47 @@ class GroupViewSet(viewsets.ModelViewSet):
         ).select_related('group')
 
         groups = [membership.group for membership in memberships]
-        serializer = GroupSerializer(groups, many=True)
+        serializer = GroupSerializer(groups, many=True, context={'request': request})
         return Response(serializer.data)
     
     @action(detail=True, methods=['post'], url_path='accept-invitation')
     def accept_invitation(self, request, pk=None):
         group = self.get_object()
-        profile = Profile.objects.get(user=request.user)
 
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
         membership = GroupMembership.objects.filter(
             group=group, profile=profile, is_accepted=False
         ).first()
 
         if not membership:
-            return Response({'error': 'No pending invitation.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'No pending invitations.'}, status=status.HTTP_400_BAD_REQUEST)
         
         membership.is_accepted = True
         membership.save()
 
         return Response({'message': f'You have joined the group "{group.name}".'}, status=status.HTTP_200_OK)
-    
-    def get_queryset(self):
-        profile = Profile.objects.get(user=self.request.user)
-        return Group.objects.filter(
-            group_memberships__profile=profile,
-        ).distinct()
+       
+    @action(detail=True, methods=['post'], url_path='decline-invitation')
+    def decline_invitation(self, request, pk=None):
+        group = self.get_object()
+        profile = Profile.objects.get(user=request.user)
+
+        membership = GroupMembership.objects.filter(
+            group=group,
+            profile=profile,
+            is_accepted=False
+        ).first()
+
+        if not membership:
+            return Response({'error': 'No pending invitation to decline'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        membership.delete()
+
+        return Response({'message': f'You have declined the invitation to join "{group.name}".'}, status=status.HTTP_200_OK)
     
     def list(self, request, *args, **kwargs):
         profile = Profile.objects.get(user=request.user)
@@ -210,8 +273,19 @@ class GroupViewSet(viewsets.ModelViewSet):
             group_memberships__profile=profile,
             group_memberships__is_accepted=True
         ).distinct()
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.get_serializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 
+    def destroy(self, request, *args, **kwargs):
+        group = self.get_object()
+        profile = Profile.objects.get(user=request.user)
+
+        # only allow organisers to delete the group
+        if not GroupMembership.objects.filter(group=group, profile=profile, role='organiser').exists():
+            return Response({'error': 'Only organisers can delete the group.'},
+                            status=status.HTTP_403_FORBIDDEN)
+        
+        group.delete()
+        return Response({'message': 'Group deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
 

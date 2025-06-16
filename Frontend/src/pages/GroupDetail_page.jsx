@@ -1,12 +1,23 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import React from 'react';
-import { useRoute } from '@react-navigation/native';
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useUser } from '../context/UserContext';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
+import { BASE_URL } from '../utils/config';
+import { Alert } from 'react-native';
+import axios from 'axios';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const GroupDetail_page = () => {
-    const { params } = useRoute()
-    const { group } = params || {}
+    const { params } = useRoute();
+    const { group } = params || {};
+    const [members, setMembers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const { user } = useUser();
+    const [ groupDetails, setGroupDetails] = useState(null);
+    const navigation = useNavigation();
 
     if (!group) {
         return (
@@ -16,20 +27,142 @@ const GroupDetail_page = () => {
         )
     }
 
-  return (
+    // fetch members
+    useEffect(() => {
+        if (!group.id) return; 
+
+        const fetchData = async () => {
+            try {
+                // Fetch group details
+                const groupRes = await axios.get(`${BASE_URL}/api/groups/${group.id}/`, {
+                    headers: { Authorization: `Token ${user.token}` }
+                });
+                setGroupDetails(groupRes.data);
+
+                // Fetch group members
+                const membersRes = await axios.get(`${BASE_URL}/api/groups/${group.id}/members/`, {
+                    headers: { Authorization: `Token ${user.token}` }, // ensure authentication
+                });
+                setMembers(membersRes.data);
+
+                setLoading(false);
+            } catch (err) {
+                console.error('Failed to fetch members:', err);
+                setError('Could not fetch members');
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [group.id, user.token]); // fetch members whenever the group ID or user token changes
+    
+    // invite more users
+    const navigateToInvite = () => {
+        navigation.navigate('Invite', { group });
+    }
+    // leave group
+    const leaveGroup = async () => {
+        Alert.alert(
+            'Leave group',
+            'Are you sure you want to leave this group?',
+            [
+                { text: 'Cancel', style: 'cancel'},
+                {
+                    text: 'Leave',
+                    style: 'destructive',
+                    onPress: async() => {
+                        try {
+                            const res = await axios.post(`${BASE_URL}/api/groups/${group.id}/leave/`, {}, {
+                                headers: { Authorization: `Token ${user.token}` },
+                            });
+                            Alert.alert("Left group", "You have left the group.");
+                            navigation.goBack();
+                        } catch (err) {
+                            const message = err.response?.data?.detail || 'Could not leave group'
+                            Alert.alert('Error', message)
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
+    // handle loading state
+    if (loading || !groupDetails) {
+        return (
+            <View style = {styles.container}>
+                <ActivityIndicator size='large' color={colors.primary}/>
+            </View>
+        );
+    }
+
+    // handle error state
+    if (error) {
+        return (
+            <View style = {styles.container}>
+                <Text style = {styles.title}>{error}</Text>
+            </View>
+        )
+    }
+  
+
+    return (
     <ScrollView contentContainerStyle = {styles.container}>
-      <Text style = {styles.title}>{group.title}</Text>
-      <Text style = {styles.description}>{group.description || 'No description provided'}</Text>
-      <Text style = {styles.sectionHeader}>Participants:</Text>
-      {group.participants?.length > 0 ? (
-        group.participants.map((email, idx) => (
-            <Text key = {idx} style = {styles.participant}>{email}</Text>
-        ))
-      ) : (
-        <Text style = {styles.participant}>No participants listed.</Text>
-      )}
-      <Text style = {styles.sectionHeader}>Date:</Text>
-      <Text style = {styles.participant}>{group.date || 'To be confirmed'}</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+        {/* group name */}
+        <Text style={styles.title}>{group.name}</Text>
+        
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>   
+                {groupDetails?.is_organiser === true && (        
+                    <>
+                    {/* invite more users */}
+                    <TouchableOpacity onPress={navigateToInvite} style={{ marginRight: 12}}>
+                        <Ionicons name='person-add-outline' size={24} color={colors.containerText} />
+                    </TouchableOpacity>
+                    </>
+                )}
+
+                {groupDetails?.is_organiser === false && (
+                    <>
+                        {/* leave group */}
+                        <TouchableOpacity onPress={leaveGroup}>
+                            <Ionicons name='log-out-outline' size={24} color={colors.containerText}/>
+                        </TouchableOpacity>
+                    </>
+                )}
+            </View>
+        </View>
+        
+        {/* group code */}
+        <Text style={styles.groupCodeLabel}>Group Code:</Text>
+        <Text style={styles.groupCode}>{groupDetails.invite_code}</Text>
+        
+        {/* participants */}
+        <Text style={styles.sectionHeader}>Participants:</Text>
+
+        {/* Display members */}
+        {members.length > 0 ? (
+            members.map((member, idx) => (
+                <View 
+                    key={member?.profile?.id || idx} 
+                    style={styles.participantContainer}
+                >
+                    <Text style={[
+                        styles.participant,
+                        member.role === 'organiser' && styles.organiserText
+                    ]}>
+                        {member.role === 'organiser' ? `${member?.profile?.username}` : member?.profile?.username || 'Unknown'}
+                    </Text>
+                    {member.role !== 'organiser' && (
+                        <Text style={styles.participantStatus}>
+                            Status: {member.is_accepted ? 'Accepted' : 'Pending'}
+                        </Text>
+                    )}
+                    
+                </View>
+            ))
+        ) : (
+            <Text style={styles.participant}>No participants listed.</Text>
+        )}
     </ScrollView>
   )
 }
@@ -40,20 +173,32 @@ const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
         padding: 24,
+        paddingTop: 80,
         backgroundColor: colors.brownBackground,
     },
-
+    participantContainer: {
+        backgroundColor: colors.greyBlue,
+        padding: 16,
+        borderRadius: 8,
+        marginBottom: 6,
+    },
     title: {
         fontSize: 24,
         fontFamily: fonts.SemiBold,
         color: colors.primary,
         marginBottom: 8,
     },
-    description: {
-        fontSize: 16,
-        fontFamily: fonts.Regular,
-        color: colors.containerText,
-        marginBottom: 16,
+    groupCodeLabel: {
+        fontSize: 14, 
+        fontFamily: fonts.Light,
+        color: colors.primary,
+        marginTop: 4,
+    },
+    groupCode: {
+        fontSize: 20,
+        fontFamily: fonts.Medium,
+        color: colors.primary,
+        marginBottom: 12,
     },
     sectionHeader: {
         fontSize: 18,
@@ -62,11 +207,20 @@ const styles = StyleSheet.create({
         marginBottom: 6,
         color: colors.primary,
     },
+    organiserText: {
+        fontFamily: fonts.SemiBold,
+        color: colors.darkBlue,
+    },
     participant: {
         fontSize: 15,
-        fontFamily: fonts.Regular,
-        color: colors.containerText,
+        fontFamily: fonts.SemiBold,
+        color: colors.prima,
         marginBottom: 4,
     },
+    participantStatus: {
+        fontSize: 13,
+        fontFamily: fonts.Regular,
+        color: colors.containerText,
+    }
 
 })

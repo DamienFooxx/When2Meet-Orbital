@@ -44,11 +44,11 @@ class GroupMembership(models.Model):
     Represents a user's membership in a group, with a role (organiser or member).
     Enforces unique membership per user per group.
     """
-    ROLE_CHOICES = {
+    ROLE_CHOICES = [
         ('organiser', 'Organiser'),
         ('member', 'Member'),
         ('invited', 'Invited'),
-    }
+    ]
 
     group = models.ForeignKey(Group, on_delete = models.CASCADE, related_name = 'group_memberships')  # The group this membership belongs to
     profile = models.ForeignKey(Profile, on_delete = models.CASCADE, related_name = 'profile_memberships')  # The user profile in the group

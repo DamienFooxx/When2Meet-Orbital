@@ -1,18 +1,53 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { useUser } from '../context/UserContext';
+import { BASE_URL } from '../utils/config';
+import axios from 'axios';
 
 const Profile_page = () => {
     const navigation = useNavigation();
-    const { user } = useUser(); // access user
+    const { user, logout } = useUser(); // access user
     
     const handleLogout = () => {
-        console.log('Logout pressed');
-        navigation.replace('Login');
+        Alert.alert(
+            'Confirm Logout',
+            'Are you sure you want to sign out?',
+            [
+                {
+                    // cancel buton to dismiss alert
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {
+                    // sign out button to navigate to login page
+                    text: 'Sign out',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await axios.post(
+                                `${BASE_URL}/api/auth/logout/`,
+                                {},
+                                {
+                                    headers: {
+                                        Authorization: `Bearer ${user?.token}`, 
+                                    },
+                                }
+                            );
+                            await logout(); // sets user to null
+                            navigation.replace('Login');
+                        } catch (error) {
+                            console.error('Logout failed:', error);
+                            Alert.alert('Error', 'Failed to log out. Please try again.');
+                        }
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
     };
 
   return (

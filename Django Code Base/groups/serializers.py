@@ -1,15 +1,22 @@
 from rest_framework import serializers
-from .models import Group, GroupMembership
+from .models import Group, GroupMembership, Profile
 from accounts.models import Profile
 from django.db import transaction
 
 class GroupMembershipListSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='profile.user.username')
-    name = serializers.CharField(source='profile.name')
+    """
+    Serializer for GroupMembership that includes the profile data.
+    """
+    profile = serializers.SerializerMethodField()
+    is_accepted = serializers.BooleanField()
 
     class Meta:
         model = GroupMembership
-        fields = ['id', 'username', 'name', 'role', 'joined_at']
+        fields = ['id', 'profile', 'role', 'joined_at', 'is_accepted']
+
+    def get_profile(self, obj):
+        from accounts.serializers import ProfileSerializer
+        return ProfileSerializer(obj.profile).data
 
 class GroupSerializer(serializers.ModelSerializer):
     members = serializers.ListField(
@@ -20,7 +27,18 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        fields = ['id', 'name', 'invite_code', 'created_at', 'creator', 'members']  # Add other fields if needed
+        fields = ['id', 'name', 'invite_code', 'created_at', 'creator', 'members', 'is_organiser']  # Add other fields if needed
+
+    is_organiser = serializers.SerializerMethodField()
+
+    def get_is_organiser(self, group):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            profile = Profile.objects.get(user=request.user)
+            return GroupMembership.objects.filter(
+                group=group, profile=profile, role='organiser'
+            ).exists()
+        return False
 
     def create(self, validated_data):
         members_emails = validated_data.pop('members', [])
