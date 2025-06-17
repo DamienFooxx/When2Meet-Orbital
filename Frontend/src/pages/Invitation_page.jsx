@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, ActivityIndicator, TextInput } from 'react-native';
 import React, { useCallback, useState} from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
@@ -19,11 +19,10 @@ const Invitation_page = () => {
 
     useFocusEffect(
         useCallback(() => {
-        console.log('useEffect triggered', {isLoadingUser, user});
-        if (!isLoadingUser && user?.token) {
-            fetchInvitations();
-        }
-      }, [isLoadingUser, user])
+            if (!isLoadingUser && user?.token) {
+                fetchInvitations();
+            }
+        }, [isLoadingUser, user])
     );
 
     const fetchInvitations = async () => {
@@ -33,6 +32,7 @@ const Invitation_page = () => {
                 headers: { Authorization: `Token ${user.token}` }
             });
             setInvitations(res.data);
+
         } catch (err) {
             Alert.alert("Error", "Could not load invitations");
         } finally {
@@ -108,6 +108,17 @@ const Invitation_page = () => {
             <Text style = {styles.header}>Invitations</Text>
         </View>
 
+        {/* button to navigate to the 'JoinExistingGroup_page' */}
+        <TouchableOpacity
+            style={styles.joinButton}
+            onPress={() => navigation.navigate('JoinExistingGroup')}
+        >
+            <Text style={styles.joinButtonText}>Join an Existing Group</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.invites}>Invites</Text>
+        
+        {/* invitations list */}
         <FlatList
             data = {invitations}
             keyExtractor={(item) => item.id.toString()}
@@ -163,6 +174,12 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         color: colors.primary,
     },
+    invites: {
+        fontSize: 20,
+        fontFamily: fonts.SemiBold,
+        color: colors.primary,
+        paddingTop: 25,
+    },
     inviter: {
         fontSize: 14,
         fontFamily: fonts.Regular,
@@ -178,5 +195,17 @@ const styles = StyleSheet.create({
         color: 'red',
         fontFamily: fonts.Medium,
         fontSize: 14,
+    },
+    joinButton: {
+        backgroundColor: colors.primary,
+        padding: 15,
+        borderRadius: 10,
+        marginTop: 20,
+        alignItems: 'center',
+    },
+    joinButtonText: {
+        color: colors.white,
+        fontFamily: fonts.SemiBold,
+        fontSize: 16,
     },
 });
