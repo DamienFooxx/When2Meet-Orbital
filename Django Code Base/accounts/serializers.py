@@ -11,8 +11,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for Profile model.
     """
-    username = serializers.CharField(source='user.username')
-    name = serializers.CharField() # assume `name` is a field in your Profile model
+    name = serializers.CharField(source = 'user.name')
 
     class Meta:
         model = Profile
