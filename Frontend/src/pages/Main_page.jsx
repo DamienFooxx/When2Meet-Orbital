@@ -8,6 +8,7 @@ import axios from 'axios';
 import { BASE_URL } from '../utils/config';
 import { useUser } from '../context/UserContext';
 import Clipboard from '@react-native-clipboard/clipboard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Main_page = () => {
   const navigation = useNavigation();
@@ -27,17 +28,45 @@ const Main_page = () => {
   // retrieve created groups
   const fetchGroups = async () => {
     try {
-        const res = await axios.get(`${BASE_URL}/api/groups/`, {
-            headers: { Authorization: `Token ${user?.token}`}
-        });
+        const token = await AsyncStorage.getItem('authToken');  // Retrieve the token from AsyncStorage
+
+        // Set the token in the Axios headers
+        axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+
+        // GET request to fetch groups
+        const res = await axios.get(`${BASE_URL}/api/groups/`);
+
+        // check if there is an array of groups
+        if (!Array.isArray(res.data)) {
+            console.error("Invalid response data:", res.data);
+            return;
+        }
         // filter groups to show only accepted members
         const updatedGroups = res.data.map(group => ({
             ...group,
             members: Array.isArray(group.members) ? group.members.filter(member => member.is_accepted) : [],
         }));
+
+        // if no groups found
+        if (updatedGroups.legnth === 0) {
+            console.log("No groups available.");
+        } else {
+            console.log("fetched and updated groups:", updatedGroups)
+        }
         setGroups(updatedGroups);
-    } catch (err) {
-        console.error("Failed to load groups", err);
+    } catch (error) {
+            console.error("Error fetching groups:", error.response);
+    if (error.response) {
+        console.log("Error Data:", error.response.data);  // More detailed error
+        console.log("Error Code:", error.response.status);
+        Alert.alert("Error", `Error Code: ${error.response.status} - ${error.response.data.detail}`);
+    } else if (error.request) {
+        console.log("No response received:", error.request);
+        Alert.alert("Error", "No response from server.");
+    } else {
+        console.log("Request failed:", error.message);
+        Alert.alert("Error", `Request failed: ${error.message}`);
+    }
     }
   };
 
