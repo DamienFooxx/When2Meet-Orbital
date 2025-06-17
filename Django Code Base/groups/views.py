@@ -106,7 +106,6 @@ class GroupViewSet(viewsets.ModelViewSet):
                 'error': 'Invalid invite code or Group does not exist.'
             }, status = status.HTTP_404_NOT_FOUND)
 
-        # Get user profile
         profile = Profile.objects.get(user = request.user)
         
         # Checks if User is already in the Group
