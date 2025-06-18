@@ -57,7 +57,10 @@ class ProfileView(APIView):
         """
         Get the authenticated user's profile information.
         """
-        profile = Profile.objects.get(user=request.user)
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         return Response({
             'username': request.user.username,
             'email': request.user.email,

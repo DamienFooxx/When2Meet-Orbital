@@ -181,7 +181,7 @@ REST_USE_JWT = True
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_LOGIN_METHODS = {'email'}
 
-# Disable email veriification (for development)
+# Disable email verification (for development)
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_CONFIRM_EMAIL_ON_GET = False
 
@@ -211,3 +211,34 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny', # Change to IsAuthenticated when deployed
     ],
 }
+
+# =====================
+# CORS Settings
+# =====================
+# Get CORS origins from environment variable, with fallback for development
+DEFAULT_CORS_ORIGINS = "http://localhost:9000,http://127.0.0.1:8000,http://localhost:3000"
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', DEFAULT_CORS_ORIGINS).split(',')
+
+CORS_ALLOW_CREDENTIALS = True
+
+# Additional CORS settings for security
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
