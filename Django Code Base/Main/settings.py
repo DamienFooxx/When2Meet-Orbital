@@ -34,7 +34,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -75,6 +75,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True # for dev only - use whitelist for prod
 
 ROOT_URLCONF = 'Main.urls'
 
@@ -176,19 +178,19 @@ SITE_ID = 1
 REST_USE_JWT = True
 
 # AllAuth settings
-ACCOUNT_LOGIN_METHODS = ['email']
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_LOGIN_METHODS = {'email'}
 
-# Disable email verification in dev
-ACCOUNT_EMAIL_VERIFICATION      = 'none'
-ACCOUNT_CONFIRM_EMAIL_ON_GET    = False
+# Disable email veriification (for development)
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_CONFIRM_EMAIL_ON_GET = False
 
 # Social account provider settings for Google
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
             'client_id': os.getenv('GOOGLE_CLIENT_ID'),
-            'secret': os.getenv('YOUR_GOOGLE_CLIENT_SECRET'),
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
             'key': ''
         },
         'SCOPE': ['profile', 'email', ],

@@ -1,6 +1,6 @@
 from django.urls import path, include
 from .views import GoogleLogin, ProfileView
-from .views import GoogleCalendarFreeBusyView
+from .views import GoogleCalendarFreeBusyView, CheckUserByEmail
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
 
@@ -17,4 +17,5 @@ urlpatterns = [
     path('auth/', include('allauth.socialaccount.urls')),
     path('google-calendar/freebusy/', GoogleCalendarFreeBusyView.as_view(), name = 'google_calendar_freebusy'),
     path('profile/', ProfileView.as_view(), name='profile'),  # Profile endpoint
+    path('users/check/', CheckUserByEmail.as_view(), name='check_user'),
 ]

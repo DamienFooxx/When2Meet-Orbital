@@ -83,15 +83,32 @@ npm-debug.log
 yarn.lock
 package-lock.json
 metro-cache/
+
+# Android
 android/.gradle/
 android/app/build/
+
+# iOS
 ios/Pods/
 ios/build/
+ios/Podfile.lock
+ios/DerivedData/
+ios/.xcconfig
+ios/.DS_Store
+
+# Xcode
+*.xcodeproj/when2meet.xscworkspace/xcuserdata
+*.xscworkspace/xcuserdata
+*.xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xcsettings
 *.keystore
 *.jks
 *.p8
 *.p12
 *.mobileprovision
+.DS_Store
 
 # Testing / Coverage
 test-results/
@@ -100,3 +117,4 @@ junit-*.xml
 # Secret Credentials
 .env
 .gitignore
+.plist

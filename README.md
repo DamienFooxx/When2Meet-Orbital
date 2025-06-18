@@ -82,13 +82,41 @@ npm install
 ```
 
 ### Step 4. Set Up Environment Variables
-Create a `.env` file in the root of the frontend folder or configure your `config.js` to define your backend base URL:
-These are for the frontend.
-```ts
-// While in when2meet_frontend directory
-// utils/config.js
-export const BASE_URL = 'http://127.0.0.1:8000/';
+**Find Your Computer Local IP Address**
+- **Windows:**  
+  - Open Command Prompt.
+  - Run:
+    ```cmd
+    ipconfig
+    ```
+  - Look for the `IPv4 Address` under your WiFi adapter (e.g., `192.168.x.x`).
+
+- **MacOS:**  
+  - Open Terminal.
+  - Run:
+    ```bash
+    ifconfig
+    ```
+  - Find `en0` or `en1` (your WiFi adapter).
+  - Look for the line starting with `inet` (e.g., `inet 192.168.x.x`).
+
+- **Linux:**  
+  - Open Terminal.
+  - Run:
+    ```bash
+    hostname -I
+    ```
+  - Use the IP address shown (e.g., `192.168.1.42`).
+
+---
+
+**Update Your Config to Use Your Local IP**
+Type into the command line
+```js
+// config.js example
+export const BASE_URL = 'http://192.168.x.x:8000/';
 ```
+
 **Navigate to Django Code Base Directory**
 Rename ".env.example" file to just ".env"
 
@@ -102,6 +130,7 @@ brew install postgresql
 brew services start postgresql
 ```
 **for Windows**
+
 download and run the PostgreSQL installer
 
 The pyscopg2-binary shouldve been downloaded already in step 3 when installing dependencies
@@ -126,6 +155,7 @@ ALTER DATABASE when2meet OWNER TO admin;
 ### Step 7. Apply Database Migrations
 In the Django Code Base directory, input this into the terminal
 ```bash
+python manage.py makemigrations
 python manage.py migrate
 ```
 
@@ -133,12 +163,14 @@ python manage.py migrate
 ```bash
 python manage.py runserver
 ```
-The server will start at `http://127.0.0.1:8000/`
+The server will start at the url shown after the line "Starting development server at "url".
 Navigate to the website using the url.
 It should say "When2Meet Backend is running!.
 
 ### Step 9. Start the Metro Bundler
 ```bash
+# Navigate to frontend directory
+cd when2meet_frontend
 npx react-native start
 ```
 
@@ -146,6 +178,12 @@ npx react-native start
 ```bash
 npx react-native run-ios
 ```
+
+### Step 11. **Test**
+You should see
+Welcome to REACT NATIVE v0.xx
+type "r" into the terminal
+
 ## Troubleshooting Common Issues
 
 ### Database Connection Issues
@@ -183,3 +221,5 @@ npx react-native run-ios
 ## License
 This project is licensed under the GNU General Public License - see the LICENSE file for details 
 
+
+This project is licensed under the GNUn General Public License v3.0 License - see the LICENSE file for details 
