@@ -1,7 +1,7 @@
 from django.db import models
 import string
 import random
-from accounts.models import Profile
+from accounts.models import Profile, Location
 
 """
 groups/models.py
@@ -27,27 +27,34 @@ class Group(models.Model):
     description = models.TextField(blank = True)
     created_at = models.DateTimeField(auto_now_add = True)  # Timestamp of group creation
     invite_code = models.CharField(max_length = 10, unique = True, default = generate_group_code)  # Unique code for joining
-    creator = models.ForeignKey(Profile, on_delete = models.CASCADE, related_name = "created_groups", null = True, blank = True)  # Group creator
-
+    creator = models.ForeignKey('accounts.Profile', on_delete = models.CASCADE, related_name = "created_groups", null = True, blank = True)  # Group creator
+    members = models.ManyToManyField(
+        'accounts.Profile',
+        through='GroupMembership',
+        related_name='groups'
+    )
+    
     def __str__(self):
         return self.name
 
     class Meta:
-        ordering = ['-created_at']  # Most recent groups first
+        unique_together = ('creator', 'name')
 
 class GroupMembership(models.Model):
     """
-    Represents a user's membership in a group, with a role (organiser or participant).
+    Represents a user's membership in a group, with a role (organiser or member).
     Enforces unique membership per user per group.
     """
-    ROLE_CHOICES = (
+    ROLE_CHOICES = [
         ('organiser', 'Organiser'),
-        ('participant', 'Participant'),
-    )
+        ('member', 'Member'),
+        ('invited', 'Invited'),
+    ]
 
     group = models.ForeignKey(Group, on_delete = models.CASCADE, related_name = 'group_memberships')  # The group this membership belongs to
-    user = models.ForeignKey(Profile, on_delete = models.CASCADE, related_name = 'profile_memberships')  # The user profile in the group
-    role = models.CharField(max_length = 20, choices = ROLE_CHOICES, default = 'participant')  # Role in the group
+    profile = models.ForeignKey(Profile, on_delete = models.CASCADE, related_name = 'profile_memberships')  # The user profile in the group
+    role = models.CharField(max_length = 20, choices = ROLE_CHOICES, default = 'member')  # Role in the group
+    is_accepted = models.BooleanField(default=False)
     joined_at = models.DateTimeField(auto_now_add = True)  # When the user joined the group
 
     class Meta:

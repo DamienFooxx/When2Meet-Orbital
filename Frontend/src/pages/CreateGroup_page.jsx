@@ -5,6 +5,7 @@ import axios from 'axios';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { BASE_URL } from '../utils/config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CreateGroup_page = () => {
     const [groupName, setGroupName] = useState('');
@@ -12,39 +13,78 @@ const CreateGroup_page = () => {
     const [members, setMembers] = useState([]);
     const navigation = useNavigation();
 
-    const addMember = () => {
+    const addMember = async () => {
         const trimmed = newMember.trim();
-        if (trimmed && !members.includes(trimmed)) {
-            setMembers([...members, trimmed]);
-            setNewMember('');
+        if (!trimmed && members.includes(trimmed)) return;
+
+        try {
+            const token = await AsyncStorage.getItem('authToken');
+            axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+
+            const res = await axios.get(`${BASE_URL}/api/users/check/?email=${trimmed}`);
+            if (res.data.exists) {
+                setMembers([...members, trimmed]);
+                setNewMember('');
+            } else {
+                Alert.alert("User not found", "The entered email does not match any registered user.");
+            }
+        } catch (err) {
+            console.error(err);
+            Alert.alert("Error", "Failed to check user existence")
         }
     };
 
-    const createGroup = async () => {
+    const removeMember = (email) => {
+        Alert.alert(
+            "Remove Member",
+            `Remove ${email} from the group?`,
+            [
+                { text: "Cancel", style: "cancel" },
+                { text: "Remove", style: "destructive", onPress: () => {
+                    setMembers(members.filter(m => m !== email));
+                    }
+                }
+            ]
+        );
+    };
+
+    const handleCreateGroup = async () => {
         try {
-            await axios.post(`${BASE_URL}/api/groups/`, {
-                name: groupName,
-                members: members,
+            const token = await AsyncStorage.getItem('authToken');
+            axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+
+            const response = await axios.post(
+                `${BASE_URL}/api/groups/`,
+                {
+                    name: groupName,
+                    members: members,
+                }
+            );
+            Alert.alert('Success', `Group created`);
+            navigation.navigate('Main', {
+                newGroup: {
+                    ...response.data,
+                    is_organiser: true,
+                }
             });
-            Alert.alert('Success', 'Group created');
-            navigation.goBack();
         } catch (error) {
-            console.error(error);
+            console.error('Group creation failed:', error.response?.data || error.message);
             Alert.alert('Error', 'Failed to create group');
         }
     };
 
+
   return (
     <View style = {styles.container}>
         <View style = {styles.headerContainer}>
-            <TouchableOpacity style = {styles.cancelContainer} onPress = {() => navigation.goBack()}>
+            <TouchableOpacity style = {styles.cancelContainer} onPress = {() => navigation.navigate('Main')}>
               <Text style = {styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
             
-            <Text style = {styles.headerText}>Create New Event</Text>
+            <Text style = {styles.headerText}>Create New Group</Text>
       
             <TouchableOpacity 
-                onPress = {createGroup}
+                onPress = {handleCreateGroup}
                 style = {[styles.createButton, !(groupName && members.length) && { opacity: 0.5 }]}
                 disabled = {!groupName || members.length === 0}>
                 <Text style = {styles.createText}>New</Text>
@@ -74,7 +114,11 @@ const CreateGroup_page = () => {
             <FlatList
                 data = {members}
                 keyExtractor={(item) => item}
-                renderItem={( { item }) => <Text style = {styles.member}>{item}</Text>}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress = {() => removeMember(item)}>
+                        <Text style = {styles.member}>{item}</Text>
+                    </TouchableOpacity>
+                )}
                 ListEmptyComponent={<Text style = {styles.member}>No members yet</Text>} 
             />
 

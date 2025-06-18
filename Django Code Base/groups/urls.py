@@ -1,11 +1,7 @@
 from rest_framework.routers import DefaultRouter
-from groups.views import GroupViewSet
-from django.urls import path, include
+from .views import GroupViewSet
 
 router = DefaultRouter()
-router.register(r'groups', GroupViewSet)
+router.register(r'groups', GroupViewSet, basename = 'group')
 
-urlpatterns = [
-    path('api/', include(router.urls)),
-]
-
+urlpatterns = router.urls

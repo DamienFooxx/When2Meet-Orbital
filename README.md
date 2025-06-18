@@ -388,6 +388,7 @@ brew install postgresql
 brew services start postgresql
 ```
 **for Windows**
+
 download and run the PostgreSQL installer
 
 The pyscopg2-binary shouldve been downloaded already in step 3 when installing dependencies
@@ -492,3 +493,5 @@ type "r" into the terminal
 ## License
 This project is licensed under the GNU General Public License - see the LICENSE file for details 
 
+
+This project is licensed under the GNUn General Public License v3.0 License - see the LICENSE file for details 

@@ -1,32 +1,54 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { useUser } from '../context/UserContext';
+import { BASE_URL } from '../utils/config';
+import axios from 'axios';
 
-const Profile_page = ({ navigation }) => {
-
-    const handleLogout = async () => {
-        try {
-            // clear stored auth token and flags
-            await AsyncStorage.removeItem('authToken');
-            await AsyncStorage.removeItem('isLoggedIn');
-
-            // revoke and sign out from google
-            await GoogleSignin.revokeAccess();
-            await GoogleSignin.signOut();
-
-            // navigate to login
-            navigation.replace('Login');
-        } catch (error) {
-            console.error('Logout failed:', error);
-            Alert.alert('Error', 'Failed to sign out. Please try again');
-        }
-    }
+const Profile_page = () => {
+    const navigation = useNavigation();
+    const { user, logout } = useUser(); // access user
     
+    const handleLogout = () => {
+        Alert.alert(
+            'Confirm Logout',
+            'Are you sure you want to sign out?',
+            [
+                {
+                    // cancel buton to dismiss alert
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {
+                    // sign out button to navigate to login page
+                    text: 'Sign out',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await axios.post(
+                                `${BASE_URL}/api/auth/logout/`,
+                                {},
+                                {
+                                    headers: {
+                                        Authorization: `Bearer ${user?.token}`, 
+                                    },
+                                }
+                            );
+                            await logout(); // sets user to null
+                            navigation.replace('Login');
+                        } catch (error) {
+                            console.error('Logout failed:', error);
+                            Alert.alert('Error', 'Failed to log out. Please try again.');
+                        }
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
+    };
 
   return (
     <View style = {styles.container}>
@@ -41,8 +63,8 @@ const Profile_page = ({ navigation }) => {
       </View>
       <View style = {styles.profileHeader}>
           <Ionicons name = "person-outline" size = {60} color = {'black'}/>
-          <Text style = {styles.username}>username</Text>
-          <Text style = {styles.email}>xxxxx@gmail.com</Text>
+          <Text style = {styles.username}>{user?.username || 'No username'}</Text>
+          <Text style = {styles.email}>{user?.email || 'No email'}</Text>
       </View>
 
       {/* Options */}
