@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, ActivityIndicator, TextInput } from 'react-native';
 import React, { useCallback, useState} from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
@@ -14,18 +14,20 @@ const Invitation_page = () => {
     const navigation = useNavigation();
     const { user, isLoadingUser } = useUser();
     const [invitations, setInvitations] = useState([]);
+    const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(false);
     const { params } = useRoute();
 
     useFocusEffect(
         useCallback(() => {
-        console.log('useEffect triggered', {isLoadingUser, user});
-        if (!isLoadingUser && user?.token) {
-            fetchInvitations();
-        }
-      }, [isLoadingUser, user])
+            if (!isLoadingUser && user?.token) {
+                fetchInvitations();
+                fetchRequests();
+            }
+        }, [isLoadingUser, user])
     );
 
+    // fetch group invitations for user
     const fetchInvitations = async () => {
         try {
             setLoading(true);
@@ -33,6 +35,7 @@ const Invitation_page = () => {
                 headers: { Authorization: `Token ${user.token}` }
             });
             setInvitations(res.data);
+
         } catch (err) {
             Alert.alert("Error", "Could not load invitations");
         } finally {
@@ -40,6 +43,47 @@ const Invitation_page = () => {
         }
     };
 
+    // fetch join requests for the organizer
+    const fetchRequests = async () => {
+        try { 
+            setLoading(true);
+            const res = await axios.get(`${BASE_URL}/api/groups/requests/`, {
+                headers: { Authorization: `Token ${user.token}` }
+            });
+            setRequests(res.data);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // accept a pending request
+    const acceptRequest = async (requestId) => {
+        try {
+            await axios.post(`${BASE_URL}/api/groups/requests/${requestId}/accept-request`, {}, {
+                headers: { Authorization: `Token ${user.token}` }
+            });
+            fetchRequests();
+            Alert.alert("Success", "You have accepted the join request")
+        } catch (err) {
+            console.error("Accept failed", err);
+            Alert.alert("Error", "Could not accept the request");
+        }
+    };
+
+    // decline a pending request
+    const declineRequest = async (requestId) => {
+        try {
+            await axios.post(`${BASE_URL}/api/groups/requests/${requestId}/decline-request/`, {}, {
+                headers: { Authorization: `Token ${user.token}` }
+            });
+            fetchRequests(); // refresh request list
+        } catch (err) {
+            console.error("Deline failed", err);
+            Alert.alert("Error", "Could not decline the request.")
+        }
+    }
+
+    // accept a pending invitation
     const acceptInvitation = async (groupId) => {
         try {
             await axios.post(`${BASE_URL}/api/groups/${groupId}/accept-invitation/`, {}, {
@@ -67,7 +111,7 @@ const Invitation_page = () => {
         }
         };
 
-    const renderItem = ({ item }) => (
+    const renderInviteItem = ({ item }) => (
         <View style = {styles.card}>
             <Text style = {styles.groupName}>{item.name}</Text>
             <Text style = {styles.inviter}>Group Code: {item.invite_code}</Text>
@@ -91,6 +135,32 @@ const Invitation_page = () => {
         </View>
     );
 
+    // Render the requests list (only for the organizer)
+    const renderRequestItem = ({ item }) => (
+        <View style={styles.card}>
+            <Text style={styles.groupName}>User: {item.user.name}</Text>
+            <Text style={styles.inviter}>Email: {item.user.email}</Text>
+            <Text style={styles.inviter}>Group: {item.group.name}</Text>
+            <View style={{ flexDirection: 'row', gap: 20 }}>
+                <TouchableOpacity onPress={() => acceptRequest(item.id)}>
+                    <Text style={styles.actions}>Accept</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                    Alert.alert(
+                        "Confirm Decline",
+                        "Are you sure you want to decline this request?",
+                        [
+                            { text: "Cancel", style: "cancel" },
+                            { text: "Yes", onPress: () => declineRequest(item.id) }
+                        ]
+                    );
+                }}>
+                    <Text style={styles.decline}>Decline</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+
     if (isLoadingUser || loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -108,11 +178,32 @@ const Invitation_page = () => {
             <Text style = {styles.header}>Invitations</Text>
         </View>
 
+        {/* button to navigate to the 'JoinExistingGroup_page' */}
+        <TouchableOpacity
+            style={styles.joinButton}
+            onPress={() => navigation.navigate('JoinExistingGroup')}
+        >
+            <Text style={styles.joinButtonText}>Join an Existing Group</Text>
+        </TouchableOpacity>
+
+
+        
+        {/* invitations list */}
+        <Text style={styles.invites}>Invites</Text>
         <FlatList
             data = {invitations}
             keyExtractor={(item) => item.id.toString()}
-            renderItem={renderItem}
+            renderItem={renderInviteItem}
             ListEmptyComponent={<Text style={styles.noInvites}>No invitations</Text>}
+        />
+
+        {/* requests list */}
+        <Text style={styles.invites}>Requests</Text>
+        <FlatList
+            data = {requests}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderRequestItem}
+            ListEmptyComponent={<Text style={styles.noInvites}>No requests</Text>}
         />
     </View>
   );
@@ -163,6 +254,12 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         color: colors.primary,
     },
+    invites: {
+        fontSize: 20,
+        fontFamily: fonts.SemiBold,
+        color: colors.primary,
+        paddingTop: 25,
+    },
     inviter: {
         fontSize: 14,
         fontFamily: fonts.Regular,
@@ -178,5 +275,17 @@ const styles = StyleSheet.create({
         color: 'red',
         fontFamily: fonts.Medium,
         fontSize: 14,
+    },
+    joinButton: {
+        backgroundColor: colors.primary,
+        padding: 15,
+        borderRadius: 10,
+        marginTop: 20,
+        alignItems: 'center',
+    },
+    joinButtonText: {
+        color: colors.white,
+        fontFamily: fonts.SemiBold,
+        fontSize: 16,
     },
 });

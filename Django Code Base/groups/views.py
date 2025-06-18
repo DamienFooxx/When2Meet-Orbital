@@ -97,6 +97,7 @@ class GroupViewSet(viewsets.ModelViewSet):
                 'error': 'Invite code is required.'
             }, status = status.HTTP_400_BAD_REQUEST)
         try:
+            # Attemps to find the group using the invite code
             group = Group.objects.get(invite_code = code)
         
         # Checks if the Group with that invite code exists
@@ -108,41 +109,69 @@ class GroupViewSet(viewsets.ModelViewSet):
         profile = Profile.objects.get(user = request.user)
         
         # Checks if User is already in the Group
-        if GroupMembership.objects.filter(group = group, profile = profile).exists():
+        if GroupMembership.objects.filter(group = group, profile = profile, is_accepted=True).exists():
             return Response({
                 'error' : 'Already a group member.'
             }, status = status.HTTP_200_OK)
 
+        # Check if the User has already sent a request to join
+        if GroupMembership.objects.filter(group=group, profile=profile, is_accepted=False).exists():
+            return Response({
+                'error': 'You have already sent a join request to this group. Please wait for the organizer to approve your request.'
+            }, status=status.HTTP_200_OK)
+        
         # Checks if group is full, keeping it low for now until search algo is efficient enough to allow big groups
         if group.group_memberships.count() >= 10:
             return Response({
                 'error' : 'Group is full.'
             }, status = status.HTTP_403_FORBIDDEN)
 
-        # Ask user for confirmation first before joining
+        # Ask user for confirmation beforre sending the join request
         confirm = request.data.get('confirm_join')
         if not confirm:
             return Response({
                 'confirmation_needed': True,
                 'group_name': group.name,
-                'message': f'Do you want to join the group "{group.name}"?',
+                'message': f'Do you want to request to join the group "{group.name}"?',
                 'group_info': {
                     'name': group.name,
+                    'invite_code': group.invite_code
                 }
             }, status=status.HTTP_200_OK)
 
-        # Add User as member
+        # Create a pending group membership (requesting to join)
         GroupMembership.objects.create(
             group = group,
             profile = profile,
             role = 'member',
-            is_accepted = True
+            is_accepted = False
         )
 
         return Response({
-            'message' : f'Successfully joined group "{group.name}".',
+            'message' : f'Your request to join group "{group.name}" has been sent to organizer.',
             'group_name' : group.name
         }, status = status.HTTP_201_CREATED)
+    
+    @action(detail=True, methods=['psot'], url_path='accept-request')
+    def accept_request(self, request, pk=None):
+        """
+        Allows the organizer to accept a join request.
+        """
+        try: 
+            group = Group.objects.get(id=pk)
+            membership_request = GroupMembership.objects.get(group=group, profile__user=request.user, is_accepted=False)
+        except Group.DoesNotExist:
+            return Response({'error': 'Group does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        except GroupMembership.DoesNotExist:
+            return Response({'error': 'No pending requests for this group'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Mark the request as accepted
+        membership_request.is_accepted = True
+        membership_request.save()
+
+        return Response({
+            'message': f'User {membership_request.profile.user.username} has been added to the group "{group.name}".'
+        }, status=status.HTTP_200_OK)
 
     @action(detail = True, methods = ['post'], url_path = 'leave')
     def leave_group(self, request, pk = None):
