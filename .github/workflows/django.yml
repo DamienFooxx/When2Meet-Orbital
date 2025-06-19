@@ -36,7 +36,7 @@ jobs:
       DB_PASSWORD: orbital2425
       DB_HOST: 127.0.0.1
       DB_PORT: 5432
-      DJANGO_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
