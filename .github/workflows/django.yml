@@ -41,7 +41,7 @@ jobs:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
     steps:
     - uses: actions/checkout@v4
@@ -58,7 +58,7 @@ jobs:
         pip install -r requirements.txt
     - name: Debug env
       run: |
-        echo "GOOGLE_MAPS_API_KEY is: $GOOGLE_MAPS_API_KEY"
+        echo "GOOGLE_API_KEY is: $GOOGLE_API_KEY"
         echo "GOOGLE_CLIENT_SECRET is : $GOOGLE_CLIENT_SECRET"
         echo "GOOGLE_CLIENT_ID is : $GOOGLE_CLIENT_ID"
         echo "SECRET_KEY is: $SECRET_KEY"
