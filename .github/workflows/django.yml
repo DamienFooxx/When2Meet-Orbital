@@ -72,5 +72,4 @@ jobs:
     - name: Run Tests
       run: |
         cd "Django Code Base"
-        cd accounts
         python manage.py test
