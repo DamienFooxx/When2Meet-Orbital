@@ -54,6 +54,12 @@ jobs:
         cd "Django Code Base"
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Debug env
+      run: |
+        echo "GOOGLE_MAPS_API_KEY is: $GOOGLE_MAPS_API_KEY"
+        echo "GOOGLE_CLIENT_SECRET is : $GOOGLE_CLIENT_SECRET"
+        echo "GOOGLE_CLIENT_ID is : $GOOGLE_CLIENT_ID"
+        echo "SECRET_KEY is: $SECRET_KEY"
 
     - name: Apply Migrations
       run: |
