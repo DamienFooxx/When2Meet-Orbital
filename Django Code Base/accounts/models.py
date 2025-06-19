@@ -9,7 +9,7 @@ import os
 
 User = get_user_model()
 
-geolocator = GoogleV3(api_key=os.getenv('GOOGLE_MAPS_API_KEY'))
+geolocator = GoogleV3(api_key=os.getenv('GOOGLE_API_KEY'))
 
 class Location(models.Model):
     '''

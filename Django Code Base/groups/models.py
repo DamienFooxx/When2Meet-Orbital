@@ -23,7 +23,7 @@ class Group(models.Model):
     Represents a user-created group for scheduling events.
     Linked to the Profile model as the creator.
     """
-    name = models.CharField(max_length = 100, min_length = 1)  # Name of the group
+    name = models.CharField(max_length = 100)  # Name of the group
     description = models.TextField(blank = True)
     created_at = models.DateTimeField(auto_now_add = True)  # Timestamp of group creation
     invite_code = models.CharField(max_length = 10, unique = True, default = generate_group_code)  # Unique code for joining
