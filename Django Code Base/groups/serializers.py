@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Group, GroupMembership, Profile
 from accounts.models import Profile
 from django.db import transaction
+from accounts.serializers import ProfileSerializer
 
 class GroupMembershipListSerializer(serializers.ModelSerializer):
     """
@@ -15,8 +16,7 @@ class GroupMembershipListSerializer(serializers.ModelSerializer):
         fields = ['id', 'profile', 'role', 'joined_at', 'is_accepted']
 
     def get_profile(self, obj):
-        from accounts.serializers import ProfileSerializer
-        return ProfileSerializer(obj.profile).data
+        return ProfileSerializer(obj.profile, context=self.context).data
 
 class GroupSerializer(serializers.ModelSerializer):
     members = serializers.ListField(
