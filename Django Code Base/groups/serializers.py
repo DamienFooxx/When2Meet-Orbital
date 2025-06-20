@@ -18,6 +18,22 @@ class GroupMembershipListSerializer(serializers.ModelSerializer):
         from accounts.serializers import ProfileSerializer
         return ProfileSerializer(obj.profile).data
 
+class CreatorMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['name']
+
+class GroupInvitationSerializer(serializers.ModleSerializer):
+    creator = CreatorSerializer(read_only = True)
+
+    class Meta:
+        model = Group
+        fields = [
+            'name',
+            'invite_code',
+            'creator',
+        ]
+
 class GroupSerializer(serializers.ModelSerializer):
     members = serializers.ListField(
         child=serializers.EmailField(), write_only=True, required=False

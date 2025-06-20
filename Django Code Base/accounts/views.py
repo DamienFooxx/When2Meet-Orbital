@@ -62,11 +62,11 @@ class ProfileView(APIView):
         except Profile.DoesNotExist:
             return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         return Response({
+            'unique_id': profile.unique_id
             'username': request.user.username,
             'email': request.user.email,
             'name': profile.name,
             'location': profile.location,
-            'unique_id': profile.unique_id
         })
 
     def put(self, request):

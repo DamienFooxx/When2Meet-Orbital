@@ -76,7 +76,7 @@ class Profile(models.Model):
         unique = True,
         default = generate_unique_id,
         editable = False,  # Prevents manual editing in admin
-        primary_key = True
+        primary_key = True,
     )
     name = models.CharField(max_length = 100, blank = True)
     google_id = models.CharField(max_length = 100, blank = True, null = True)

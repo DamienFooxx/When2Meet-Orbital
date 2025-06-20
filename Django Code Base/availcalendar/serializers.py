@@ -17,13 +17,13 @@ class EventSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'description',
-            'location',
-            'creator',
-            'participants',
             'created_at',
+            'creator',
+            'location',
+            'group'
+            'participants',
         ]
         read_only_fields = ['id', 'created_at']
-
 
 class TimeSlotSerializer(serializers.ModelSerializer):
     user  = serializers.PrimaryKeyRelatedField(queryset = Profile.objects.all())
@@ -33,15 +33,63 @@ class TimeSlotSerializer(serializers.ModelSerializer):
         model = TimeSlot
         fields = [
             'id',
-            'user',
             'event',
             'start',
             'end',
-            'source',
+            'status',
         ]
         read_only_fields = ['id']
 
+class CalendarEntrySerializer(serializers.ModelSerializer):
+    location = serializers.PrimaryKeyRelatedField(
+        source='location_id',
+        queryset=Location.objects.all(),
+        allow_null=True,
+        required=False
+    )
+    user = serializers.PrimaryKeyRelatedField(
+        source='user_id',
+        queryset=Profile.objects.all()
+    )
+    event = serializers.PrimaryKeyRelatedField(
+        source='event_id',
+        queryset=Event.objects.all()
+    )
+
+    class Meta:
+        model = CalendarEntry
+        fields = [
+            'id',
+            'title',
+            'description',
+            'start_time',
+            'end_time',
+            'created_at',
+            'updated_at',
+            'source',
+            'google_event_id',
+            'location',
+            'user',
+            'event',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+class CalendarIntegrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CalendarIntegration
+        fields = [
+            'id',
+            'provider',
+            'external_id',
+            'access_token',
+            'refresh_token',
+            'token_expiry',
+            'user',
+        ]
+        read_only_fields = ['id', 'provider']
+
 class ManualAvailabilitySerializer(serializers.ModelSerializer):
+    # Write only field to dictate how often the event should recur
     freq = serializers.ChoiceField(
         choices=[
             ('DAILY','Daily'),
@@ -51,19 +99,30 @@ class ManualAvailabilitySerializer(serializers.ModelSerializer):
             ],
         write_only=True
     )
-    interval = serializers.IntegerField(default=1, write_only=True)
+    # Write only field to dictate the interval between the frequencies
+    interval = serializers.IntegerField(default = 1, write_only=True)
     by_day = serializers.ListField(
-        child=serializers.ChoiceField(choices=['MO','TU','WE','TH','FR','SA','SU']),
-        required=False,
-        write_only=True
+        child = serializers.ChoiceField(choices = ['MO','TU','WE','TH','FR','SA','SU']),
+        required = False,
+        write_only = True
         )
-    until = serializers.DateTimeField(required=False, write_only=True)
-    count = serializers.IntegerField(required=False, write_only=True)
+    until = serializers.DateTimeField(required = False, write_only = True)
+    count = serializers.IntegerField(required = False, write_only = True)
 
     class Meta:
         model = ManualAvailability
-        fields = ['start_time','end_time','freq','interval','by_day','until','count','recurrence']
-        read_only_fields = ['recurrence']
+        fields = [
+            'id',
+            'start_time',
+            'end_time',
+            'freq',
+            'interval',
+            'by_day',
+            'until',
+            'count',
+            'recurrence'
+        ]
+        read_only_fields = ['id', 'recurrence']
 
     def _build_rrule(self, validated_data):
         parts = [
@@ -97,54 +156,6 @@ class ManualAvailabilitySerializer(serializers.ModelSerializer):
         if rrule_data:
             validated_data['recurrence'] = self._build_rrule(rrule_data)
         return super().update(instance, validated_data)
-
-class CalendarIntegrationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CalendarIntegration
-        fields = [
-            'id',
-            'provider',
-            'external_id',
-            'access_token',
-            'refresh_token',
-            'token_expiry',
-        ]
-        read_only_fields = ['id', 'provider', 'external_id']
-
-class CalendarEntrySerializer(serializers.ModelSerializer):
-    # Expose nicer field names and map them to the FK attributes
-    location = serializers.PrimaryKeyRelatedField(
-        source='location_id',
-        queryset=Location.objects.all(),
-        allow_null=True,
-        required=False
-    )
-    user = serializers.PrimaryKeyRelatedField(
-        source='user_id',
-        queryset=Profile.objects.all()
-    )
-    event = serializers.PrimaryKeyRelatedField(
-        source='event_id',
-        queryset=Event.objects.all()
-    )
-
-    class Meta:
-        model = CalendarEntry
-        fields = [
-            'id',
-            'title',
-            'description',
-            'start_time',
-            'end_time',
-            'created_at',
-            'updated_at',
-            'source',
-            'google_event_id',
-            'location',
-            'user',
-            'event',
-        ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
 
 class ReminderSerializer(serializers.ModelSerializer):
     # Expose the FK fields under nicer names
