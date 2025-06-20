@@ -19,17 +19,14 @@ class GroupMembershipListSerializer(serializers.ModelSerializer):
         return ProfileSerializer(obj.profile, context=self.context).data
 
 class GroupSerializer(serializers.ModelSerializer):
-    members = serializers.ListField(
-        child=serializers.EmailField(), write_only=True, required=False
-    )
     creator = serializers.ReadOnlyField(source='creator.user.username')
     invite_code = serializers.ReadOnlyField()
-
-    class Meta:
-        model = Group
-        fields = ['id', 'name', 'invite_code', 'created_at', 'creator', 'members', 'is_organiser']  # Add other fields if needed
-
     is_organiser = serializers.SerializerMethodField()
+    members = serializers.SerializerMethodField()  # Add this line
+
+    class Meta: 
+        model = Group
+        fields = ['id', 'name', 'invite_code', 'created_at', 'creator', 'is_organiser', 'members']
 
     def get_is_organiser(self, group):
         request = self.context.get('request')
@@ -39,6 +36,10 @@ class GroupSerializer(serializers.ModelSerializer):
                 group=group, profile=profile, role='organiser'
             ).exists()
         return False
+
+    def get_members(self, group):
+        memberships = group.group_memberships.select_related('profile__user').all()
+        return GroupMembershipListSerializer(memberships, many=True, context=self.context).data
 
     def create(self, validated_data):
         members_emails = validated_data.pop('members', [])
