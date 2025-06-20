@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import (
+from rest_framework.routers import DefaultRouter
+from availcalendar.views import (
     GoogleCalendarSyncView,
     EventViewSet,
     TimeSlotViewSet,
@@ -7,19 +8,18 @@ from .views import (
     ManualAvailabilityViewSet,
     ReminderViewSet
 )
-from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-router.register(r'events', EventViewSet, basename='event')
-router.register(r'timeslots', TimeSlotViewSet, basename='timeslot')
-router.register(r'calendar-entries', CalendarEntryViewSet, basename='calendar-entry')
-router.register(r'manual-availability', ManualAvailabilityViewSet, basename='manual-availability')
-router.register(r'reminders', ReminderViewSet, basename='reminder')
+router.register(r'events', EventViewSet, basename = 'event')
+router.register(r'timeslots', TimeSlotViewSet, basename = 'timeslot')
+router.register(r'calendar-entries', CalendarEntryViewSet, basename = 'calendar-entry')
+router.register(r'manual-availability', ManualAvailabilityViewSet, basename = 'manual-availability')
+router.register(r'reminders', ReminderViewSet, basename = 'reminder')
 
 urlpatterns = [
     path(
         'sync/google/',
         GoogleCalendarSyncView.as_view(),
         name='calendar-google-sync'
-    ),
-] + router.urls
+    ), path('', include(router.urls)),
+]

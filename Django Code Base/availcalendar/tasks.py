@@ -6,7 +6,6 @@ from allauth.socialaccount.models import SocialAccount, SocialToken
 from accounts.models import Profile
 from .models import TimeSlot
 
-# It's good practice to use a logger for background tasks
 logger = logging.getLogger(__name__)
 
 def get_google_token(user_id):

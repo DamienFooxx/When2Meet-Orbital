@@ -12,8 +12,8 @@ class AccountTestCase(TestCase):
     """
     def setUp(self):
         # Create test users
-        self.user1 = User.objects.create_user(username='testuser1', password='testpass123')
-        self.user2 = User.objects.create_user(username='testuser2', password='testpass123')
+        self.user1 = User.objects.create_user(username = 'testuser1', password = 'testpass123')
+        self.user2 = User.objects.create_user(username = 'testuser2', password = 'testpass123')
         
         # Get their profiles (auto-created by signal)
         self.profile1 = Profile.objects.get(user=self.user1)
