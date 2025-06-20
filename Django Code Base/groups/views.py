@@ -152,27 +152,6 @@ class GroupViewSet(viewsets.ModelViewSet):
             'group_name' : group.name
         }, status = status.HTTP_201_CREATED)
     
-    @action(detail=True, methods=['psot'], url_path='accept-request')
-    def accept_request(self, request, pk=None):
-        """
-        Allows the organizer to accept a join request.
-        """
-        try: 
-            group = Group.objects.get(id=pk)
-            membership_request = GroupMembership.objects.get(group=group, profile__user=request.user, is_accepted=False)
-        except Group.DoesNotExist:
-            return Response({'error': 'Group does not exist.'}, status=status.HTTP_404_NOT_FOUND)
-        except GroupMembership.DoesNotExist:
-            return Response({'error': 'No pending requests for this group'}, status=status.HTTP_404_NOT_FOUND)
-        
-        # Mark the request as accepted
-        membership_request.is_accepted = True
-        membership_request.save()
-
-        return Response({
-            'message': f'User {membership_request.profile.user.username} has been added to the group "{group.name}".'
-        }, status=status.HTTP_200_OK)
-
     @action(detail = True, methods = ['post'], url_path = 'leave')
     def leave_group(self, request, pk = None):
         """
@@ -244,6 +223,33 @@ class GroupViewSet(viewsets.ModelViewSet):
             print("Error in list_members:", e)
             return Response({"error": str(e)}, status=500)
     
+    def list(self, request, *args, **kwargs):
+        print("Fetching groups for:", request.user)
+        profile = Profile.objects.get(user=request.user)
+        print("Got profile:", profile)
+
+        queryset = Group.objects.filter(
+            group_memberships__profile=profile,
+            group_memberships__is_accepted=True
+        ).distinct()
+ 
+        serializer = self.get_serializer(queryset, many=True, context={'request': request})
+
+        print("serliazer", serializer.data)
+        return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        group = self.get_object()
+        profile = Profile.objects.get(user=request.user)
+
+        # only allow organisers to delete the group
+        if not GroupMembership.objects.filter(group=group, profile=profile, role='organiser').exists():
+            return Response({'error': 'Only organisers can delete the group.'},
+                            status=status.HTTP_403_FORBIDDEN)
+        
+        group.delete()
+        return Response({'message': 'Group deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+    
     @action(detail=False, methods=['get'], url_path='invitations', permission_classes=[IsAuthenticated])
     def invitations(self, request):
         profile = Profile.objects.get(user=request.user)
@@ -253,9 +259,11 @@ class GroupViewSet(viewsets.ModelViewSet):
             is_accepted=False
         ).select_related('group')
 
-        groups = [membership.group for membership in memberships]
-        serializer = GroupSerializer(groups, many=True, context={'request': request})
-        return Response(serializer.data)
+            serializer = GroupMembershipListSerializer(memberships, many=True, context={'request': request})
+            return Response(serializer.data)
+        except Exception as e:
+            print('Error in invitations:', e)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     @action(detail=True, methods=['post'], url_path='accept-invitation')
     def accept_invitation(self, request, pk=None):
@@ -296,25 +304,67 @@ class GroupViewSet(viewsets.ModelViewSet):
 
         return Response({'message': f'You have declined the invitation to join "{group.name}".'}, status=status.HTTP_200_OK)
     
-    def list(self, request, *args, **kwargs):
-        profile = Profile.objects.get(user=request.user)
-        queryset = Group.objects.filter(
-            group_memberships__profile=profile,
-            group_memberships__is_accepted=True
-        ).distinct()
-        serializer = self.get_serializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
 
-    def destroy(self, request, *args, **kwargs):
-        group = self.get_object()
-        profile = Profile.objects.get(user=request.user)
+    @action(detail=False, methods=['get'], url_path='requests', permission_classes=[IsAuthenticated])
+    def requests(self, request):
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return Response({'error': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            # Get all groups where the user is an organiser
+            organiser_groups = Group.objects.filter(
+                group_memberships__profile=profile,
+                group_memberships__role='organiser'
+            )
+            # Get all pending join requests for those groups
+            memberships = GroupMembership.objects.filter(
+                group__in=organiser_groups,
+                is_accepted=False,
+                invited_by_organizer=False
+            ).select_related('group', 'profile__user')
 
-        # only allow organisers to delete the group
-        if not GroupMembership.objects.filter(group=group, profile=profile, role='organiser').exists():
-            return Response({'error': 'Only organisers can delete the group.'},
-                            status=status.HTTP_403_FORBIDDEN)
-        
-        group.delete()
-        return Response({'message': 'Group deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+            serializer = GroupMembershipListSerializer(memberships, many=True, context={'request': request})
+            return Response(serializer.data)
+        except Exception as e:
+            print('Error in requests:', e)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['post'], url_path='requests/(?P<pk>[^/.]+)/accept-request', permission_classes=[IsAuthenticated])
+    def accept_join_request(self, request, pk=None):
+        try:
+            membership = GroupMembership.objects.select_related('group', 'profile').get(id=pk, is_accepted=False, invited_by_organizer=False)
+            organizer_profile = Profile.objects.get(user=request.user)
+            is_organiser = GroupMembership.objects.filter(group=membership.group, profile=organizer_profile, role='organiser').exists()
+            
+            if not is_organiser:
+                return Response({'error': 'Only organisers can accept join requests.'}, status=status.HTTP_403_FORBIDDEN)
+            
+            membership.is_accepted = True
+            membership.save()
+            
+            return Response({'message': f"User {membership.profile.user.username} has been added to the group '{membership.group.name}'."}, status=status.HTTP_200_OK)
+        except GroupMembership.DoesNotExist:
+            print('GroupMembership.DoesNotExist for pk:', pk)
+            return Response({'error': 'Join request not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print('Error in accept_join_request:', e)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['post'], url_path='requests/(?P<pk>[^/.]+)/decline-request', permission_classes=[IsAuthenticated])
+    def decline_join_request(self, request, pk=None):
+        try:
+            membership = GroupMembership.objects.select_related('group', 'profile').get(id=pk, is_accepted=False, invited_by_organizer=False)
+            organizer_profile = Profile.objects.get(user=request.user)
+            # Check if the current user is an organiser of the group
+            if not GroupMembership.objects.filter(group=membership.group, profile=organizer_profile, role='organiser').exists():
+                return Response({'error': 'Only organisers can decline join requests.'}, status=status.HTTP_403_FORBIDDEN)
+            membership.delete()
+            return Response({'message': f"Join request for user {membership.profile.user.username} to group '{membership.group.name}' has been declined."}, status=status.HTTP_200_OK)
+        except GroupMembership.DoesNotExist:
+            return Response({'error': 'Join request not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print('Error in decline_join_request:', e)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
