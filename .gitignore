@@ -98,6 +98,7 @@ ios/.DS_Store
 
 # Xcode
 *.xcodeproj/when2meet.xscworkspace/xcuserdata
+.plistFrontend/ios/when2meet.xcworkspace/xcuserdata/
 *.xscworkspace/xcuserdata
 *.xcuserdata/
 *.xcuserstate
@@ -117,4 +118,3 @@ junit-*.xml
 # Secret Credentials
 .env
 .gitignore
-.plist
