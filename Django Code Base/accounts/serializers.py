@@ -8,15 +8,15 @@ Contains serializers to validate and parse incoming request data for the account
 """
 
 class ProfileSerializer(serializers.ModelSerializer):
-    """
-    Serializer for Profile model.
-    """
-    name = serializers.CharField(source = 'user.name')
+    name = serializers.SerializerMethodField()
+
+    def get_name(self, obj):
+        user = obj.user
+        return f"{user.first_name} {user.last_name}".strip()
 
     class Meta:
         model = Profile
-        fields = ['name', 'location']
-        read_only_fields = ['unique_id']
+        fields = ['name']
 
 class FreeBusyRequestSerializer(serializers.Serializer):
     """

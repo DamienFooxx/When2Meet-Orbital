@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Group, GroupMembership, Profile
 from accounts.models import Profile
 from django.db import transaction
+from accounts.serializers import ProfileSerializer
 
 class GroupMembershipListSerializer(serializers.ModelSerializer):
     """
@@ -15,44 +16,17 @@ class GroupMembershipListSerializer(serializers.ModelSerializer):
         fields = ['id', 'profile', 'role', 'joined_at', 'is_accepted']
 
     def get_profile(self, obj):
-        from accounts.serializers import ProfileSerializer
-        return ProfileSerializer(obj.profile).data
-
-class CreatorMiniSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ['name']
-
-class GroupInvitationSerializer(serializers.ModelSerializer):
-    creator = CreatorMiniSerializer(read_only = True)
-
-    class Meta:
-        model = Group
-        fields = [
-            'name',
-            'invite_code',
-            'creator',
-        ]
+        return ProfileSerializer(obj.profile, context=self.context).data
 
 class GroupSerializer(serializers.ModelSerializer):
-    members = serializers.ListField(
-        child=serializers.EmailField(), write_only=True, required=False
-    )
     creator = serializers.ReadOnlyField(source='creator.user.username')
     invite_code = serializers.ReadOnlyField()
-
-    class Meta:
-        model = Group
-        fields = [
-            'id', 
-            'name', 
-            'invite_code', 
-            'creator', 
-            'members', 
-            'is_organiser'
-        ]
-
     is_organiser = serializers.SerializerMethodField()
+    members = serializers.SerializerMethodField()  # Add this line
+
+    class Meta: 
+        model = Group
+        fields = ['id', 'name', 'invite_code', 'created_at', 'creator', 'is_organiser', 'members']
 
     def get_is_organiser(self, group):
         request = self.context.get('request')
@@ -62,6 +36,10 @@ class GroupSerializer(serializers.ModelSerializer):
                 group=group, profile=profile, role='organiser'
             ).exists()
         return False
+
+    def get_members(self, group):
+        memberships = group.group_memberships.select_related('profile__user').all()
+        return GroupMembershipListSerializer(memberships, many=True, context=self.context).data
 
     def create(self, validated_data):
         members_emails = validated_data.pop('members', [])

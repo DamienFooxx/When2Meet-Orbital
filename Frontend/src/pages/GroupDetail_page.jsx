@@ -150,7 +150,7 @@ const GroupDetail_page = () => {
                         styles.participant,
                         member.role === 'organiser' && styles.organiserText
                     ]}>
-                        {member.role === 'organiser' ? `${member?.profile?.username}` : member?.profile?.username || 'Unknown'}
+                        {member.role === 'organiser' ? `${member?.profile?.name}` : member?.profile?.name || 'Unknown'}
                     </Text>
                     {member.role !== 'organiser' && (
                         <Text style={styles.participantStatus}>
