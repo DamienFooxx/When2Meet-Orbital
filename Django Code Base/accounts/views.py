@@ -62,7 +62,7 @@ class ProfileView(APIView):
         except Profile.DoesNotExist:
             return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         return Response({
-            'unique_id': profile.unique_id
+            'unique_id': profile.unique_id,
             'username': request.user.username,
             'email': request.user.email,
             'name': profile.name,
@@ -73,14 +73,14 @@ class ProfileView(APIView):
         """
         Update the authenticated user's profile information.
         """
-        profile = Profile.objects.get(user=request.user)
+        profile = Profile.objects.get(user = request.user)
         profile.name = request.data.get('name', profile.name)
         profile.location = request.data.get('location', profile.location)
         profile.save()
         return Response({
+            'unique_id': profile.unique_id,
             'name': profile.name,
             'location': profile.location,
-            'unique_id': profile.unique_id
         })
 
 class GoogleCalendarFreeBusyView(APIView):

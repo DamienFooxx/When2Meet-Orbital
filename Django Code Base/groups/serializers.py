@@ -23,8 +23,8 @@ class CreatorMiniSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['name']
 
-class GroupInvitationSerializer(serializers.ModleSerializer):
-    creator = CreatorSerializer(read_only = True)
+class GroupInvitationSerializer(serializers.ModelSerializer):
+    creator = CreatorMiniSerializer(read_only = True)
 
     class Meta:
         model = Group
@@ -43,7 +43,14 @@ class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group
-        fields = ['id', 'name', 'invite_code', 'created_at', 'creator', 'members', 'is_organiser']  # Add other fields if needed
+        fields = [
+            'id', 
+            'name', 
+            'invite_code', 
+            'creator', 
+            'members', 
+            'is_organiser'
+        ]
 
     is_organiser = serializers.SerializerMethodField()
 
@@ -61,8 +68,7 @@ class GroupSerializer(serializers.ModelSerializer):
         request = self.context['request']
         user = request.user
         profile = Profile.objects.get(user=user)
-
-
+        
         # prevents duplicate group names before creating
         if Group.objects.filter(name=validated_data['name'], creator=profile).exists():
             raise serializers.ValidationError("You already have a group with this name.")

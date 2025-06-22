@@ -15,7 +15,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['username', 'name']
+        fields = ['name', 'location']
+        read_only_fields = ['unique_id']
 
 class FreeBusyRequestSerializer(serializers.Serializer):
     """

@@ -262,9 +262,30 @@ class GroupViewSet(viewsets.ModelViewSet):
             membership_request = GroupMembership.objects.get(group=group, profile__user=request.user, is_accepted=False)
         except Group.DoesNotExist:
             return Response({'error': 'Group does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if the request.user is an organiser for this group
+        organiser_membership = GroupMembership.objects.filter(
+            group=group,
+            profile__user=request.user,
+            role='organiser',
+            is_accepted=True
+        ).exists()
+        if not organiser_membership:
+            return Response({'error': 'Only organisers can accept join requests.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Let's get 'user_id' from the request body
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({'error': 'User ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            membership_request = GroupMembership.objects.get(
+                group=group, 
+                profile__user__id=user_id, 
+                is_accepted=False
+            )
         except GroupMembership.DoesNotExist:
-            return Response({'error': 'No pending requests for this group'}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response({'error': 'No pending requests for this user in this group.'}, status=status.HTTP_404_NOT_FOUND)
+            
         # Mark the request as accepted
         membership_request.is_accepted = True
         membership_request.save()

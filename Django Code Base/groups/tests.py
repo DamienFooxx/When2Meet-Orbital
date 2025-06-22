@@ -1,213 +1,329 @@
 from django.test import TestCase
+from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import Group, GroupMembership, Profile
-from rest_framework.test import APIClient
+from groups.models import Group, GroupMembership
+from accounts.models import Profile, Location
+from rest_framework.test import APITestCase, APIClient
+from rest_framework import status
 
 # Create your tests here.
-class GroupTestCase(TestCase):
+class GroupTestCase(APITestCase):
     """
-    Tests backend
+    # Tests Group Feature Functionalities
     """
-    def setUp(self):
-        # Create two users and profiles
-        self.user1 = User.objects.create_user(username='damien', password='password')
-        self.user2 = User.objects.create_user(username='joanne', password='password')
-        self.profile1 = Profile.objects.get(user=self.user1)  # Use auto-created profile
-        self.profile1.name = "Damien"
-        self.profile2 = Profile.objects.get(user=self.user2)  # Use auto-created profile
-        self.profile2.name = "Joanne"
-        self.profile1.save()
-        self.profile2.save()
 
-        # DRF client, log in as user1 by default
+    def login_as(self, username, password = "testpass123"):
+        """
+        Helper for switching user
+        """
+        self.client.logout()
+        self.client.login(username = username, password = password)
+
+    def setUp(self):
+        # Create test users
+        self.user1 = User.objects.create_user(username = 'testuser1', password = 'testpass123')
+        self.user2 = User.objects.create_user(username = 'testuser2', password = 'testpass123')
+        self.user3 = User.objects.create_user(username = 'testuser3', password = 'testpass123')
+
+        # Create test locations
+        loc1 = Location.objects.create(
+            postalcode = "117417",
+            city = "Singapore",
+            country = "SG",
+            street_address = "13 Computing Drive"
+        )
+        self.assertEqual(str(loc1), "123456")
+
+        loc2 = Location.objects.create(
+            postalcode = "138614",
+            city = "Singapore",
+            country = "SG",
+            street_address = "6 College Avenue East"
+        )
+
+        # Set up user profiles
+        self.profile1 = Profile.objects.create(
+            user = self.user1,
+            name = "Test1",
+            email = "test1@gmail.com",
+            location = loc1.id,
+        )
+
+        self.profile2 = Profile.objects.create(
+            user = self.user2,
+            name = "Test2",
+            email = "test2@gmail.com",
+            location = loc2.id
+        )
+
+        self.profile3 = Profile.objects.create(
+            user = self.user3,
+            name = "Test3",
+            email = "test3@gmail.com",
+            location = loc2.id,
+        )
+
+        # Set up API client
         self.client = APIClient()
         self.client.force_authenticate(user=self.user1)
 
-    def test_create_group(self):
-        response = self.client.post('/api/groups/', {'name': 'Test Group'})
-        self.assertEqual(response.status_code, 201)
-        group = Group.objects.get(name='Test Group')
-        # Creator is organiser and member
-        membership = GroupMembership.objects.get(group=group, profile=self.profile1)
-        self.assertEqual(membership.role, 'organiser')
+        # Create Group
+        self.login_as("testuser1")
+        url = reverse('group')
+        data = {
+            "name": "Test Group"
+        }
+        response = self.client.post(url, data, format = 'json')
+
+        # Check that the group was created successfully
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['name'], 'Test Group')
+
+        self.assertEqual(group.creator, self.user.profile)
+        self.assertTrue(
+            GroupMembership.objects.filter(
+                group = group, 
+                profile = self.profile1,
+                role = 'organiser'
+                ).exists()
+        )
+
+        # Store Group Details
+        group_id = response.data['id']
+        group = Group.objects.get(id = group_id)
+        group_url = reverse('group', kwargs = {'pk': group_id})
+
+    def test_invite_user_to_group_using_email(self):
+        """
+        Test that organiser can invite users to the group
+        """
+        # Test inviting user
+        url = reverse('group-invite')
+        data = {"identifier": "test2@gmail.com"}
+
+        initial_invite_response = self.client.post(url, data, format = 'json')
+
+        self.assertEqual(initial_invite_response.status_code, status.HTTP_200_OK)
+        self.assertIn("invited", initial_invite_response.data)
+        self.assertIn("test2@gmail.com", initial_invite_response.data["invited"])
+
+    def test_invited_user_can_join_group(self):
+        """
+        Test that user can join the group after being invited
+        """
+        url = reverse('group-invite')
+        data = {"identifier": "test2@gmail.com"}
+        initial_invite_response = self.client.post(url, data, format = 'json')
+
+        self.login_as("testuser2")
+        join_url = reverse('group-accept-invitation')
+        accept_response = self.client.post(join_url, {}, format = 'json')
+        self.assertEqual(accept_response.status_code, status.HTTP_200_OK)
+        self.assertIn(f'You have joined the group Test Group.', accept_response.data)
+
+        # Check if user is in group
+        group_membership_exists = GroupMembership.objects.filter(
+            group_id = self.group_id,
+            profile = self.profile2,
+            is_accepted = True,
+            ).exists()
+        self.assertTrue(group_membership_exists)
+
+    def test_cannot_invite_user_to_group_using_email_as_non_organiser(self):
+        """
+        Test that non-organisers cannot invite users to the group
+        """
+        self.login_as("testuser2")
+        url = reverse('group-invite')
+        data = {"identifier": "test3@gmail.com"}
+
+        invite_response = self.client.post(url, data, format = 'json')
+
+        self.assertIn(invite_response.status_code, [status.HTTP_403_FORBIDDEN, status.HTTP_400_BAD_REQUEST])
+        self.assertIn("error", invite_response.data)
+
+        group_membership_exists = GroupMembership.objects.filter(
+            group_id = self.group_id,
+            profile = self.profile3,
+            is_accepted = True,
+        ).exists()
+        self.assertFalse(group_membership_exists)
 
     def test_join_group_by_code_requires_confirmation(self):
-        # User1 creates a group
-        group = Group.objects.create(name='Alpha Group', creator=self.profile1)
-        GroupMembership.objects.create(group=group, profile=self.profile1, role='organiser')
-        invite_code = group.invite_code
-
-        # User2 tries to join (as new client)
-        self.client.force_authenticate(user=self.user2)
-        response = self.client.post('/api/groups/join-by-code/', {'invite_code': invite_code})
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.data.get('confirmation_needed'))
-        # Not yet a member!
-        self.assertFalse(GroupMembership.objects.filter(group=group, profile=self.profile2).exists())
-
-    def test_membership_creation(self):
-        # Ensure a group and a profile exist
-        group = Group.objects.create(name='Membership Group', creator=self.profile1)
+        """
+        Test requiring confirmation to join by group code
+        """
+        self.login_as("testuser1")
+        url = reverse('group-join-by-code')
+        group_code = self.group.invite_code
+        data = {'code': "group_code"}
         
-        # Simulate user joining group as organiser
-        membership = GroupMembership.objects.create(group=group, profile=self.profile1, role='organiser')
-        self.assertEqual(membership.role, 'organiser')
-        self.assertEqual(membership.profile.user.username, 'damien')
-
-        # Ensure the membership exists in the DB
-        self.assertTrue(GroupMembership.objects.filter(group=group, profile=self.profile1, role='organiser').exists())
-        
-        # Joined date is set
-        self.assertIsNotNone(membership.joined_at)
-
-        # Negative check: this profile is not in the group as a participant
-        self.assertFalse(GroupMembership.objects.filter(group=group, profile=self.profile1, role='participant').exists())
+        # Send join request
+        request_response = self.client.post(url, data, format = 'json')
+        self.assertEqual(request_response.status_code, status.HTTP_200_OK)
+        self.assertTrue(request_response.data.get("confirmation_needed"))
+        self.assertTrue(request_response.data["group_info"]["invite_code"], group_code)
 
     def test_confirm_and_join_group_by_code(self):
-        group = Group.objects.create(name='Beta Group', creator=self.profile1)
-        GroupMembership.objects.create(group=group, profile=self.profile1, role='organiser')
-        invite_code = group.invite_code
+        """
+        Test Joining the group with a code and organiser needs to accept
+        """
+        self.login_as("testuser2")
+        url = reverse('group-join-by-code')
+        group_code = self.group.invite_code
+        data = {'code': "group_code"}
+        request_response = self.client.post(url, data, format = 'json')
 
-        self.client.force_authenticate(user=self.user2)
-        # Join with confirmation
-        response = self.client.post('/api/groups/join-by-code/', {'invite_code': invite_code, 'confirm_join': True})
-        self.assertEqual(response.status_code, 201)
-        self.assertIn('Successfully joined group', response.data['message'])
-        self.assertTrue(GroupMembership.objects.filter(group=group, profile=self.profile2).exists())
+        # Test if organiser can accept user
+        self.login_as("testuser1")
+        accept_url = reverse("group-accept-request")
+        accept_response = self.client.post(accept_url, {}, format = 'json')
+        self.assertEqual(accept_response.status_code, status.HTTP_200_OK)
+        self.assertIn(
+            "User testuser2 has been added to the group Test Group",
+            accept_response.data["message"]
+            )
 
-    def test_join_group_already_member(self):
-        group = Group.objects.create(name='Gamma Group', creator=self.profile1)
-        GroupMembership.objects.create(group=group, profile=self.profile1, role='organiser')
-        GroupMembership.objects.create(group=group, profile=self.profile2, role='participant')
-        invite_code = group.invite_code
+    def test_join_group_by_code_cannot_be_accepted_by_non_organiser(self):
+        """
+        Test if participants cannot accept requests
+        """
+        self.login_as("testuser2")
+        url = reverse('group-join-by-code')
+        group_code = self.group.invite_code
+        data = {'code': "group_code"}
+        request_response = self.client.post(url, data, format = 'json')
 
-        self.client.force_authenticate(user=self.user2)
-        response = self.client.post('/api/groups/join-by-code/', {'invite_code': invite_code, 'confirm_join': True})
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('Already a group member', response.data['error'])
+        # Test if organiser can accept user
+        self.login_as("testuser1")
+        invite_url = reverse('group-invite')
+        data = {"identifier": "test3@gmail.com"}
+        initial_invite_response = self.client.post(invite_url, data, format = 'json')
+
+        accept_url = reverse("group-accept-request")
+        self.login_as("testuser3")
+        accept_response = self.client.post(accept_url, {}, format = 'json')
+        self.assertEqual(accept_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn(
+            "Only organisers can accept join requests.",
+            accept_response.data["error"]
+            )
+
+    def test_join_group_if_already_member(self):
+        """
+        Test if a user cannot send another request to join the group again when inside
+        """
+        self.login_as("testuser2")
+        url = reverse('group-join-by-code')
+        group_code = self.group.invite_code
+        data = {'code': "group_code"}
+        request_response = self.client.post(url, data, format = 'json')
+        # Check if error message pops up properly
+        self.assertEqual(request_response.status_code, status.HTTP_200_OK)
+        self.assertIn(
+            "Already a group member",
+            request_response.data["error"]
+            )
 
     def test_leave_group_as_participant(self):
-        group = Group.objects.create(name='Omega Group', creator=self.profile1)
-        GroupMembership.objects.create(group=group, profile=self.profile1, role='organiser')
-        GroupMembership.objects.create(group=group, profile=self.profile2, role='participant')
-
-        self.client.force_authenticate(user=self.user2)
-        response = self.client.post(f'/api/groups/{group.id}/leave/')
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(GroupMembership.objects.filter(group=group, profile=self.profile2).exists())
+        """
+        Test that a participant can leave the group and is removed from membership
+        """
+        self.login_as("testuser2")
+        url = reverse('group-leave')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("You have left the group", response.data.get("message", ""))
+        self.assertFalse(GroupMembership.objects.filter(group = self.group, profile = self.profile2).exists())
 
     def test_leave_group_as_last_member_deletes_group(self):
-        group = Group.objects.create(name='Solo Group', creator=self.profile1)
-        GroupMembership.objects.create(group=group, profile=self.profile1, role='organiser')
-
-        # Only member tries to leave, first attempt should prompt confirmation
-        self.client.force_authenticate(user=self.user1)
-        response = self.client.post(f'/api/groups/{group.id}/leave/')
-        self.assertEqual(response.status_code, 400)
-        self.assertIn('warning', response.data)
-        self.assertTrue(Group.objects.filter(id=group.id).exists())
-
-        # Confirm deletion
-        response = self.client.post(f'/api/groups/{group.id}/leave/', {'confirm_delete': True})
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('deleted as you were the last member', response.data['message'])
-        self.assertFalse(Group.objects.filter(id=group.id).exists())
+        """
+        Test that if the last member leaves, the group is deleted
+        """
+        self.login_as("testuser1")
+        url = reverse('group-leave')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("Group deleted", response.data.get("message", ""))
+        self.assertFalse(Group.objects.filter(id = self.group.id).exists())
 
     def test_last_organiser_cannot_leave(self):
-        group = Group.objects.create(name='Org Group', creator=self.profile1)
-        GroupMembership.objects.create(group=group, profile=self.profile1, role='organiser')
-        GroupMembership.objects.create(group=group, profile=self.profile2, role='participant')
-
-        self.client.force_authenticate(user=self.user1)
-        response = self.client.post(f'/api/groups/{group.id}/leave/')
-        self.assertEqual(response.status_code, 403)
-        self.assertIn('You are the last organiser', response.data['error'])
+        """
+        Test that the last organiser cannot leave the group
+        """
+        self.login_as("testuser1")
+        url = reverse('group-leave')
+        response = self.client.post(url, {}, format = 'json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("last organiser", response.data.get("error", ""))
+        self.assertTrue(GroupMembership.objects.filter(group = self.group, profile = self.profile1, role = 'organiser').exists())
 
     def test_list_members_sorted(self):
-        group = Group.objects.create(name='Sorted Group', creator=self.profile1)
-        GroupMembership.objects.create(group=group, profile=self.profile1, role='organiser')
-        GroupMembership.objects.create(group=group, profile=self.profile2, role='participant')
-        # Add more participants
-        user3 = User.objects.create_user(username='cathy', password='password')
-        profile3 = Profile.objects.get(user=user3)  # Use auto-created profile
-        profile3.name = 'Cathy'
-        profile3.save()
-        GroupMembership.objects.create(group=group, profile=profile3, role='participant')
-
-        self.client.force_authenticate(user=self.user1)
-        response = self.client.get(f'/api/groups/{group.id}/members/')
-        self.assertEqual(response.status_code, 200)
-        # Organiser first
-        self.assertEqual(response.data[0]['role'], 'organiser')
-        # All participants follow, sorted by username
-        participant_usernames = [m['username'] for m in response.data if m['role'] == 'participant']
-        self.assertEqual(participant_usernames, sorted(participant_usernames))
+        """
+        Test that the group members are listed in sorted order (e.g., by join date or name)
+        """
+        self.login_as("testuser1")
+        url = reverse('group-members')
+        response = self.client.get(url, format = 'json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        members = response.data.get('members', [])
+        sorted_members = sorted(members, key = lambda m: m['name'])
+        self.assertEqual(members, sorted_members)
 
     def test_group_size_limit(self):
         """
-        Ensure a group cannot have more than 10 members.
+        Test that the group cannot exceed its size limit
         """
-        group = Group.objects.create(name='Big Group', creator=self.profile1)
-        GroupMembership.objects.create(group=group, profile=self.profile1, role='organiser')
-        # Add 9 more users (total 10)
-        for i in range(2, 11):
-            user = User.objects.create_user(username=f'user{i}', password='password')
-            profile = Profile.objects.get(user=user)
-            profile.name = f'User{i}'
-            profile.save()
-            GroupMembership.objects.create(group=group, profile=profile, role='participant')
-        # 11th user tries to join
-        user11 = User.objects.create_user(username='user11', password='password')
-        profile11 = Profile.objects.get(user=user11)
-        profile11.name = 'User11'
-        profile11.save()
-        self.client.force_authenticate(user=user11)
-        response = self.client.post('/api/groups/join-by-code/', {'invite_code': group.invite_code, 'confirm_join': True})
-        self.assertEqual(response.status_code, 403)
-        self.assertIn('Group is full', response.data['error'])
+        self.login_as("testuser1")
+        url = reverse('group-invite')
+        # Simulate group size limit reached
+        for i in range(10):
+            User.objects.create_user(username = f'user{i+4}', password = 'testpass123')
+            Profile.objects.create(user = User.objects.get(username = f'user{i+4}'), name = f'User{i+4}', email = f'user{i+4}@gmail.com', location = self.profile1.location)
+            data = {"identifier": f'user{i+4}@gmail.com'}
+            self.client.post(url, data, format = 'json')
+        # Now try to add one more
+        data = {"identifier": "overflow@gmail.com"}
+        response = self.client.post(url, data, format = 'json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("group is full", response.data.get("error", ""))
 
     def test_join_group_invalid_invite_code(self):
         """
-        Ensure joining with an invalid invite code returns 404.
+        Test that joining with an invalid invite code fails
         """
-        self.client.force_authenticate(user=self.user2)
-        response = self.client.post('/api/groups/join-by-code/', {'invite_code': 'INVALIDCODE'})
-        self.assertEqual(response.status_code, 404)
-        self.assertIn('Invalide invite code or Group does not exist', response.data['error'])
+        self.login_as("testuser2")
+        url = reverse('group-join-by-code')
+        data = {'code': "invalidcode"}
+        response = self.client.post(url, data, format = 'json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("Invalid invite code", response.data.get("error", ""))
 
     def test_join_group_full_group(self):
         """
-        Ensure joining a full group returns 403.
+        Test that joining a full group is not allowed
         """
-        group = Group.objects.create(name='Full Group', creator=self.profile1)
-        GroupMembership.objects.create(group=group, profile=self.profile1, role='organiser')
-        # Fill up the group
-        for i in range(2, 11):
-            user = User.objects.create_user(username=f'fulluser{i}', password='password')
-            profile = Profile.objects.get(user=user)
-            profile.name = f'FullUser{i}'
-            profile.save()
-            GroupMembership.objects.create(group=group, profile=profile, role='participant')
-        # Another user tries to join
-        user12 = User.objects.create_user(username='fulluser12', password='password')
-        profile12 = Profile.objects.get(user=user12)
-        profile12.name = 'FullUser12'
-        profile12.save()
-        self.client.force_authenticate(user=user12)
-        response = self.client.post('/api/groups/join-by-code/', {'invite_code': group.invite_code, 'confirm_join': True})
-        self.assertEqual(response.status_code, 403)
-        self.assertIn('Group is full', response.data['error'])
+        self.login_as("testuser2")
+        url = reverse('group-join-by-code')
+        # Simulate group is full
+        self.group.size_limit = 10
+        self.group.save()
+        for i in range(10):
+            User.objects.create_user(username=f'user{i+4}', password='testpass123')
+            Profile.objects.create(user=User.objects.get(username=f'user{i+4}'), name=f'User{i+4}', email=f'user{i+4}@gmail.com', location=self.profile1.location)
+            GroupMembership.objects.create(group = self.group, profile=Profile.objects.get(user__username=f'user{i+4}'), role='participant', is_accepted=True)
+        data = {'code': self.group.invite_code}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("group is full", response.data.get("error", ""))
 
     def test_join_group_invalid_confirmation(self):
         """
-        Ensure joining without confirmation returns the correct response.
+        Test that confirming with an invalid token or confirmation fails
         """
-        group = Group.objects.create(name='Confirm Group', creator=self.profile1)
-        GroupMembership.objects.create(group=group, profile=self.profile1, role='organiser')
-        invite_code = group.invite_code
-        self.client.force_authenticate(user=self.user2)
-        # Try to join without confirm_join
-        response = self.client.post('/api/groups/join-by-code/', {'invite_code': invite_code})
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.data.get('confirmation_needed'))
-        self.assertIn('Do you want to join the group', response.data['message'])
+        self.login_as("testuser2")
+        url = reverse('group-accept-invitation')
+        data = {'confirmation_token': 'invalidtoken'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("Invalid confirmation", response.data.get("error", ""))
