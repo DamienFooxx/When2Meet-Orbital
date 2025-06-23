@@ -15,7 +15,7 @@ class Location(models.Model):
     '''
     A model to encapsulate Location Data to be used by other models
     '''
-    postalcode = models.CharField(max_length = 50)
+    postalcode = models.CharField(max_length = 50, blank=True)
     city = models.CharField(max_length = 50, null = True, default = 'Singapore')
     country = CountryField(blank_label='(select country)', default='SG')
     street_address = models.CharField(max_length=255, blank=True, null=True)

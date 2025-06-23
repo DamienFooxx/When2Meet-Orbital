@@ -2,9 +2,9 @@ from django.db.models import Q
 from rest_framework import viewsets, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .tasks import sync_google_calendar_task, get_google_token, fetch_google_busy_slots
-from .models import Event, TimeSlot, CalendarEntry, ManualAvailability, Reminder
-from .serializers import (
+from availcalendar.tasks import sync_google_calendar_task, get_google_token, fetch_google_busy_slots
+from availcalendar.models import Event, TimeSlot, CalendarEntry, CalendarIntegration, ManualAvailability, Reminder
+from availcalendar.serializers import (
     EventSerializer,
     TimeSlotSerializer,
     ManualAvailabilitySerializer,
@@ -74,10 +74,10 @@ class CalendarEntryViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return CalendarEntry.objects.filter(user = self.request.user.profile)
+        return CalendarEntry.objects.filter(user_id = self.request.user.profile)
 
     def perform_create(self, serializer):
-        serializer.save(user = self.request.user.profile)
+        serializer.save(user_id = self.request.user.profile)
 
 class CalendarIntegrationViewSet(viewsets.ModelViewSet):
     """
@@ -91,6 +91,12 @@ class CalendarIntegrationViewSet(viewsets.ModelViewSet):
             user = request.user.profile
         ).exits()
         return Response({'connected' : exists})
+
+    def get_queryset(self):
+        return Reminder.objects.filter(user_id=self.request.user.profile)
+
+    def perform_create(self, serializer):
+        serializer.save(user_id = self.request.user.profile)
 
 class ManualAvailabilityViewSet(viewsets.ModelViewSet):
     """
@@ -114,10 +120,10 @@ class ReminderViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Reminder.objects.filter(user = self.request.user.profile)
+        return Reminder.objects.filter(user_id = self.request.user.profile)
 
     def perform_create(self, serializer):
-        serializer.save(user = self.request.user.profile)
+        serializer.save(user_id = self.request.user.profile)
 
 
 class GoogleCalendarSyncView(APIView):

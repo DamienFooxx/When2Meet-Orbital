@@ -89,30 +89,24 @@ class GroupViewSet(viewsets.ModelViewSet):
                 'error' : 'Not a member of the group.'
             }, status = status.HTTP_400_BAD_REQUEST)
         
+        # Checks if they are the last organiser
+        if membership.role == 'organiser':
+            organiser_count = GroupMembership.objects.filter(group = group, role = 'organiser').count()
+            # Checks if person leaving is the last organiser left in the group
+            if organiser_count == 1 and group.group_memberships.count() > 1:
+                return Response({
+                    'error' : 'You are the last organiser of the group. Assign another member as an organiser before leaving.'
+                }, status = status.HTTP_403_FORBIDDEN)
+
         member_count = GroupMembership.objects.filter(group = group).count()
 
         # Automatically delete Group if there are no members left
         if member_count == 1:
-            # Confirmation message
-            confirm = request.data.get('confirm_delete', False)
-            if not confirm:
-                return Response({
-                    'warning' : f'You are the last member of "{group.name}". Leaving the group will cause the group to be deleted. Confirm by sending {{"confirm_delete": true}} in your request.'
-                }, status = status.HTTP_400_BAD_REQUEST)
             # If confirmed
             group.delete()
             return Response({
                 'message': f'Group "{group.name}" deleted as you were the last member.'
             }, status = status.HTTP_200_OK)
-
-        # Checks if they are the last organiser
-        if membership.role == 'organiser':
-            organiser_count = GroupMembership.objects.filter(group = group, role = 'organiser').count()
-            # Checks if person leaving is the last organiser left in the group
-            if organiser_count == 1:
-                return Response({
-                    'error' : 'You are the last organiser of the group. Assign another member as an organiser before leaving.'
-                }, status = status.HTTP_403_FORBIDDEN)
 
         # Let the user leave the group
         membership.delete()
@@ -130,8 +124,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             is_accepted = False
         ).select_related('group', 'group_creator')
 
-        groups = [membership.group for membership in memberships]
-        serializer = GroupInvitationSerializer(groups, many = True, context = {'request': request})
+        serializer = GroupInvitationSerializer(memberships, many=True, context={'request': request})
         return Response(serializer.data)
 
     # Below are methods on joining groups
@@ -144,6 +137,11 @@ class GroupViewSet(viewsets.ModelViewSet):
         """
         group = self.get_object()
         profile = Profile.objects.get(user = request.user)
+
+        # Check if the user is an organiser
+        if not group.group_memberships.filter(profile=profile, role='organiser', is_accepted=True).exists():
+            return Response({'error': 'Only organisers can invite users.'}, status=status.HTTP_403_FORBIDDEN)
+
         identifiers = request.data.get('identifier') or request.data.get('identifiers')
 
         if not identifiers:
@@ -221,7 +219,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_200_OK)
         
         # Checks if group is full, keeping it low for now until search algo is efficient enough to allow big groups
-        if group.group_memberships.count() >= 10:
+        if group.group_memberships.count() >= group.max_size:
             return Response({
                 'error' : 'Group is full.'
             }, status = status.HTTP_403_FORBIDDEN)
@@ -255,115 +253,48 @@ class GroupViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='accept-request')
     def accept_request(self, request, pk=None):
         """
-        Allows the organizer to accept a join request.
+        Allows organisers to accept pending join requests
         """
         try: 
             group = Group.objects.get(id=pk)
-            membership_request = GroupMembership.objects.get(group=group, profile__user=request.user, is_accepted=False)
         except Group.DoesNotExist:
             return Response({'error': 'Group does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Check if the request.user is an organiser for this group
-        organiser_membership = GroupMembership.objects.filter(
-            group=group,
-            profile__user=request.user,
-            role='organiser',
-            is_accepted=True
-        ).exists()
-        if not organiser_membership:
+        organiser_profile = Profile.objects.get(user=request.user)
+        # check if user is an organiser
+        if not GroupMembership.objects.filter(group=group, profile=organiser_profile, role='organiser', is_accepted=True).exists():
             return Response({'error': 'Only organisers can accept join requests.'}, status=status.HTTP_403_FORBIDDEN)
 
-        # Let's get 'user_id' from the request body
-        user_id = request.data.get('user_id')
-        if not user_id:
-            return Response({'error': 'User ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        profile_id = request.data.get('profile_id')
         try:
-            membership_request = GroupMembership.objects.get(
-                group=group, 
-                profile__user__id=user_id, 
-                is_accepted=False
-            )
-        except GroupMembership.DoesNotExist:
-            return Response({'error': 'No pending requests for this user in this group.'}, status=status.HTTP_404_NOT_FOUND)
-            
-        # Mark the request as accepted
+            target_profile = Profile.objects.get(pk=profile_id)
+            membership_request = GroupMembership.objects.get(group=group, profile=target_profile, is_accepted=False)
+        except (Profile.DoesNotExist, GroupMembership.DoesNotExist):
+            return Response({'error': 'Request not found.'}, status=status.HTTP_404_NOT_FOUND)
+
         membership_request.is_accepted = True
+        membership_request.role = 'member'
         membership_request.save()
 
-        return Response({
-            'message': f'User {membership_request.profile.user.username} has been added to the group "{group.name}".'
-        }, status=status.HTTP_200_OK)
+        return Response({'message': f'{target_profile.name} has been added to the group.'}, status=status.HTTP_200_OK)
 
-    @action(detail = True, methods = ['post'], url_path = 'leave')
-    def leave_group(self, request, pk = None):
-        """
-        Allows users to leave the group
-        If they are the last member, prompt for confirmation before deleting the group.
-        Prevents last organiser from leaving without assigning another organiser.
-        """
+    @action(detail=True, methods=['post'], url_path='decline-request')
+    def decline_request(self, request, pk=None):
         group = self.get_object()
-        profile = Profile.objects.get(user = request.user)
-        membership = GroupMembership.objects.filter(group = group, profile = profile).first()
-        
+        profile = Profile.objects.get(user=request.user)
+
+        membership = GroupMembership.objects.filter(
+            group=group,
+            profile=profile,
+            is_accepted=False
+        ).first()
+
         if not membership:
-            return Response({
-                'error' : 'Not a member of the group.'
-            }, status = status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'No pending invitation to decline'}, status=status.HTTP_400_BAD_REQUEST)
         
-        member_count = GroupMembership.objects.filter(group = group).count()
-
-        # Automatically delete Group if there are no members left
-        if member_count == 1:
-            # Confirmation message
-            confirm = request.data.get('confirm_delete', False)
-            if not confirm:
-                return Response({
-                    'warning' : f'You are the last member of "{group.name}". Leaving the group will cause the group to be deleted. Confirm by sending {{"confirm_delete": true}} in your request.'
-                }, status = status.HTTP_400_BAD_REQUEST)
-            # If confirmed
-            group.delete()
-            return Response({
-                'message': f'Group "{group.name}" deleted as you were the last member.'
-            }, status = status.HTTP_200_OK)
-
-        # Checks if they are the last organiser
-        if membership.role == 'organiser':
-            organiser_count = GroupMembership.objects.filter(group = group, role = 'organiser').count()
-            # Checks if person leaving is the last organiser left in the group
-            if organiser_count == 1:
-                return Response({
-                    'error' : 'You are the last organiser of the group. Assign another member as an organiser before leaving.'
-                }, status = status.HTTP_403_FORBIDDEN)
-
-        # Let the user leave the group
         membership.delete()
-        return Response({
-            'message': f'You have left the group "{group.name}".'
-        }, status=status.HTTP_200_OK)
 
-    @action(detail = True, methods = ['get'], url_path = 'members')
-    def list_members(self, request, pk = None):
-        """
-        Lists all group members, organisers appear at the top
-        """
-        try:
-            group = self.get_object()
-            memberships = group.group_memberships.select_related('profile__user').all()
-            
-            # Ordered by role, organisers first, then join by username alphabetically
-            memberships = memberships.order_by(
-                models.Case(
-                    models.When(role = 'organiser', then = 0),
-                    models.When(role = 'member', then = 1),
-                    output_field = models.IntegerField(),
-                ),
-                'profile__user__username'
-            )
-            serializer = GroupMembershipListSerializer(memberships, many = True)
-            return Response(serializer.data)
-        except Exception as e:
-            print("Error in list_members:", e)
-            return Response({"error": str(e)}, status=500)
+        return Response({'message': f'You have declined the invitation to join "{group.name}".'}, status=status.HTTP_200_OK)
     
     def list(self, request, *args, **kwargs):
         print("Fetching groups for:", request.user)

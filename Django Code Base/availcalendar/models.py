@@ -1,6 +1,8 @@
+import datetime
 from django.db import models
 from accounts.models import Profile, Location
 from groups.models import Group
+from django.utils import timezone
 from datetime import timedelta
 from django.core.exceptions import ValidationError
 
@@ -39,8 +41,13 @@ class Event(models.Model):
 
 class TimeSlot(models.Model):
     """
-    A model to store timeslots in the database
+    A model to store potential timeslots for events in the database
     """
+    user = models.ForeignKey(
+        'accounts.Profile',
+        on_delete=models.CASCADE,
+        related_name="timeslots"
+    )
     event_id = models.ForeignKey(
         Event,
         on_delete = models.CASCADE,
@@ -48,8 +55,11 @@ class TimeSlot(models.Model):
         null = True,
         blank = True,
     )
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    start_date = models.DateField()
+    start_time = models.TimeField()
+    end_date = models.DateField()
+    end_time = models.TimeField()
+    duration = models.IntegerField(default=60)
     status = models.CharField(
         max_length = 20,
         choices = [('not confirmed', 'Not Confirmed'), ('confirmed', 'Confirmed')],
@@ -60,27 +70,8 @@ class TimeSlot(models.Model):
         ordering = ['start_time']
         unique_together = ('event_id', 'start_time', 'end_time', 'status')
 
-    def clean(self):
-        super().clean()
-        # 1) Duration must be at least 15 minutes
-        duration = self.end_time - self.start_time
-        if duration < timedelta(minutes = 15):
-            raise ValidationError("TimeSlot must be at least 15 minutes long.")
-
-        # 2) (Optional) Align start/end on 15-minute boundaries
-        for dt, name in ((self.start_time, "start_time"), (self.end_time, "end_time")):
-            if dt.minute % 15 != 0 or dt.second != 0 or dt.microsecond != 0:
-                raise ValidationError({
-                    name: f"{name} must be on a 15-minute boundary (e.g. 00, 15, 30, 45)."
-                })
-
-    def save(self, *args, **kwargs):
-        # run clean() before saving
-        self.full_clean()
-        super().save(*args, **kwargs)
-
     def __str__(self):
-        return f"{self.created_by.user.username}: {self.start_time.isoformat()} – {self.end_time.isoformat()} ({self.status})"
+        return f"{self.user.user.username}: {self.start_time.isoformat()} – {self.end_time.isoformat()} ({self.status})"
 
 class CalendarEntry(models.Model):
     """
@@ -91,8 +82,11 @@ class CalendarEntry(models.Model):
     """
     title = models.CharField(max_length = 100)
     description = models.CharField(max_length = 500, blank = True)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    start_date = models.DateField()
+    start_time = models.TimeField()
+    end_date = models.DateField()
+    end_time = models.TimeField()
+    duration = models.IntegerField(default=60)
     created_at = models.DateTimeField(auto_now_add = True, editable = False)
     updated_at = models.DateTimeField(auto_now_add = True)
     source = models.CharField(
@@ -135,7 +129,7 @@ class CalendarIntegration(models.Model):
         choices = [('google', 'Google')],
         default = 'google',
     )
-    # Google’s unique user ID (the “sub” claim in their ID token)
+    # Google's unique user ID (the "sub" claim in their ID token)
     external_id = models.CharField(
         max_length = 255,
         help_text = "Google user ID (sub)"
@@ -173,8 +167,11 @@ class ManualAvailability(models.Model):
     """
     This is a model to store the manually inputed availabilities of user on the in app calendar
     """
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    start_date = models.DateField()
+    start_time = models.TimeField()
+    end_date = models.DateField()
+    end_time = models.TimeField()
+    duration = models.IntegerField(default=60)
     recurrence = models.CharField(
         max_length=200,
         blank=True,
@@ -190,20 +187,6 @@ class ManualAvailability(models.Model):
         ordering = ['start_time']
         verbose_name = 'Manual Availability'
         verbose_name_plural = 'Manual Availabilities'
-
-    def clean(self):
-        super().clean()
-        # end must be after start
-        if self.end_time <= self.start_time:
-            raise ValidationError("`end_time` must be after `start_time`.")
-        # enforce 15-minute minimum
-        if (self.end_time - self.start_time) < timedelta(minutes=15):
-            raise ValidationError("Intervals must be at least 15 minutes long.")
-
-    def save(self, *args, **kwargs):
-        # run our clean() before saving
-        self.full_clean()
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.start_time} to {self.end_time}"
