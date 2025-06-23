@@ -45,10 +45,16 @@ class LocationTestCase(APITestCase):
         with self.assertRaises(ValidationError):
             loc.save()
     
-    def test_location_str_representation(self):
+    @patch('accounts.models.geolocator.geocode')
+    def test_location_str_representation(self, mock_geocode):
         """
         Test the __str__ method of Location model returns the correct value
         """
+        # Mock geocode
+        mock_location = MagicMock()
+        mock_location.latitude = 1.3521
+        mock_location.longitude = 103.8198
+        mock_geocode.return_value = mock_location
         # Case 1: postalcode is set
         loc1 = Location.objects.create(
             postalcode = "117417",
@@ -56,7 +62,7 @@ class LocationTestCase(APITestCase):
             country = "SG",
             street_address = "13 Computing Drive"
         )
-        self.assertEqual(str(loc1), "123456")
+        self.assertEqual(str(loc1), "117417")
 
         # Case 2: postalcode is blank, fallback to street_address
         loc2 = Location.objects.create(
@@ -64,7 +70,7 @@ class LocationTestCase(APITestCase):
             city = "Singapore",
             street_address = "6 College Avenue East"
         )
-        self.assertEqual(str(loc2), "10 Marina Blvd")
+        self.assertEqual(str(loc2), "6 College Avenue East")
 
 
 class AccountTestCase(APITestCase):
@@ -72,6 +78,13 @@ class AccountTestCase(APITestCase):
     Test suite for the accounts app functionality
     """
     def setUp(self):
+        # Mock geocode
+        self.mock_geocode = patch('accounts.models.geolocator.geocode').start()
+        mock_location = MagicMock()
+        mock_location.latitude = 1.3521
+        mock_location.longitude = 103.8198
+        self.mock_geocode.return_value = mock_location
+
         # Create test users
         self.user1 = User.objects.create_user(
             username = 'testuser1', 
@@ -95,7 +108,7 @@ class AccountTestCase(APITestCase):
             country = "SG",
             street_address = "13 Computing Drive"
         )
-        self.assertEqual(str(loc1), "123456")
+        self.assertEqual(str(loc1), "117417")
 
         loc2 = Location.objects.create(
             postalcode = "138614",
@@ -107,6 +120,9 @@ class AccountTestCase(APITestCase):
         # Set up API client
         self.client = APIClient()
         self.client.force_authenticate(user=self.user1)
+
+    def tearDown(self):
+        patch.stopall()
 
     def test_profile_creation(self):
         """
@@ -128,23 +144,28 @@ class AccountTestCase(APITestCase):
         """
         Test updating profile information
         """
-        url = reverse('profile', kwargs = {'pk' = self.profile1.pk})
+        url = reverse('profile')
+        loc = Location.objects.create(
+            postalcode = "117417", 
+            city = "Singapore", 
+            country = "SG", 
+            street_address =  "13 Computing Drive"
+            )
 
         updated_data = {
             "name": "Test test",
-            "location": loc1.id
+            "location": loc.id
         }
 
-        response = self.client.patch(url, data = updated_data, format = 'json')
+        response = self.client.put(url, data = updated_data, format = 'json')
 
         # Check if successfully updated
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Refresh profile details
         self.profile1.refresh_from_db()
         self.assertEqual(self.profile1.name, "Test test")
-        self.assertEqual(self.profile1.google_id, "test1@gmail.com")
-        self.assertEqual(self.profile1.location, loc1.id)
+        self.assertEqual(self.profile1.location.id, loc.id)
 
     def test_unique_id_generation(self):
         """
@@ -186,7 +207,7 @@ class AccountTestCase(APITestCase):
         """
         self.client.logout()  # ensure no user is authenticated
 
-        url = reverse('profile-detail', kwargs={'pk': self.profile1.pk})
+        url = reverse('profile')
 
         response = self.client.get(url)
 
@@ -200,12 +221,11 @@ class AccountTestCase(APITestCase):
         user = User.objects.create_user(username = 'blanktest', password = 'pass123')
 
         # Manually create a profile with optional fields left blank
-        profile = Profile.objects.create(user = user)
+        profile = user.profile
 
         # Check that the profile is created and blank fields are empty
         self.assertIsNotNone(profile)
         self.assertEqual(profile.name, "")
-        self.assertIsNone(profile.google_id)
         self.assertIsNone(profile.location)
 
     def test_user_creation_api(self):
@@ -213,13 +233,14 @@ class AccountTestCase(APITestCase):
         Test user registration endpoint creates a new profile
         """
         data = {
-            "email": "newuser@gmail.com"
-            "password": "newpass123",
-            "name": "New User"
-            "location": loc1.id
+            "username": "newuser",
+            "email": "newuser@gmail.com",
+            "password1": "newpass123",
+            "password2": "newpass123"
         }
 
-        response = self.client.post("/api/profile/", data, format = 'json')
+        response = self.client.post("/api/auth/registration/", data, format = 'json')
         self.assertEqual(response.status_code, 201)
 
-        self.assertTrue(Profile.objects.filter(name = "newuser").exists())
+        self.assertTrue(User.objects.filter(username = "newuser").exists())
+        self.assertTrue(Profile.objects.filter(user__username = "newuser").exists())
