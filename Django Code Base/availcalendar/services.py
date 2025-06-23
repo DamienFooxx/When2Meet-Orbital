@@ -17,10 +17,10 @@ def sync_google_integration(user):
     token_expiry  = soc_tok.expires_at or timezone.now()
 
     CalendarIntegration.objects.update_or_create(
-        provider='google',
-        user_id=profile,
+        provider = 'google',
+        user_id = profile,
         defaults={
-            'external_id':  external_id,
+            'external_id': external_id,
             'access_token': access_token,
             'refresh_token': refresh_token,
             'token_expiry': token_expiry,

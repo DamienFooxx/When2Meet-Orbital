@@ -46,8 +46,7 @@ class GroupSerializer(serializers.ModelSerializer):
         request = self.context['request']
         user = request.user
         profile = Profile.objects.get(user=user)
-
-
+        
         # prevents duplicate group names before creating
         if Group.objects.filter(name=validated_data['name'], creator=profile).exists():
             raise serializers.ValidationError("You already have a group with this name.")

@@ -26,7 +26,7 @@ class FreeBusyRequestSerializer(serializers.Serializer):
     start = serializers.DateTimeField()  # Start datetime (ISO 8601)
     end = serializers.DateTimeField()    # End datetime (ISO 8601)
     calendars = serializers.ListField(
-        child=serializers.CharField(),
-        required=False,
-        default=['primary'] # Defaults to the primary calendar if not specified
+        child = serializers.CharField(),
+        required = False,
+        default = ['primary'] # Defaults to the primary calendar if not specified
     )

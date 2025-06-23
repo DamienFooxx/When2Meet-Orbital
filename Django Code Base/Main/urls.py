@@ -22,6 +22,8 @@ from django.http import HttpResponse
 urlpatterns = [
     path('', lambda request: HttpResponse('When2Meet Backend is running!'), name='home'),
     path('admin/', admin.site.urls),
+
+    # authentication-related
     path('api/auth/', include('dj_rest_auth.urls')),
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
     path('api/', include('accounts.urls')),

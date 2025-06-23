@@ -13,7 +13,7 @@ from .serializers import (
     ReminderSerializer,
 )
 from accounts.serializers import FreeBusyRequestSerializer
-
+from groups.models import GroupMembership
 
 class EventViewSet(viewsets.ModelViewSet):
     """
@@ -25,12 +25,30 @@ class EventViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         profile = self.request.user.profile
         return Event.objects.filter(
-            Q(participants=profile) | Q(creator=profile)
+            Q(participants = profile) | Q(creator = profile)
         ).distinct()
 
     def perform_create(self, serializer):
-        serializer.save(creator=self.request.user.profile)
+        serializer.save(creator = self.request.user.profile)
 
+    def destroy(self, request, *args, **kwargs):
+        event = self.get_object()
+        user_profile = request.user.profile
+        # If event is linked to a group, check organiser role
+        if event.group:
+            is_organiser = GroupMembership.objects.filter(
+                group = event.group,
+                profile = user_profile,
+                role = 'organiser',
+                is_accepted = True
+            ).exists()
+            if not is_organiser:
+                return Response({'detail': 'Only organisers can delete events from the group.'}, status = status.HTTP_403_FORBIDDEN)
+        else:
+            # If not a group event, only creator can delete
+            if event.creator != user_profile:
+                return Response({'detail': 'Only the creator can delete this event.'}, status = status.HTTP_403_FORBIDDEN)
+        return super().destroy(request, *args, **kwargs)
 
 class TimeSlotViewSet(viewsets.ModelViewSet):
     """
@@ -42,12 +60,11 @@ class TimeSlotViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         profile = self.request.user.profile
         return TimeSlot.objects.filter(
-            Q(event__participants=profile) | Q(event__creator=profile)
+            Q(event__participants = profile) | Q(event__creator = profile)
         ).distinct()
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user.profile)
-
+        serializer.save(user = self.request.user.profile)
 
 class CalendarEntryViewSet(viewsets.ModelViewSet):
     """
@@ -57,11 +74,23 @@ class CalendarEntryViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return CalendarEntry.objects.filter(user=self.request.user.profile)
+        return CalendarEntry.objects.filter(user = self.request.user.profile)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user.profile)
+        serializer.save(user = self.request.user.profile)
 
+class CalendarIntegrationViewSet(viewsets.ModelViewSet):
+    """
+    CRUD for CalendarIntegration to check if Google Calendar is sucessfully connected
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        exists = CalendarIntegration.objects.filter(
+            provider = 'google',
+            user = request.user.profile
+        ).exits()
+        return Response({'connected' : exists})
 
 class ManualAvailabilityViewSet(viewsets.ModelViewSet):
     """
@@ -74,7 +103,7 @@ class ManualAvailabilityViewSet(viewsets.ModelViewSet):
         return ManualAvailability.objects.filter(user=self.request.user.profile)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user.profile)
+        serializer.save(user = self.request.user.profile)
 
 
 class ReminderViewSet(viewsets.ModelViewSet):
@@ -85,10 +114,10 @@ class ReminderViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Reminder.objects.filter(user=self.request.user.profile)
+        return Reminder.objects.filter(user = self.request.user.profile)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user.profile)
+        serializer.save(user = self.request.user.profile)
 
 
 class GoogleCalendarSyncView(APIView):
@@ -99,39 +128,39 @@ class GoogleCalendarSyncView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        serializer = FreeBusyRequestSerializer(data=request.query_params)
-        serializer.is_valid(raise_exception=True)
+        serializer = FreeBusyRequestSerializer(data = request.query_params)
+        serializer.is_valid(raise_exception = True)
         start = serializer.validated_data['start']
         end = serializer.validated_data['end']
         calendars = serializer.validated_data.get('calendars', ['primary'])
 
         token = get_google_token(request.user.id)
         if not token:
-            return Response({"error": "Google account not connected"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Google account not connected"}, status = status.HTTP_400_BAD_REQUEST)
 
         busy, error = fetch_google_busy_slots(start, end, token, calendars)
         if error:
             return Response(
                 {"error": "Failed to fetch from Google", "details": error},
-                status=status.HTTP_502_BAD_GATEWAY
+                status = status.HTTP_502_BAD_GATEWAY
             )
 
         return Response({"busy": busy}, status=status.HTTP_200_OK)
 
     def put(self, request):
-        serializer = FreeBusyRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer = FreeBusyRequestSerializer(data = request.data)
+        serializer.is_valid(raise_exception = True)
         start = serializer.validated_data['start']
         end = serializer.validated_data['end']
         calendars = serializer.validated_data.get('calendars', ['primary'])
 
         sync_google_calendar_task.delay(
-            user_id=request.user.id,
-            start_iso=start.isoformat(),
-            end_iso=end.isoformat(),
-            calendar_ids=calendars
+            user_id = request.user.id,
+            start_iso = start.isoformat(),
+            end_iso = end.isoformat(),
+            calendar_ids = calendars
         )
         return Response(
             {"message": "Calendar synchronization initiated."},
-            status=status.HTTP_202_ACCEPTED
+            status = status.HTTP_202_ACCEPTED
         )
