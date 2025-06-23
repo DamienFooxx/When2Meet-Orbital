@@ -1,10 +1,10 @@
 from rest_framework import serializers
 from .models import Event, TimeSlot, ManualAvailability, CalendarIntegration, CalendarEntry, Reminder
 from accounts.models import Profile, Location
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class EventSerializer(serializers.ModelSerializer):
-    location = serializers.PrimaryKeyRelatedField(queryset = Location.objects.all(), allow_null=True)
+    location = serializers.PrimaryKeyRelatedField(queryset = Location.objects.all(), allow_null=True, source='location_id')
     creator = serializers.PrimaryKeyRelatedField(queryset = Profile.objects.all())
     participants = serializers.PrimaryKeyRelatedField(
         many = True,
@@ -20,25 +20,52 @@ class EventSerializer(serializers.ModelSerializer):
             'created_at',
             'creator',
             'location',
-            'group'
+            'group',
             'participants',
         ]
         read_only_fields = ['id', 'created_at']
 
 class TimeSlotSerializer(serializers.ModelSerializer):
     user  = serializers.PrimaryKeyRelatedField(queryset = Profile.objects.all())
-    event = serializers.PrimaryKeyRelatedField(queryset= Event.objects.all(), allow_null = True, required = False)
+    event = serializers.PrimaryKeyRelatedField(queryset= Event.objects.all(), allow_null = True, required = False, source='event_id')
 
     class Meta:
         model = TimeSlot
         fields = [
             'id',
             'event',
-            'start',
-            'end',
+            'user',
+            'start_date',
+            'start_time',
+            'end_date',
+            'end_time',
+            'duration',
             'status',
         ]
         read_only_fields = ['id']
+
+    def validate(self, data):
+        start = datetime.combine(data['start_date'], data['start_time'])
+        end = datetime.combine(data['end_date'], data['end_time'])
+        if end <= start:
+            raise serializers.ValidationError({
+                "end_date": "End must be after start."
+            })
+        expected_duration = int((end - start).total_seconds() // 60)
+        if data['duration'] != expected_duration:
+            raise serializers.ValidationError({
+                "duration": "Duration does not match start/end."
+            })
+        if expected_duration % 15 != 0:
+            raise serializers.ValidationError({
+                "duration": "Duration must be a multiple of 15 minutes."
+            })
+        for t, name in ((data['start_time'], 'start_time'), (data['end_time'], 'end_time')):
+            if t.minute % 15 != 0 or t.second != 0 or t.microsecond != 0:
+                raise serializers.ValidationError({
+                    name: f"{name} must be on a 15-minute boundary (e.g. 00, 15, 30, 45)."
+                })
+        return data
 
 class CalendarEntrySerializer(serializers.ModelSerializer):
     location = serializers.PrimaryKeyRelatedField(
@@ -62,8 +89,11 @@ class CalendarEntrySerializer(serializers.ModelSerializer):
             'id',
             'title',
             'description',
+            'start_date',
             'start_time',
+            'end_date',
             'end_time',
+            'duration',
             'created_at',
             'updated_at',
             'source',
@@ -73,6 +103,29 @@ class CalendarEntrySerializer(serializers.ModelSerializer):
             'event',
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def validate(self, data):
+        start = datetime.combine(data['start_date'], data['start_time'])
+        end = datetime.combine(data['end_date'], data['end_time'])
+        if end <= start:
+            raise serializers.ValidationError({
+                "end_date": "End must be after start."
+            })
+        expected_duration = int((end - start).total_seconds() // 60)
+        if data['duration'] != expected_duration:
+            raise serializers.ValidationError({
+                "duration": "Duration does not match start/end."
+            })
+        if expected_duration % 15 != 0:
+            raise serializers.ValidationError({
+                "duration": "Duration must be a multiple of 15 minutes."
+            })
+        for t, name in ((data['start_time'], 'start_time'), (data['end_time'], 'end_time')):
+            if t.minute % 15 != 0 or t.second != 0 or t.microsecond != 0:
+                raise serializers.ValidationError({
+                    name: f"{name} must be on a 15-minute boundary (e.g. 00, 15, 30, 45)."
+                })
+        return data
 
 class CalendarIntegrationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -113,8 +166,11 @@ class ManualAvailabilitySerializer(serializers.ModelSerializer):
         model = ManualAvailability
         fields = [
             'id',
+            'start_date',
             'start_time',
+            'end_date',
             'end_time',
+            'duration',
             'freq',
             'interval',
             'by_day',
@@ -156,6 +212,29 @@ class ManualAvailabilitySerializer(serializers.ModelSerializer):
         if rrule_data:
             validated_data['recurrence'] = self._build_rrule(rrule_data)
         return super().update(instance, validated_data)
+
+    def validate(self, data):
+        start = datetime.combine(data['start_date'], data['start_time'])
+        end = datetime.combine(data['end_date'], data['end_time'])
+        if end <= start:
+            raise serializers.ValidationError({
+                "end_date": "End must be after start."
+            })
+        expected_duration = int((end - start).total_seconds() // 60)
+        if data['duration'] != expected_duration:
+            raise serializers.ValidationError({
+                "duration": "Duration does not match start/end."
+            })
+        if expected_duration % 15 != 0:
+            raise serializers.ValidationError({
+                "duration": "Duration must be a multiple of 15 minutes."
+            })
+        for t, name in ((data['start_time'], 'start_time'), (data['end_time'], 'end_time')):
+            if t.minute % 15 != 0 or t.second != 0 or t.microsecond != 0:
+                raise serializers.ValidationError({
+                    name: f"{name} must be on a 15-minute boundary (e.g. 00, 15, 30, 45)."
+                })
+        return data
 
 class ReminderSerializer(serializers.ModelSerializer):
     # Expose the FK fields under nicer names

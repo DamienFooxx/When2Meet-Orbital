@@ -344,9 +344,13 @@ Manage time slot suggestions for events the user is involved in.
       {
         "id": 12,
         "event": 5,
-        "start_time": "2025-06-21T10:00:00Z",
-        "end_time": "2025-06-21T11:00:00Z",
-        "status": "pending"
+        "user": 7,
+        "start_date": "2025-06-21",
+        "start_time": "10:00:00",
+        "end_date": "2025-06-21",
+        "end_time": "11:00:00",
+        "duration": 60,
+        "status": "not confirmed"
       },
       ...
     ]
@@ -358,11 +362,21 @@ Manage time slot suggestions for events the user is involved in.
     ```json
     {
       "event": 5,
-      "start_time": "2025-06-21T10:00:00Z",
-      "end_time": "2025-06-21T11:00:00Z",
+      "user": 7,
+      "start_date": "2025-06-21",
+      "start_time": "10:00:00",
+      "end_date": "2025-06-21",
+      "end_time": "11:00:00",
+      "duration": 60,
       "status": "not confirmed"
     }
     ```
+    - **Returns:** Created time slot object.
+    - **Validation:**
+      - `end` must be after `start`.
+      - `duration` must match the difference between start and end (in minutes).
+      - `duration` must be a multiple of 15 minutes.
+      - `start_time` and `end_time` must be on a 15-minute boundary (e.g. 00, 15, 30, 45).
 
 ---
 
@@ -378,10 +392,17 @@ Manage the user's personal calendar entries (manual or synced).
         "id": 101,
         "title": "Gym",
         "description": "",
-        "start_time": "2025-06-21T16:00:00Z",
-        "end_time": "2025-06-21T17:00:00Z",
+        "start_date": "2025-06-21",
+        "start_time": "16:00:00",
+        "end_date": "2025-06-21",
+        "end_time": "17:00:00",
+        "duration": 60,
+        "created_at": "2025-06-20T15:00:00Z",
+        "updated_at": "2025-06-20T15:00:00Z",
         "source": "manual",
+        "google_event_id": null,
         "location": 3,
+        "user": 7,
         "event": null
       },
       ...
@@ -389,19 +410,29 @@ Manage the user's personal calendar entries (manual or synced).
     ```
 
 - `POST /availcalendar/calendar-entries/`
-    - Creates a new calendar entry (manual or group event).
+    - Creates a new calendar entry (manual, group, or Google event).
     - **Body:**
     ```json
     {
       "title": "Gym",
       "description": "",
-      "start_time": "2025-06-21T16:00:00Z",
-      "end_time": "2025-06-21T17:00:00Z",
+      "start_date": "2025-06-21",
+      "start_time": "16:00:00",
+      "end_date": "2025-06-21",
+      "end_time": "17:00:00",
+      "duration": 60,
       "source": "manual",
-      "event": 2,
-      "location": 3
+      "location": 3,
+      "user": 7,
+      "event": 2
     }
     ```
+    - **Returns:** Created calendar entry object.
+    - **Validation:**
+      - `end` must be after `start`.
+      - `duration` must match the difference between start and end (in minutes).
+      - `duration` must be a multiple of 15 minutes.
+      - `start_time` and `end_time` must be on a 15-minute boundary (e.g. 00, 15, 30, 45).
 
 ---
 
@@ -412,6 +443,7 @@ Check if Google Calendar is connected for the user.
     ```json
     { "connected": true }
     ```
+    - **Note:** Returns `false` if not connected. Checks for provider = 'google' and user = current user.
 
 ---
 
@@ -425,14 +457,12 @@ Manage manual availability time blocks for the user.
     [
       {
         "id": 8,
-        "start_time": "2025-06-21T14:00:00Z",
-        "end_time": "2025-06-21T15:00:00Z",
-        "recurrence": {
-          "freq": "WEEKLY",
-          "interval": 1,
-          "by_day": ["MO", "WE"],
-          "until": "2025-08-01T00:00:00Z"
-        }
+        "start_date": "2025-06-21",
+        "start_time": "14:00:00",
+        "end_date": "2025-06-21",
+        "end_time": "15:00:00",
+        "duration": 60,
+        "recurrence": "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,WE;UNTIL=20250801T000000Z"
       },
       ...
     ]
@@ -443,14 +473,25 @@ Manage manual availability time blocks for the user.
     - **Body:**
     ```json
     {
-      "start_time": "2025-06-21T14:00:00Z",
-      "end_time": "2025-06-21T15:00:00Z",
+      "start_date": "2025-06-21",
+      "start_time": "14:00:00",
+      "end_date": "2025-06-21",
+      "end_time": "15:00:00",
+      "duration": 60,
       "freq": "WEEKLY",
       "interval": 1,
       "by_day": ["MO", "WE"],
-      "until": "2025-08-01T00:00:00Z"
+      "until": "2025-08-01T00:00:00Z",
+      "count": 10
     }
     ```
+    - **Returns:** Created manual availability object (with `recurrence` string).
+    - **Validation:**
+      - `end` must be after `start`.
+      - `duration` must match the difference between start and end (in minutes).
+      - `duration` must be a multiple of 15 minutes.
+      - `start_time` and `end_time` must be on a 15-minute boundary (e.g. 00, 15, 30, 45).
+      - Recurrence rule is built from `freq`, `interval`, `by_day`, `until`, `count`.
 
 ---
 
@@ -465,7 +506,8 @@ Manage reminders linked to a calendar entry.
       {
         "id": 4,
         "remind_at": "2025-06-21T12:00:00Z",
-        "calendar_entry": 7
+        "calendar_entry": 7,
+        "user": 7
       },
       ...
     ]
@@ -477,16 +519,18 @@ Manage reminders linked to a calendar entry.
     ```json
     {
       "remind_at": "2025-06-21T12:00:00Z",
-      "calendar_entry": 7
+      "calendar_entry": 7,
+      "user": 7
     }
     ```
+    - **Returns:** Created reminder object.
 
 ---
 
 ### `GoogleCalendarSyncView.get` (`GET /availcalendar/google-sync/`)
 Preview Google Calendar busy slots via FreeBusy API.
 
-- **Query Params:** `start`, `end`, `calendars?`
+- **Query Params:** `start`, `end`, `calendars?` (ISO 8601, calendars is optional, default ["primary"])
 - **Returns:**
     ```json
     {
@@ -496,6 +540,7 @@ Preview Google Calendar busy slots via FreeBusy API.
       ]
     }
     ```
+    - **Error:** `{ "error": "Google account not connected" }` (400) or `{ "error": "Failed to fetch from Google", "details": ... }` (502)
 
 ---
 
@@ -514,3 +559,4 @@ Asynchronously sync busy slots from Google Calendar into the database.
     ```json
     { "message": "Calendar synchronization initiated." }
     ```
+    - **Error:** `{ "error": ... }` (400/502)

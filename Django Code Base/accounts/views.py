@@ -7,7 +7,7 @@ from .serializers import FreeBusyRequestSerializer
 import requests
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from rest_framework.response import Response
-from .models import Profile
+from .models import Profile, Location
 from rest_framework import status
 from django.contrib.auth import get_user_model
 import traceback
@@ -62,7 +62,7 @@ class ProfileView(APIView):
         except Profile.DoesNotExist:
             return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         return Response({
-            'unique_id': profile.unique_id
+            'unique_id': profile.unique_id,
             'username': request.user.username,
             'email': request.user.email,
             'name': profile.name,
@@ -73,14 +73,25 @@ class ProfileView(APIView):
         """
         Update the authenticated user's profile information.
         """
-        profile = Profile.objects.get(user=request.user)
+        profile = Profile.objects.get(user = request.user)
         profile.name = request.data.get('name', profile.name)
-        profile.location = request.data.get('location', profile.location)
+        
+        if 'location' in request.data:
+            location_id = request.data.get('location')
+            if location_id is None:
+                profile.location = None
+            else:
+                try:
+                    location = Location.objects.get(id=location_id)
+                    profile.location = location
+                except (Location.DoesNotExist, ValueError):
+                    return Response({"error": "Invalid location ID"}, status=status.HTTP_400_BAD_REQUEST)
+
         profile.save()
         return Response({
+            'unique_id': profile.unique_id,
             'name': profile.name,
-            'location': profile.location,
-            'unique_id': profile.unique_id
+            'location': profile.location.id if profile.location else None,
         })
 
 class GoogleCalendarFreeBusyView(APIView):
