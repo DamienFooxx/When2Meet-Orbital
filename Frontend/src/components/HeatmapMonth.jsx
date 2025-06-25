@@ -118,7 +118,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-        paddingHorizontal: 10,
+        paddingHorizontal: 39,
+        paddingTop: 10,
         marginBottom: 4,
     },
     weekday: {
@@ -130,11 +131,11 @@ const styles = StyleSheet.create({
     grid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        width: 240,
+        width: 300,
     },
     cell: {
-        width: 30,
-        height: 30,
+        width: 40,
+        height: 40,
         margin: 1,
         justifyContent: 'center',
         alignItems: 'center',

@@ -5,39 +5,7 @@ from groups.models import Group
 from django.utils import timezone
 from datetime import timedelta
 from django.core.exceptions import ValidationError
-
-class Event(models.Model):
-    """
-    A table to hold event details
-    """
-    title = models.CharField(max_length = 50)
-    description = models.CharField(max_length = 500, blank = True)
-    created_at = models.DateTimeField(auto_now_add = True)
-    creator = models.ForeignKey(
-        'accounts.Profile',
-        on_delete = models.CASCADE,
-        related_name = "created_events",
-    )
-    location_id = models.ForeignKey(
-        'accounts.Location',
-        on_delete = models.SET_NULL,
-        null = True,
-        blank = True,
-        related_name = "events",
-    )
-    group = models.ForeignKey(
-        'groups.Group',
-        on_delete = models.CASCADE,
-        related_name = "events",
-        null = True
-    )
-    participants = models.ManyToManyField(
-        'accounts.Profile',
-        related_name = "events",
-    )
-
-    def __str__(self):
-        return self.title
+from events.models import Event
 
 class TimeSlot(models.Model):
     """
