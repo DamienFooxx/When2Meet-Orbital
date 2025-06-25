@@ -4,7 +4,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
-from availcalendar.models import Event, TimeSlot, CalendarEntry, ManualAvailability, Reminder, EventParticipant
+from availcalendar.models import TimeSlot, CalendarEntry, ManualAvailability, Reminder
+from events.models import Event, EventParticipant
 from accounts.models import Profile, Location
 from datetime import datetime, timedelta, date, time
 from unittest.mock import patch, MagicMock
@@ -38,49 +39,6 @@ class BaseCalendarTestCase(APITestCase):
         self.profile2.save()
         self.client = APIClient()
         self.client.force_authenticate(user=self.user1)
-
-class EventTestCase(BaseCalendarTestCase):
-    def setUp(self):
-        super().setUp()
-        self.event_url = reverse('event-list')
-
-    def test_create_event(self):
-        data = {
-            "title": "Test Event",
-            "description": "A test event.",
-            "creator": self.profile1.pk,
-            "location": self.location.pk,
-            "participants_to_add": [self.profile2.pk],
-        }
-        response = self.client.post(self.event_url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['title'], "Test Event")
-        
-        # Check that both creator (profile1) and the added participant (profile2) are in the event
-        participant_ids = [p['participant_id'] for p in response.data['participants']]
-        self.assertIn(self.profile1.pk, participant_ids)
-        self.assertIn(self.profile2.pk, participant_ids)
-
-    def test_event_list_only_own(self):
-        event = Event.objects.create(title="E1", description="", creator=self.profile1, location_id=self.location)
-        EventParticipant.objects.create(event=event, participant=self.profile1)
-        response = self.client.get(self.event_url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(any(e['id'] == event.id for e in response.data))
-
-    def test_event_delete_permission(self):
-        event = Event.objects.create(title="E2", description="", creator=self.profile1, location_id=self.location)
-        EventParticipant.objects.create(event=event, participant=self.profile2)
-        url = reverse('event-detail', kwargs={'pk': event.pk})
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        # Try as another user
-        self.client.force_authenticate(user=self.user2)
-        event2 = Event.objects.create(title="E3", description="", creator=self.profile1, location_id=self.location)
-        EventParticipant.objects.create(event=event2, participant=self.profile2)
-        url2 = reverse('event-detail', kwargs={'pk': event2.pk})
-        response2 = self.client.delete(url2)
-        self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
 class TimeSlotTestCase(BaseCalendarTestCase):
     def setUp(self):

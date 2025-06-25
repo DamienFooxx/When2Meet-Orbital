@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'accounts',
     'groups',
     'availcalendar',
+    'events',
 ]
 
 MIDDLEWARE = [
