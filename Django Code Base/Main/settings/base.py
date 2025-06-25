@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'accounts',
     'groups',
     'availcalendar',
+    'events',
 ]
 
 MIDDLEWARE = [
@@ -141,6 +142,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'static'
 
 # =====================
 # Default primary key field type
@@ -165,11 +167,10 @@ SITE_ID = 1
 REST_USE_JWT = True
 
 # AllAuth settings
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_LOGIN_METHODS = ['email']
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 
-# Disable email veriification (for development)
+# Disable email verification (for development)
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_CONFIRM_EMAIL_ON_GET = False
 

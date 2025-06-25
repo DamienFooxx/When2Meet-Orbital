@@ -18,9 +18,11 @@ import Invitation_page from './src/pages/Invitation_page';
 import GroupDetail_page from './src/pages/GroupDetail_page';
 import InviteUser_page from './src/pages/InviteUser_page';
 import JoinExistingGroup_page from './src/pages/JoinExistingGroup_page';
+import Calendar_page from './src/pages/Calendar_page';
 
 // context
 import { UserProvider } from './src/context/UserContext';
+
 
 
 const Stack = createNativeStackNavigator();
@@ -58,6 +60,7 @@ const App = () => {
             <Stack.Screen name={"GroupDetail"} component={GroupDetail_page}/>
             <Stack.Screen name={"Invite"} component={InviteUser_page}/>
             <Stack.Screen name={"JoinExistingGroup"} component={JoinExistingGroup_page}/>
+            <Stack.Screen name={"Calendar"} component={Calendar_page}/>
         </Stack.Navigator>
         </NavigationContainer>
     </UserProvider>

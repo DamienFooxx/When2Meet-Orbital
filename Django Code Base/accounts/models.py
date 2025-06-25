@@ -9,13 +9,13 @@ import os
 
 User = get_user_model()
 
-geolocator = GoogleV3(api_key=os.getenv('GOOGLE_MAPS_API_KEY'))
+geolocator = GoogleV3(api_key=os.getenv('GOOGLE_API_KEY'))
 
 class Location(models.Model):
     '''
     A model to encapsulate Location Data to be used by other models
     '''
-    postalcode = models.CharField(max_length = 50)
+    postalcode = models.CharField(max_length = 50, blank=True)
     city = models.CharField(max_length = 50, null = True, default = 'Singapore')
     country = CountryField(blank_label='(select country)', default='SG')
     street_address = models.CharField(max_length=255, blank=True, null=True)
@@ -66,6 +66,7 @@ class Profile(models.Model):
     """
     Extends the default Django User model with additional fields for the When2Meet app.
     """
+
     user = models.OneToOneField(
         User,
         on_delete = models.CASCADE,
@@ -76,11 +77,9 @@ class Profile(models.Model):
         unique = True,
         default = generate_unique_id,
         editable = False,  # Prevents manual editing in admin
-        primary_key = True
+        primary_key = True,
     )
     name = models.CharField(max_length = 100, blank = True)
-    google_id = models.CharField(max_length = 100, blank = True, null = True)
-    date_joined = models.DateTimeField(auto_now_add = True)
     location = models.ForeignKey(
         Location,
         on_delete = models.SET_NULL,

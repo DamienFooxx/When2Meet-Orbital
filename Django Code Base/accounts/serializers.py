@@ -9,14 +9,18 @@ Contains serializers to validate and parse incoming request data for the account
 
 class ProfileSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
+    user = serializers.SerializerMethodField()
 
     def get_name(self, obj):
         user = obj.user
         return f"{user.first_name} {user.last_name}".strip()
 
+    def get_user(self, obj):
+        return obj.user.username
+
     class Meta:
         model = Profile
-        fields = ['name']
+        fields = ['name', 'user']
 
 class FreeBusyRequestSerializer(serializers.Serializer):
     """
@@ -26,7 +30,7 @@ class FreeBusyRequestSerializer(serializers.Serializer):
     start = serializers.DateTimeField()  # Start datetime (ISO 8601)
     end = serializers.DateTimeField()    # End datetime (ISO 8601)
     calendars = serializers.ListField(
-        child=serializers.CharField(),
-        required=False,
-        default=['primary'] # Defaults to the primary calendar if not specified
+        child = serializers.CharField(),
+        required = False,
+        default = ['primary'] # Defaults to the primary calendar if not specified
     )

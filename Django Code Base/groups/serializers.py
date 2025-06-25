@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Group, GroupMembership, Profile
+from groups.models import Group, GroupMembership, Profile
 from accounts.models import Profile
 from django.db import transaction
 from accounts.serializers import ProfileSerializer
@@ -46,14 +46,13 @@ class GroupSerializer(serializers.ModelSerializer):
         request = self.context['request']
         user = request.user
         profile = Profile.objects.get(user=user)
-
-
+        
         # prevents duplicate group names before creating
         if Group.objects.filter(name=validated_data['name'], creator=profile).exists():
             raise serializers.ValidationError("You already have a group with this name.")
         
         with transaction.atomic():
-        # Create group and add creator       
+        # Create group and add creator
             group = Group.objects.create(name=validated_data['name'], creator=profile)
             
             # add creator as organiser
@@ -96,3 +95,11 @@ class GroupSerializer(serializers.ModelSerializer):
                     print("ERROR inviting", email, ":", str(e))
                     raise e
         return group
+
+class GroupInvitationSerializer(serializers.ModelSerializer):
+    group = GroupSerializer(read_only=True)
+    profile = ProfileSerializer(read_only=True)
+
+    class Meta:
+        model = GroupMembership
+        fields = ['id', 'group', 'profile', 'role', 'is_accepted', 'joined_at']
