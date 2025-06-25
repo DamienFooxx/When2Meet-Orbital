@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
-from availcalendar.models import Event, TimeSlot, CalendarEntry, ManualAvailability, Reminder
+from availcalendar.models import Event, TimeSlot, CalendarEntry, ManualAvailability, Reminder, EventParticipant
 from accounts.models import Profile, Location
 from datetime import datetime, timedelta, date, time
 from unittest.mock import patch, MagicMock
@@ -31,7 +31,11 @@ class BaseCalendarTestCase(APITestCase):
         self.user1 = User.objects.create_user(username='user1', password='pass123')
         self.user2 = User.objects.create_user(username='user2', password='pass123')
         self.profile1 = self.user1.profile
+        self.profile1.name = "Test User 1"
+        self.profile1.save()
         self.profile2 = self.user2.profile
+        self.profile2.name = "Test User 2"
+        self.profile2.save()
         self.client = APIClient()
         self.client.force_authenticate(user=self.user1)
 
@@ -46,30 +50,34 @@ class EventTestCase(BaseCalendarTestCase):
             "description": "A test event.",
             "creator": self.profile1.pk,
             "location": self.location.pk,
-            "participants": [self.profile1.pk, self.profile2.pk],
+            "participants_to_add": [self.profile2.pk],
         }
         response = self.client.post(self.event_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['title'], "Test Event")
-        self.assertIn(self.profile2.pk, response.data['participants'])
+        
+        # Check that both creator (profile1) and the added participant (profile2) are in the event
+        participant_ids = [p['participant_id'] for p in response.data['participants']]
+        self.assertIn(self.profile1.pk, participant_ids)
+        self.assertIn(self.profile2.pk, participant_ids)
 
     def test_event_list_only_own(self):
         event = Event.objects.create(title="E1", description="", creator=self.profile1, location_id=self.location)
-        event.participants.add(self.profile1)
+        EventParticipant.objects.create(event=event, participant=self.profile1)
         response = self.client.get(self.event_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(any(e['id'] == event.id for e in response.data))
 
     def test_event_delete_permission(self):
         event = Event.objects.create(title="E2", description="", creator=self.profile1, location_id=self.location)
-        event.participants.add(self.profile2)
+        EventParticipant.objects.create(event=event, participant=self.profile2)
         url = reverse('event-detail', kwargs={'pk': event.pk})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         # Try as another user
         self.client.force_authenticate(user=self.user2)
         event2 = Event.objects.create(title="E3", description="", creator=self.profile1, location_id=self.location)
-        event2.participants.add(self.profile2)
+        EventParticipant.objects.create(event=event2, participant=self.profile2)
         url2 = reverse('event-detail', kwargs={'pk': event2.pk})
         response2 = self.client.delete(url2)
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
@@ -78,7 +86,7 @@ class TimeSlotTestCase(BaseCalendarTestCase):
     def setUp(self):
         super().setUp()
         self.event = Event.objects.create(title="Event", description="", creator=self.profile1, location_id=self.location)
-        self.event.participants.add(self.profile1)
+        EventParticipant.objects.create(event=self.event, participant=self.profile1)
         self.timeslot_url = reverse('timeslot-list')
 
     def test_create_valid_timeslot(self):
@@ -134,7 +142,7 @@ class CalendarEntryTestCase(BaseCalendarTestCase):
     def setUp(self):
         super().setUp()
         self.event = Event.objects.create(title="Event", description="", creator=self.profile1, location_id=self.location)
-        self.event.participants.add(self.profile1)
+        EventParticipant.objects.create(event=self.event, participant=self.profile1)
         self.calendar_url = reverse('calendar-entry-list')
 
     def test_create_valid_calendar_entry(self):
@@ -254,15 +262,14 @@ class ReminderTestCase(BaseCalendarTestCase):
     def setUp(self):
         super().setUp()
         self.event = Event.objects.create(title="Event", description="", creator=self.profile1, location_id=self.location)
-        self.event.participants.add(self.profile1)
-        now = timezone.now().replace(minute=0, second=0, microsecond=0)
+        EventParticipant.objects.create(event=self.event, participant=self.profile1)
         self.calendar_entry = CalendarEntry.objects.create(
             title="Meeting",
             description="Discuss project",
-            start_date=now.date(),
-            start_time=now.time(),
-            end_date=(now + timedelta(minutes=15)).date(),
-            end_time=(now + timedelta(minutes=15)).time(),
+            start_date=datetime.now().date(),
+            start_time=datetime.now().time(),
+            end_date=(datetime.now() + timedelta(minutes=15)).date(),
+            end_time=(datetime.now() + timedelta(minutes=15)).time(),
             duration=15,
             source="manual",
             location_id=self.location,
