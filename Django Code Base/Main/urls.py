@@ -14,20 +14,21 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path
 from django.urls import path, include
 from django.http import HttpResponse
 
 urlpatterns = [
-    path('', lambda request: HttpResponse('When2Meet Backend is running!'), name='home'),
-    path('admin/', admin.site.urls),
-
+    path(
+        "", lambda request: HttpResponse("When2Meet Backend is running!"), name="home"
+    ),
+    path("admin/", admin.site.urls),
     # authentication-related
-    path('api/auth/', include('dj_rest_auth.urls')),
-    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
-    path('api/', include('accounts.urls')),
-    path('api/', include('groups.urls')),
-    path('api/', include('availcalendar.urls')),
-    path('api/', include('events.urls')),
+    path("api/auth/", include("dj_rest_auth.urls")),
+    path("api/auth/registration/", include("dj_rest_auth.registration.urls")),
+    path("api/", include("accounts.urls")),
+    path("api/", include("groups.urls")),
+    path("api/", include("availcalendar.urls")),
+    path("api/", include("events.urls")),
 ]

@@ -20,37 +20,44 @@ Contains custom authentication views, including Google OAuth login.
 
 User = get_user_model()
 
+
 class CheckUserByEmail(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
-            email = request.query_params.get('email', '').strip()
+            email = request.query_params.get("email", "").strip()
             print("Received email:", email)
 
             if not email:
-                return Response({'exists': False, 'error': 'No email provided'}, status=400)
+                return Response(
+                    {"exists": False, "error": "No email provided"}, status=400
+                )
 
             exists = User.objects.filter(email__iexact=email).exists()
             print("User exists:", exists)
 
-            return Response({'exists': exists})
+            return Response({"exists": exists})
         except Exception as e:
             print("Exception:", e)
             traceback.print_exc()
-            return Response({'exists': False, 'error': str(e)}, status=500)
+            return Response({"exists": False, "error": str(e)}, status=500)
+
 
 class GoogleLogin(SocialLoginView):
     """
     Handles Google OAuth login for the When2Meet app using dj-rest-auth and allauth.
     """
+
     adapter_class = GoogleOAuth2Adapter
+
 
 class ProfileView(APIView):
     """
     API endpoint to get and update user profile information.
     Requires authentication.
     """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -60,24 +67,28 @@ class ProfileView(APIView):
         try:
             profile = Profile.objects.get(user=request.user)
         except Profile.DoesNotExist:
-            return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
-        return Response({
-            'unique_id': profile.unique_id,
-            'username': request.user.username,
-            'email': request.user.email,
-            'name': profile.name,
-            'location': profile.location,
-        })
+            return Response(
+                {"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        return Response(
+            {
+                "unique_id": profile.unique_id,
+                "username": request.user.username,
+                "email": request.user.email,
+                "name": profile.name,
+                "location": profile.location,
+            }
+        )
 
     def put(self, request):
         """
         Update the authenticated user's profile information.
         """
-        profile = Profile.objects.get(user = request.user)
-        profile.name = request.data.get('name', profile.name)
-        
-        if 'location' in request.data:
-            location_id = request.data.get('location')
+        profile = Profile.objects.get(user=request.user)
+        profile.name = request.data.get("name", profile.name)
+
+        if "location" in request.data:
+            location_id = request.data.get("location")
             if location_id is None:
                 profile.location = None
             else:
@@ -85,20 +96,27 @@ class ProfileView(APIView):
                     location = Location.objects.get(id=location_id)
                     profile.location = location
                 except (Location.DoesNotExist, ValueError):
-                    return Response({"error": "Invalid location ID"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(
+                        {"error": "Invalid location ID"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
         profile.save()
-        return Response({
-            'unique_id': profile.unique_id,
-            'name': profile.name,
-            'location': profile.location.id if profile.location else None,
-        })
+        return Response(
+            {
+                "unique_id": profile.unique_id,
+                "name": profile.name,
+                "location": profile.location.id if profile.location else None,
+            }
+        )
+
 
 class GoogleCalendarFreeBusyView(APIView):
     """
     API endpoint to fetch a user's busy slots from their Google Calendar using the FreeBusy API.
     Requires the user to be authenticated and have a connected Google account.
     """
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -107,38 +125,46 @@ class GoogleCalendarFreeBusyView(APIView):
         Expects 'start' and 'end' in the request body (ISO 8601 format).
         Returns a list of busy time slots from the user's primary Google Calendar.
         """
-        serializer = FreeBusyRequestSerializer(data = request.data)
-        serializer.is_valid(raise_exception = True)
-        start = serializer.validated_data['start']
-        end = serializer.validated_data['end']
+        serializer = FreeBusyRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        start = serializer.validated_data["start"]
+        end = serializer.validated_data["end"]
 
         # Get user's Google access token
         try:
-            social_account = SocialAccount.objects.get(user = request.user, provider = 'google')
-            social_token = SocialToken.objects.get(account = social_account)
+            social_account = SocialAccount.objects.get(
+                user=request.user, provider="google"
+            )
+            social_token = SocialToken.objects.get(account=social_account)
         except (SocialAccount.DoesNotExist, SocialToken.DoesNotExist):
-            return Response({"error" : "Google account not connected"}, status = 400)
+            return Response({"error": "Google account not connected"}, status=400)
 
         access_token = social_token.token
 
         # Call Google Calendar FreeBusy API
         url = "https://www.googleapis.com/calendar/v3/freeBusy"
-        headers = {"Authorization" : f"Bearer {access_token}"}
+        headers = {"Authorization": f"Bearer {access_token}"}
         data = {
             "timeMin": start.isoformat() + "Z",
             "timeMax": end.isoformat() + "Z",
-            "items": [{"id": "primary"}]
+            "items": [{"id": "primary"}],
         }
-        resp = requests.post(url, headers = headers, json = data)
+        resp = requests.post(url, headers=headers, json=data)
         if resp.status_code == 401:  # Unauthorized - likely expired/invalid token
-            return Response({
-                "error": "Google token expired or invalid. Please reconnect your Google account."
-            }, status=401)
+            return Response(
+                {
+                    "error": "Google token expired or invalid. Please reconnect your Google account."
+                },
+                status=401,
+            )
         elif resp.status_code != 200:
-            return Response({
-                "error": "Failed to fetch from Google Calendar",
-                "details" : resp.json()
-                }, status = resp.status_code)
+            return Response(
+                {
+                    "error": "Failed to fetch from Google Calendar",
+                    "details": resp.json(),
+                },
+                status=resp.status_code,
+            )
 
         freebusy = resp.json()
         # Returns the busy slots from "primary" calendar

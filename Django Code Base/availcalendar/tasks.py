@@ -8,15 +8,17 @@ from .models import TimeSlot
 
 logger = logging.getLogger(__name__)
 
+
 def get_google_token(user_id):
     """Helper function to retrieve a user's Google token."""
     try:
-        profile = Profile.objects.get(user_id = user_id)
-        acct = SocialAccount.objects.get(user = profile.user, provider = "google")
-        return SocialToken.objects.get(account = acct).token
+        profile = Profile.objects.get(user_id=user_id)
+        acct = SocialAccount.objects.get(user=profile.user, provider="google")
+        return SocialToken.objects.get(account=acct).token
     except (Profile.DoesNotExist, SocialAccount.DoesNotExist, SocialToken.DoesNotExist):
         logger.warning(f"Could not retrieve Google token for user_id: {user_id}")
         return None
+
 
 def fetch_google_busy_slots(start, end, token, calendar_ids):
     """
@@ -27,18 +29,18 @@ def fetch_google_busy_slots(start, end, token, calendar_ids):
     payload = {
         "timeMin": start.isoformat(),
         "timeMax": end.isoformat(),
-        "items": [{"id": calendar_id} for calendar_id in calendar_ids]
+        "items": [{"id": calendar_id} for calendar_id in calendar_ids],
     }
-    
+
     try:
-        resp = requests.post(url, headers = headers, json = payload)
+        resp = requests.post(url, headers=headers, json=payload)
         resp.raise_for_status()  # Raises an HTTPError for bad responses (4xx or 5xx)
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to fetch from Google Calendar API: {e}")
         return None, f"Request to Google API failed: {e}"
 
     data = resp.json()
-    
+
     # Check the response structure
     calendars_data = data.get("calendars")
     if not calendars_data:
@@ -50,14 +52,16 @@ def fetch_google_busy_slots(start, end, token, calendar_ids):
         calendar_info = calendars_data.get(calendar_id)
         if not calendar_info:
             logger.warning(f"Response missing data for calendar: {calendar_id}")
-            continue # Move to the next calendar
-            
+            continue  # Move to the next calendar
+
         if "errors" in calendar_info:
-            logger.error(f"Google API returned errors for calendar {calendar_id}: {calendar_info['errors']}")
+            logger.error(
+                f"Google API returned errors for calendar {calendar_id}: {calendar_info['errors']}"
+            )
             continue
 
         busy_slots.extend(calendar_info.get("busy", []))
-        
+
     return busy_slots, None
 
 
@@ -68,7 +72,10 @@ def sync_google_calendar_task(user_id, start_iso, end_iso, calendar_ids):
     """
     token = get_google_token(user_id)
     if not token:
-        return {"status": "Failed", "error": "Google account not connected or token not found."}
+        return {
+            "status": "Failed",
+            "error": "Google account not connected or token not found.",
+        }
 
     start = isoparse(start_iso)
     end = isoparse(end_iso)
@@ -78,14 +85,11 @@ def sync_google_calendar_task(user_id, start_iso, end_iso, calendar_ids):
         return {"status": "Failed", "error": error}
 
     try:
-        profile = Profile.objects.get(user_id = user_id)
-        
+        profile = Profile.objects.get(user_id=user_id)
+
         # 3. Delete stale TimeSlots for the given period before adding new ones
         TimeSlot.objects.filter(
-            user = profile,
-            start__gte = start,
-            end__lte = end,
-            source = "google"
+            user=profile, start__gte=start, end__lte=end, source="google"
         ).delete()
 
         # Persist new TimeSlots
@@ -94,16 +98,19 @@ def sync_google_calendar_task(user_id, start_iso, end_iso, calendar_ids):
             st = isoparse(period["start"])
             en = isoparse(period["end"])
             _, was_created = TimeSlot.objects.get_or_create(
-                user = profile,
-                start = st,
-                end = en,
-                source = "google"
+                user=profile, start=st, end=en, source="google"
             )
             if was_created:
                 created_count += 1
-        
-        logger.info(f"Successfully synced {len(busy)} slots for user {user_id}, {created_count} were new.")
-        return {"status": "Success", "imported_slots": len(busy), "new_slots": created_count}
+
+        logger.info(
+            f"Successfully synced {len(busy)} slots for user {user_id}, {created_count} were new."
+        )
+        return {
+            "status": "Success",
+            "imported_slots": len(busy),
+            "new_slots": created_count,
+        }
 
     except Profile.DoesNotExist:
         logger.error(f"Profile not found for user_id: {user_id}")
