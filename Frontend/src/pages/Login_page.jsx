@@ -11,6 +11,7 @@ import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '../context/UserContext';
 
 const Login_page = () => {
     // state hooks
@@ -18,6 +19,8 @@ const Login_page = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+
+    const { login } = useUser();
 
     // Google login
     const handleGoogleLogin = async () => {
@@ -36,6 +39,7 @@ const Login_page = () => {
             const response = await axios.post(`${BASE_URL}/api/auth/google/`, {
                 access_token: accessToken,
             });
+            console.log("login response:", response.data)
 
             const token = response.data.key;
 
@@ -45,12 +49,24 @@ const Login_page = () => {
 
             // set default header for all axios requests
             axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+            
+            // fetch user profile from backend
+            const profileRes = await axios.get(`${BASE_URL}/api/profile/`);
+            const userData = {
+                token,
+                username: profileRes.data.username,
+                email: profileRes.data.email,
+            };
 
+            console.log("stored user data with token:", userData);
+
+            await login(userData);
             Alert.alert('Google login successful');
             navigation.reset({
                 index: 0,
                 routes: [{ name: 'Main'}],
             });
+
         } catch (error) {
             const message = 
                 error.response?.data?.non_field_errors?.[0] ||
@@ -91,7 +107,15 @@ const Login_page = () => {
                 await AsyncStorage.setItem('isLoggedIn', 'true');
 
                 axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+                
+                // fetch user profile using email
+                const profileRes = await axios.get(`${BASE_URL}/api/profile/`);
+                const userData = {
+                    username: profileRes.data.username,
+                    email: profileRes.data.email,
+                };
 
+                await login(userData);
                 Alert.alert('Login successful!');
                 navigation.navigate('Main');
             }

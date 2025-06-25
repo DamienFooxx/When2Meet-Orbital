@@ -7,14 +7,38 @@ from .serializers import FreeBusyRequestSerializer
 import requests
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from rest_framework.response import Response
-from .models import Profile
+from .models import Profile, Location
 from rest_framework import status
+from django.contrib.auth import get_user_model
+import traceback
 
 """
 accounts/views.py
 
 Contains custom authentication views, including Google OAuth login.
 """
+
+User = get_user_model()
+
+class CheckUserByEmail(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            email = request.query_params.get('email', '').strip()
+            print("Received email:", email)
+
+            if not email:
+                return Response({'exists': False, 'error': 'No email provided'}, status=400)
+
+            exists = User.objects.filter(email__iexact=email).exists()
+            print("User exists:", exists)
+
+            return Response({'exists': exists})
+        except Exception as e:
+            print("Exception:", e)
+            traceback.print_exc()
+            return Response({'exists': False, 'error': str(e)}, status=500)
 
 class GoogleLogin(SocialLoginView):
     """
@@ -33,28 +57,43 @@ class ProfileView(APIView):
         """
         Get the authenticated user's profile information.
         """
-        profile = Profile.objects.get(user=request.user)
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         return Response({
+            'unique_id': profile.unique_id,
+            'username': request.user.username,
+            'email': request.user.email,
             'name': profile.name,
             'location': profile.location,
-            'unique_id': profile.unique_id
         })
 
     def put(self, request):
         """
         Update the authenticated user's profile information.
         """
-        profile = Profile.objects.get(user=request.user)
+        profile = Profile.objects.get(user = request.user)
         profile.name = request.data.get('name', profile.name)
-        profile.location = request.data.get('location', profile.location)
+        
+        if 'location' in request.data:
+            location_id = request.data.get('location')
+            if location_id is None:
+                profile.location = None
+            else:
+                try:
+                    location = Location.objects.get(id=location_id)
+                    profile.location = location
+                except (Location.DoesNotExist, ValueError):
+                    return Response({"error": "Invalid location ID"}, status=status.HTTP_400_BAD_REQUEST)
+
         profile.save()
         return Response({
+            'unique_id': profile.unique_id,
             'name': profile.name,
-            'location': profile.location,
-            'unique_id': profile.unique_id
+            'location': profile.location.id if profile.location else None,
         })
 
-# Create your views here.
 class GoogleCalendarFreeBusyView(APIView):
     """
     API endpoint to fetch a user's busy slots from their Google Calendar using the FreeBusy API.

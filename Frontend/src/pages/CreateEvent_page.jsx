@@ -6,6 +6,7 @@ import { Picker } from '@react-native-picker/picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
+import { useNavigation } from '@react-navigation/native';
 
 const CreateEvent_page = ({ visible, onClose, onCreate }) => {
     const [title, setTitle] = useState('');
@@ -13,6 +14,8 @@ const CreateEvent_page = ({ visible, onClose, onCreate }) => {
 
     const [mode, setMode] = useState('');
     const [duration, setDuration] = useState('');
+
+    const navigation = useNavigation();
 
     const pickerSelectStyles = {
         inputIOS: {
@@ -54,8 +57,9 @@ const CreateEvent_page = ({ visible, onClose, onCreate }) => {
             host: true, // Optional
         };
 
-        onCreate(newEvent);  // send back to parent
-        onClose(); // close modal after creating
+        navigation.navigate('Main', { newEvent });
+
+        // clear form fields
         setTitle('');
         setDescription('');
         setMode('');
@@ -64,7 +68,7 @@ const CreateEvent_page = ({ visible, onClose, onCreate }) => {
 
 
   return (
-    <Modal visible = {visible} animationType = 'slide'>
+    <View style = {styles.container}>
         <SafeAreaView style = {styles.container}>
             <View style = {styles.headerContainer}>
                 <TouchableOpacity style = {styles.cancelContainer} onPress = {onClose}>
@@ -140,7 +144,7 @@ const CreateEvent_page = ({ visible, onClose, onCreate }) => {
 
             </ScrollView>
         </SafeAreaView>
-    </Modal>
+    </View>
   )
 }
 
