@@ -33,11 +33,26 @@ class Event(models.Model):
     )
     participants = models.ManyToManyField(
         'accounts.Profile',
-        related_name = "events",
+        through='EventParticipant',
+        related_name="events",
     )
 
     def __str__(self):
         return self.title
+
+class EventParticipant(models.Model):
+    """
+    Many to Many model between Event and Profile to store participation details.
+    """
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    participant = models.ForeignKey('accounts.Profile', on_delete=models.CASCADE)
+    is_joining = models.CharField(max_length=10, choices=[('going', 'Going'), ('maybe', 'Maybe'), ('declined', 'Declined')], null=True, blank=True)
+
+    class Meta:
+        unique_together = ('event', 'participant')
+
+    def __str__(self):
+        return f"{self.participant.user.username} in {self.event.title}"
 
 class TimeSlot(models.Model):
     """
