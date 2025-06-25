@@ -33,7 +33,7 @@ const Profile_page = () => {
                                 {},
                                 {
                                     headers: {
-                                        Authorization: `Bearer ${user?.token}`, 
+                                        Authorization: `Token ${user?.token}`, 
                                     },
                                 }
                             );

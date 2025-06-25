@@ -98,9 +98,11 @@ ios/.DS_Store
 
 # Xcode
 *.xcodeproj/when2meet.xscworkspace/xcuserdata
-*.xscworkspace/xcuserdata
-*.xcuserdata/
+.plistFrontend/ios/when2meet.xcworkspace/xcuserdata/
+# Ignore Xcode user interface state
 *.xcuserstate
+*.xcuserdata/
+*.xscworkspace/xcuserdata
 *.xcscmblueprint
 *.xcsettings
 *.keystore
@@ -117,4 +119,3 @@ junit-*.xml
 # Secret Credentials
 .env
 .gitignore
-.plist

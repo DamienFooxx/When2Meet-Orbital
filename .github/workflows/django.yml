@@ -1,0 +1,73 @@
+name: Django CI Tests
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ['3.13']
+
+    environment: test
+
+    services:
+      db:
+        image: postgres:17
+        env:
+          POSTGRES_DB: when2meet
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: orbital2425
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DB_NAME: when2meet
+      DB_USER: admin
+      DB_PASSWORD: orbital2425
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Dependencies
+      run: |
+        cd "Django Code Base"
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Debug env
+      run: |
+        echo "GOOGLE_API_KEY is: $GOOGLE_API_KEY"
+        echo "GOOGLE_CLIENT_SECRET is : $GOOGLE_CLIENT_SECRET"
+        echo "GOOGLE_CLIENT_ID is : $GOOGLE_CLIENT_ID"
+        echo "SECRET_KEY is: $SECRET_KEY"
+
+    - name: Apply Migrations
+      run: |
+        cd "Django Code Base"
+        python manage.py makemigrations
+        python manage.py migrate
+
+    - name: Run Tests
+      run: |
+        cd "Django Code Base"
+        python manage.py test
