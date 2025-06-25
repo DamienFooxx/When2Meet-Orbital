@@ -1,4 +1,6 @@
 # Core CRUD Methods
+All API Endpoints start with this url
+https://when2meetimage-686579494898.asia-southeast1.run.app/
 
 ## Accounts API Endpoints
 
@@ -277,11 +279,78 @@
     ```
 
 ---
+## Events API Endpoints
+
+### `EventViewSet` (`/events/`)
+This endpoint manages events. Users can create events, and view events they have created or are participating in.
+
+- `POST /events/`
+    - Creates a new event. The user making the request will be set as the creator and automatically added as a participant with a 'going' status.
+    - **Requires:** Authentication.
+    - **Body:**
+    ```json
+    {
+      "title": "New Team Meeting",
+      "description": "Weekly sync-up meeting.",
+      "location": 1,
+      "group": 1,
+      "participants_to_add": [2, 3]
+    }
+    ```
+    - The `location` and `group` fields are optional and expect the ID of the location and group respectively.
+    - `participants_to_add` is an optional array of user profile IDs to invite to the event. They will be added with a 'maybe' status.
+    - **Returns:** The created event object.
+    ```json
+    {
+        "id": 1,
+        "title": "New Team Meeting",
+        "description": "Weekly sync-up meeting.",
+        "created_at": "2025-06-26T10:00:00Z",
+        "creator": 1,
+        "location": 1,
+        "group": 1,
+        "participants": [
+            {
+                "participant_id": 1,
+                "participant_name": "Creator Name",
+                "is_joining": "going"
+            },
+            {
+                "participant_id": 2,
+                "participant_name": "Participant Two",
+                "is_joining": "maybe"
+            },
+            {
+                "participant_id": 3,
+                "participant_name": "Participant Three",
+                "is_joining": "maybe"
+            }
+        ]
+    }
+    ```
+
+- `GET /events/`
+    - Lists all events the user has created or is a participant in.
+    - **Requires:** Authentication.
+    - **Returns:** A list of event objects.
+
+- `GET /events/{id}/`
+    - Retrieves the details of a specific event. The user must be a creator or a participant.
+    - **Requires:** Authentication.
+    - **Returns:** An event object.
+
+- `DELETE /events/{id}/`
+    - Deletes an event.
+    - **Requires:** Authentication.
+    - **Permissions:**
+        - If the event is associated with a group, the user must be an 'organiser' of the group.
+        - If the event is not associated with a group, the user must be the creator of the event.
+    - **Returns:** Status 204 (No Content) on success.
+
+---
 ## AvailCalendar API Endpoint Details
 
 Has the following view classes
-* EventViewSet
-    * Manage user-created events or events the user is participating in.
 * TimeSlotViewSet
     * Manage time slot suggestions for events the user is involved in.
 * CalendarEntryViewSet
@@ -294,44 +363,6 @@ Has the following view classes
     * Manage reminders linked to a calendar entry.
 * GoogleCalendarSyncView
     * Asynchronously sync busy slots from Google Calendar into the database and allow viewing.
-
-### `EventViewSet` (`/availcalendar/events/`)
-Manage user-created events or events the user is participating in.
-
-- `GET /availcalendar/events/`
-    - Lists all events the user created or is a participant of.
-    - **Returns:**
-    ```json
-    [
-      {
-        "id": 1,
-        "title": "Dinner",
-        "description": "Let's meet",
-        "group": 3,
-        "location": 5,
-        "creator": 7,
-        "confirmed_timeslot": null,
-        "created_at": "2025-06-20T15:00:00Z"
-      },
-      ...
-    ]
-    ```
-
-- `POST /availcalendar/events/`
-    - Creates a new event.
-    - **Body:**
-    ```json
-    {
-      "title": "Dinner",
-      "description": "...",
-      "group": 1,
-      "location": 3,
-      "participants": [1, 2, 3]
-    }
-    ```
-    - **Returns:** Created event object.
-
----
 
 ### `TimeSlotViewSet` (`/availcalendar/timeslots/`)
 Manage time slot suggestions for events the user is involved in.

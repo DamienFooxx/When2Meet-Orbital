@@ -17,24 +17,67 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Location',
+            name="Location",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('postalcode', models.CharField(blank=True, max_length=50)),
-                ('city', models.CharField(default='Singapore', max_length=50, null=True)),
-                ('country', django_countries.fields.CountryField(default='SG', max_length=2)),
-                ('street_address', models.CharField(blank=True, max_length=255, null=True)),
-                ('latitude', models.FloatField(blank=True, null=True)),
-                ('longitude', models.FloatField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("postalcode", models.CharField(blank=True, max_length=50)),
+                (
+                    "city",
+                    models.CharField(default="Singapore", max_length=50, null=True),
+                ),
+                (
+                    "country",
+                    django_countries.fields.CountryField(default="SG", max_length=2),
+                ),
+                (
+                    "street_address",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                ("latitude", models.FloatField(blank=True, null=True)),
+                ("longitude", models.FloatField(blank=True, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Profile',
+            name="Profile",
             fields=[
-                ('unique_id', models.CharField(default=accounts.models.generate_unique_id, editable=False, max_length=8, primary_key=True, serialize=False, unique=True)),
-                ('name', models.CharField(blank=True, max_length=100)),
-                ('location', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='profiles', to='accounts.location')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL)),
+                (
+                    "unique_id",
+                    models.CharField(
+                        default=accounts.models.generate_unique_id,
+                        editable=False,
+                        max_length=8,
+                        primary_key=True,
+                        serialize=False,
+                        unique=True,
+                    ),
+                ),
+                ("name", models.CharField(blank=True, max_length=100)),
+                (
+                    "location",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="profiles",
+                        to="accounts.location",
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="profile",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]
