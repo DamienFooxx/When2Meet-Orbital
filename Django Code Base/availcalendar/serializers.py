@@ -1,33 +1,12 @@
 from rest_framework import serializers
-from .models import Event, TimeSlot, ManualAvailability, CalendarIntegration, CalendarEntry, Reminder
+from availcalendar.models import TimeSlot, ManualAvailability, CalendarIntegration, CalendarEntry, Reminder
+from events.models import Event
 from accounts.models import Profile, Location
 from datetime import datetime, timedelta
 
-class EventSerializer(serializers.ModelSerializer):
-    location = serializers.PrimaryKeyRelatedField(queryset = Location.objects.all(), allow_null=True, source='location_id')
-    creator = serializers.PrimaryKeyRelatedField(queryset = Profile.objects.all())
-    participants = serializers.PrimaryKeyRelatedField(
-        many = True,
-        queryset = Profile.objects.all()
-    )
-
-    class Meta:
-        model = Event
-        fields = [
-            'id',
-            'title',
-            'description',
-            'created_at',
-            'creator',
-            'location',
-            'group',
-            'participants',
-        ]
-        read_only_fields = ['id', 'created_at']
-
 class TimeSlotSerializer(serializers.ModelSerializer):
-    user  = serializers.PrimaryKeyRelatedField(queryset = Profile.objects.all())
-    event = serializers.PrimaryKeyRelatedField(queryset= Event.objects.all(), allow_null = True, required = False, source='event_id')
+    user = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all())
+    event = serializers.PrimaryKeyRelatedField(queryset=Event.objects.all(), allow_null = True, required = False, source='event_id')
 
     class Meta:
         model = TimeSlot

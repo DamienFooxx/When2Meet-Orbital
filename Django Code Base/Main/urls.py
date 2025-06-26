@@ -29,4 +29,5 @@ urlpatterns = [
     path('api/', include('accounts.urls')),
     path('api/', include('groups.urls')),
     path('api/', include('availcalendar.urls')),
+    path('api/', include('events.urls')),
 ]

@@ -2,7 +2,6 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from availcalendar.views import (
     GoogleCalendarSyncView,
-    EventViewSet,
     TimeSlotViewSet,
     CalendarEntryViewSet,
     ManualAvailabilityViewSet,
@@ -11,7 +10,6 @@ from availcalendar.views import (
 )
 
 router = DefaultRouter()
-router.register(r'events', EventViewSet, basename = 'event')
 router.register(r'timeslots', TimeSlotViewSet, basename = 'timeslot')
 router.register(r'calendar-entries', CalendarEntryViewSet, basename = 'calendar-entry')
 router.register(r'manual-availability', ManualAvailabilityViewSet, basename = 'manual-availability')
