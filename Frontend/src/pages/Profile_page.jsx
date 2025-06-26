@@ -8,6 +8,8 @@ import { useUser } from '../context/UserContext';
 import { BASE_URL } from '../utils/config';
 import axios from 'axios';
 
+const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
+
 const Profile_page = () => {
     const navigation = useNavigation();
     const { user, logout } = useUser(); // access user
@@ -29,7 +31,7 @@ const Profile_page = () => {
                     onPress: async () => {
                         try {
                             await axios.post(
-                                `${BASE_URL}/api/auth/logout/`,
+                                `${API_PREFIX}${BASE_URL}/api/auth/logout/`,
                                 {},
                                 {
                                     headers: {

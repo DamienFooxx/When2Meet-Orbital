@@ -4,6 +4,9 @@ import { colors } from '../utils/colors';
 import { BASE_URL } from '../utils/config';
 import axios from 'axios';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import { useUser } from '../context/UserContext';
+
+const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
 
 const getColor = (ratio) => {
     if (ratio >= 0.75) return '#0f62fe';
@@ -14,6 +17,7 @@ const getColor = (ratio) => {
 };
 
 const HeatmapMonth = ({ isGoogleConnected }) => {
+    const { user } = useUser();
     const [monthOffset, setMonthOffset] = useState(0); // 0  = current month
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -28,17 +32,21 @@ const HeatmapMonth = ({ isGoogleConnected }) => {
             setLoading(false);
             return;
         }
-
-        axios.get(`${BASE_URL}/api/availcalendar/month`, {
+        if (!user?.token) {
+            setLoading(false);
+            return;
+        }
+        axios.get(`${API_PREFIX}${BASE_URL}/api/availcalendar/month`, {
             params: {
                 year,
                 month: month + 1 // API expects 1-based month
-            }
+            },
+            headers: { Authorization: `Token ${user.token}` }
         })
             .then(res => setData(res.data))
             .catch(() => setData([]))
             .finally(() => setLoading(false));
-    }, [isGoogleConnected, year, month]);
+    }, [isGoogleConnected, year, month, user]);
 
     const grouped = {};
     data.forEach(({ date, availableHours, maxHours }) => {
