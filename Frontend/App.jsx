@@ -3,12 +3,27 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// pages
 import Home_page from './src/pages/Home_page';
 import Login_page from './src/pages/Login_page';
 import Signup_page from './src/pages/Signup_page';
 import Main_page from './src/pages/Main_page';
 import Profile_page from './src/pages/Profile_page';
+
+import Create_page from './src/pages/Create_page';
 import CreateGroup_page from './src/pages/CreateGroup_page';
+import CreateEvent_page from './src/pages/CreateEvent_page';
+import Invitation_page from './src/pages/Invitation_page';
+import GroupDetail_page from './src/pages/GroupDetail_page';
+import InviteUser_page from './src/pages/InviteUser_page';
+import JoinExistingGroup_page from './src/pages/JoinExistingGroup_page';
+import Calendar_page from './src/pages/Calendar_page';
+
+// context
+import { UserProvider } from './src/context/UserContext';
+
+
 
 const Stack = createNativeStackNavigator();
 
@@ -17,10 +32,8 @@ const App = () => {
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-
       const loggedIn = await AsyncStorage.getItem('isLoggedIn');
       setInitialRoute(loggedIn === 'true' ? 'Main' : 'Home');
-      
     };
     checkLoginStatus();
   }, []);
@@ -28,20 +41,29 @@ const App = () => {
   if (initialRoute === null) return null;
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator 
-      screenOptions = {{
-        headerShown: false
-        }}
-        > 
-        <Stack.Screen name={"Home"} component = {Home_page}/>
-        <Stack.Screen name={"Login"} component = {Login_page}/>
-        <Stack.Screen name={"Signup"} component = {Signup_page}/>
-        <Stack.Screen name={"Main"} component = {Main_page}/>
-        <Stack.Screen name={"Profile"} component = {Profile_page}/>
-        <Stack.Screen name={"CreateGroup"} component = {CreateGroup_page}/> 
-      </Stack.Navigator>
-    </NavigationContainer>
+    <UserProvider>
+        <NavigationContainer>
+        <Stack.Navigator 
+        screenOptions = {{
+            headerShown: false
+            }}
+            > 
+            <Stack.Screen name={"Home"} component={Home_page}/>
+            <Stack.Screen name={"Login"} component={Login_page}/>
+            <Stack.Screen name={"Signup"} component={Signup_page}/>
+            <Stack.Screen name={"Main"} component={Main_page}/>
+            <Stack.Screen name={"Profile"} component={Profile_page}/>
+            <Stack.Screen name={"CreateGroup"} component={CreateGroup_page}/> 
+            <Stack.Screen name={"Invitation"} component={Invitation_page}/>
+            <Stack.Screen name={"CreateEvent"} component={CreateEvent_page}/>
+            <Stack.Screen name={"Create"} component={Create_page}/>
+            <Stack.Screen name={"GroupDetail"} component={GroupDetail_page}/>
+            <Stack.Screen name={"Invite"} component={InviteUser_page}/>
+            <Stack.Screen name={"JoinExistingGroup"} component={JoinExistingGroup_page}/>
+            <Stack.Screen name={"Calendar"} component={Calendar_page}/>
+        </Stack.Navigator>
+        </NavigationContainer>
+    </UserProvider>
   )
 }
 

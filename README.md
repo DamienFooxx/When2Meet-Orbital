@@ -376,6 +376,7 @@ export BASE_URL='http://192.168.x.x:8000/'
 
 **Navigate to Django Code Base Directory**
 Rename ".env.example" file to just ".env"
+**Navigate to the .env file and replace the CORS_ALLOWED_ORIGIN variable with your IP Address**
 
 ### Step 5. Install Database
 Set up a local postgreSQL database.
@@ -387,6 +388,7 @@ brew install postgresql
 brew services start postgresql
 ```
 **for Windows**
+
 download and run the PostgreSQL installer
 
 The pyscopg2-binary shouldve been downloaded already in step 3 when installing dependencies
@@ -491,3 +493,5 @@ type "r" into the terminal
 ## License
 This project is licensed under the GNU General Public License - see the LICENSE file for details 
 
+
+This project is licensed under the GNUn General Public License v3.0 License - see the LICENSE file for details 
