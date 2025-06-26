@@ -15,4 +15,5 @@ urlpatterns = [
     path('api/', include('groups.urls')),
     path('api/', include('availcalendar.urls')),
     path('api/', include('events.urls')),
+    path('api/', include('smartScheduling.urls')),
 ]
