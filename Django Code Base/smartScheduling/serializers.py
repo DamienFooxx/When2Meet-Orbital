@@ -1,12 +1,10 @@
 from rest_framework import serializers
 from decimal import Decimal
 
-
 # Custom validator for multiples of 15
 def multiple_of_15(value):
     if value % 15 != 0:
         raise serializers.ValidationError('This value must be a multiple of 15.')
-
 
 class SchedulingInputSerializer(serializers.Serializer):
     group_id = serializers.CharField(required=False)

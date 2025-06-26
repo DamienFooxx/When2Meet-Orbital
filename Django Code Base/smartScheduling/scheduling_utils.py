@@ -80,7 +80,6 @@ def get_user_busy_slots(user_id, start_date, start_time, end_date, end_time, buf
     busy_slots = []
     start_datetime = datetime.combine(start_date, start_time)
     end_datetime = datetime.combine(end_date, end_time)
-    # Adds a buffer to the start of each busy slot to account for travel time or preparation
     buffer_delta = timedelta(minutes=buffer)
 
     # Get Calendar Entries from user
@@ -125,25 +124,17 @@ def count_number_of_free_users_per_slot(
     """
     def slots_overlaps_any(slots, busy_slots):
         """
-        Helper function to check if a given time slot overlaps with any of a user's busy slots.
+        Helper function to check overlaps.
 
-        Returns:
-            bool: True if there is an overlap, False otherwise.
+        Returns true if a slot overlaps any of the busy_slots.
         """
-        slot_start, slot_end = slots
+        slot_start, slot_end = slot
         for busy_start, busy_end in busy_slots:
-            # Overlap occurs if one slot starts before the other ends, and vice versa
             if slot_start < busy_end and slot_end > busy_start:
                 return True
         return False
 
     def attendance_percent(free_count, group_size):
-        """
-        Helper function to calculate the attendance percentage.
-
-        Returns:
-            float: The attendance percentage, rounded to two decimal places.
-        """
         # Helper to get attendance ratio
         if group_size:
             ratio = (free_count / group_size) * 100
@@ -152,7 +143,6 @@ def count_number_of_free_users_per_slot(
     
     group_size = len(group_users)
 
-    # Pre-fetch and map all users' busy slots to optimize lookups
     user_busy_map = {}
     for user in group_users:
         # Gets busy slots per user
@@ -187,7 +177,7 @@ def count_number_of_free_users_per_slot(
             'group_size': group_size,
             'attendance': attendance
         }
-    # Filter out slots that do not meet the minimum attendance requirement
+    # Filter out slots with no minimum attendance
     min_attendance_slots = {
         k: v for k, v in potential_slots.items()
         if v['attendance'] >= minimum_attendance
