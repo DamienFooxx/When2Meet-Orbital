@@ -9,6 +9,8 @@ import { Alert } from 'react-native';
 import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
+
 const GroupDetail_page = () => {
     const { params } = useRoute();
     const { group } = params || {};
@@ -34,13 +36,13 @@ const GroupDetail_page = () => {
         const fetchData = async () => {
             try {
                 // Fetch group details
-                const groupRes = await axios.get(`${BASE_URL}/api/groups/${group.id}/`, {
+                const groupRes = await axios.get(`${API_PREFIX}${BASE_URL}/api/groups/${group.id}/`, {
                     headers: { Authorization: `Token ${user.token}` }
                 });
                 setGroupDetails(groupRes.data);
 
                 // Fetch group members
-                const membersRes = await axios.get(`${BASE_URL}/api/groups/${group.id}/members/`, {
+                const membersRes = await axios.get(`${API_PREFIX}${BASE_URL}/api/groups/${group.id}/members/`, {
                     headers: { Authorization: `Token ${user.token}` }, // ensure authentication
                 });
                 setMembers(membersRes.data);
@@ -71,7 +73,7 @@ const GroupDetail_page = () => {
                     style: 'destructive',
                     onPress: async() => {
                         try {
-                            const res = await axios.post(`${BASE_URL}/api/groups/${group.id}/leave/`, {}, {
+                            const res = await axios.post(`${API_PREFIX}${BASE_URL}/api/groups/${group.id}/leave/`, {}, {
                                 headers: { Authorization: `Token ${user.token}` },
                             });
                             Alert.alert("Left group", "You have left the group.");
