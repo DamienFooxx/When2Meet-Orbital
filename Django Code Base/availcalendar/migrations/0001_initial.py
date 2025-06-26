@@ -136,6 +136,7 @@ class Migration(migrations.Migration):
         ),
         migrations.CreateModel(
             name="TimeSlot",
+            name="TimeSlot",
             fields=[
                 (
                     "id",

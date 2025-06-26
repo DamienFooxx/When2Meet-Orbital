@@ -17,6 +17,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.CreateModel(
             name="Event",
+            name="Event",
             fields=[
                 (
                     "id",
@@ -74,7 +75,43 @@ class Migration(migrations.Migration):
         ),
         migrations.CreateModel(
             name="EventParticipant",
+            name="EventParticipant",
             fields=[
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "is_joining",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("going", "Going"),
+                            ("maybe", "Maybe"),
+                            ("declined", "Declined"),
+                        ],
+                        max_length=10,
+                        null=True,
+                    ),
+                ),
+                (
+                    "event",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="events.event"
+                    ),
+                ),
+                (
+                    "participant",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounts.profile",
+                    ),
+                ),
                 (
                     "id",
                     models.BigAutoField(
@@ -114,9 +151,18 @@ class Migration(migrations.Migration):
             options={
                 "db_table": "availcalendar_eventparticipant",
                 "unique_together": {("event", "participant")},
+                "db_table": "availcalendar_eventparticipant",
+                "unique_together": {("event", "participant")},
             },
         ),
         migrations.AddField(
+            model_name="event",
+            name="participants",
+            field=models.ManyToManyField(
+                related_name="events",
+                through="events.EventParticipant",
+                to="accounts.profile",
+            ),
             model_name="event",
             name="participants",
             field=models.ManyToManyField(
