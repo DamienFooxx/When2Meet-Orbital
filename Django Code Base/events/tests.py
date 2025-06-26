@@ -6,9 +6,6 @@ from events.models import Event, EventParticipant
 from accounts.models import Profile, Location
 from unittest.mock import patch, MagicMock
 
-# Create your tests here.
-
-
 class BaseEventsTestCase(APITestCase):
     """
     Test Cases for Event model

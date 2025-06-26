@@ -49,7 +49,7 @@ class CalendarEntryViewSet(viewsets.ModelViewSet):
         return CalendarEntry.objects.filter(user_id=self.request.user.profile)
 
     def perform_create(self, serializer):
-        serializer.save(user_id=self.request.user.profile)
+        serializer.save(user=self.request.user.profile)
 
 
 class CalendarIntegrationViewSet(viewsets.ModelViewSet):

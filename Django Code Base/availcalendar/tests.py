@@ -249,9 +249,9 @@ class ReminderTestCase(BaseCalendarTestCase):
             end_time=(datetime.now() + timedelta(minutes=15)).time(),
             duration=15,
             source="manual",
-            location_id=self.location,
-            user_id=self.profile1,
-            event_id=self.event,
+            location_id=self.location.pk,
+            user_id=self.profile1.pk,
+            event_id=self.event.pk,
         )
         self.reminder_url = reverse("reminder-list")
 

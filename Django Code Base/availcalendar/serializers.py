@@ -61,17 +61,12 @@ class TimeSlotSerializer(serializers.ModelSerializer):
 
 class CalendarEntrySerializer(serializers.ModelSerializer):
     location = serializers.PrimaryKeyRelatedField(
-        source="location_id",
         queryset=Location.objects.all(),
         allow_null=True,
         required=False,
     )
-    user = serializers.PrimaryKeyRelatedField(
-        source="user_id", queryset=Profile.objects.all()
-    )
-    event = serializers.PrimaryKeyRelatedField(
-        source="event_id", queryset=Event.objects.all()
-    )
+    user = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all())
+    event = serializers.PrimaryKeyRelatedField(queryset=Event.objects.all())
 
     class Meta:
         model = CalendarEntry
