@@ -560,3 +560,46 @@ Asynchronously sync busy slots from Google Calendar into the database.
     { "message": "Calendar synchronization initiated." }
     ```
     - **Error:** `{ "error": ... }` (400/502)
+
+---
+## Smart Scheduling API Endpoint
+
+### `SchedulingViewSet.find_available_slots` (`POST /smartschedule/find-available-slots/`)
+Finds the best available timeslots for a group of users based on their availability.
+
+- **Requires:** Authentication
+- **Body:**
+    ```json
+    {
+        "group_id": "string (optional)",
+        "users": ["user_id_1", "user_id_2"],
+        "start_date": "YYYY-MM-DD",
+        "end_date": "YYYY-MM-DD",
+        "start_time": "HH:MM:SS",
+        "end_time": "HH:MM:SS",
+        "duration": "integer (multiple of 15)",
+        "type_of_meetup": "'virtual' or 'physical' (default: 'virtual')",
+        "buffer": "integer (optional, multiple of 15, default: 15 for virtual, 30 for physical)",
+        "minimum_attendance": "decimal (0.00 to 100.00, default: 50.00)"
+    }
+    ```
+- **Returns:**
+    ```json
+    {
+        "available_slots": [
+            {
+                "start_date": "YYYY-MM-DD",
+                "start_time": "HH:MM:SS",
+                "end_date": "YYYY-MM-DD",
+                "end_time": "HH:MM:SS",
+                "free_count": "integer",
+                "group_size": "integer",
+                "attendance": "float"
+            },
+            ...
+        ]
+    }
+    ```
+- **Errors:**
+    - `400 Bad Request`: If required fields are missing, validation fails, or users are not found.
+    - `401 Unauthorized`: If the user is not authenticated.
