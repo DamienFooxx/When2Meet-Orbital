@@ -5,7 +5,6 @@ from groups.models import Group
 from django.utils import timezone
 from datetime import timedelta
 from django.core.exceptions import ValidationError
-from events.models import Event
 
 class TimeSlot(models.Model):
     """
@@ -17,7 +16,7 @@ class TimeSlot(models.Model):
         related_name="timeslots"
     )
     event_id = models.ForeignKey(
-        Event,
+        'events.Event',
         on_delete = models.CASCADE,
         related_name = "timeslots",
         null = True,
@@ -67,20 +66,20 @@ class CalendarEntry(models.Model):
         default = 'manual'
     )
     google_event_id = models.CharField(max_length = 50, null = True)
-    location_id = models.ForeignKey(
+    location = models.ForeignKey(
         'accounts.Location',
         on_delete = models.SET_NULL,
         null = True,
         blank = True,
         related_name = "CalendarEntry",
     )
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         'accounts.Profile',
         related_name = "CalendarEntry",
         on_delete = models.CASCADE,
     )
-    event_id = models.ForeignKey(
-        Event,
+    event = models.ForeignKey(
+        'events.Event',
         on_delete = models.CASCADE,
         related_name = "CalendarEntry"
     )
