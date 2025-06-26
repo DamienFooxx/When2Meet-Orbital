@@ -1,7 +1,9 @@
 from django.db import models
-from accounts.models import Profile
-from events.models import Event
-
+from accounts.models import Profile, Location
+from groups.models import Group
+from django.utils import timezone
+from datetime import timedelta
+from django.core.exceptions import ValidationError
 
 class TimeSlot(models.Model):
     """
@@ -12,11 +14,11 @@ class TimeSlot(models.Model):
         "accounts.Profile", on_delete=models.CASCADE, related_name="timeslots"
     )
     event_id = models.ForeignKey(
-        Event,
-        on_delete=models.CASCADE,
-        related_name="timeslots",
-        null=True,
-        blank=True,
+        'events.Event',
+        on_delete = models.CASCADE,
+        related_name = "timeslots",
+        null = True,
+        blank = True,
     )
     start_date = models.DateField()
     start_time = models.TimeField()
@@ -63,21 +65,23 @@ class CalendarEntry(models.Model):
         ],
         default="manual",
     )
-    google_event_id = models.CharField(max_length=50, null=True)
-    location_id = models.ForeignKey(
-        "accounts.Location",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="CalendarEntry",
+    google_event_id = models.CharField(max_length = 50, null = True)
+    location = models.ForeignKey(
+        'accounts.Location',
+        on_delete = models.SET_NULL,
+        null = True,
+        blank = True,
+        related_name = "CalendarEntry",
     )
-    user_id = models.ForeignKey(
-        "accounts.Profile",
-        related_name="CalendarEntry",
-        on_delete=models.CASCADE,
+    user = models.ForeignKey(
+        'accounts.Profile',
+        related_name = "CalendarEntry",
+        on_delete = models.CASCADE,
     )
-    event_id = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name="CalendarEntry"
+    event = models.ForeignKey(
+        'events.Event',
+        on_delete = models.CASCADE,
+        related_name = "CalendarEntry"
     )
 
     def __str__(self):
