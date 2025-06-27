@@ -11,11 +11,15 @@ class TimeSlot(models.Model):
     """
 
     user = models.ForeignKey(
-        "accounts.Profile", on_delete=models.CASCADE, related_name="timeslots"
+        "accounts.Profile", 
+        on_delete=models.SET_NULL, 
+        related_name="timeslots",
+        null = True,
+        blank = True,
     )
     event_id = models.ForeignKey(
         'events.Event',
-        on_delete = models.CASCADE,
+        on_delete = models.SET_NULL,
         related_name = "timeslots",
         null = True,
         blank = True,

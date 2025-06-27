@@ -50,7 +50,6 @@ class EventParticipant(models.Model):
     """
     Many to Many model between Event and Profile to store participation details.
     """
-
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     participant = models.ForeignKey('accounts.Profile', on_delete=models.CASCADE)
     is_joining = models.CharField(
