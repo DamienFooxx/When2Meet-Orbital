@@ -142,18 +142,27 @@ class GroupViewSet(viewsets.ModelViewSet):
 
     """Invitations and Requests"""
 
-    @action(detail=False, methods=["get"], url_path="invitations")
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="invitations",
+        permission_classes=[IsAuthenticated],
+    )
     def invitations(self, request):
-        profile = Profile.objects.get(user=request.user)
-
-        memberships = GroupMembership.objects.filter(
-            profile=profile, is_accepted=False
-        ).select_related("group", "group_creator")
-
-        serializer = GroupInvitationSerializer(
-            memberships, many=True, context={"request": request}
-        )
-        return Response(serializer.data)
+        try:
+            profile = Profile.objects.get(user=request.user)
+            memberships = GroupMembership.objects.filter(
+                profile=profile, is_accepted=False
+            ).select_related("group")
+            serializer = GroupMembershipListSerializer(
+                memberships, many=True, context={"request": request}
+            )
+            return Response(serializer.data)
+        except Exception as e:
+            print("Error in invitations:", e)
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     # Below are methods on joining groups
 
@@ -378,46 +387,6 @@ class GroupViewSet(viewsets.ModelViewSet):
         print("serliazer", serializer.data)
         return Response(serializer.data)
 
-    def destroy(self, request, *args, **kwargs):
-        group = self.get_object()
-        profile = Profile.objects.get(user=request.user)
-
-        # only allow organisers to delete the group
-        if not GroupMembership.objects.filter(
-            group=group, profile=profile, role="organiser"
-        ).exists():
-            return Response(
-                {"error": "Only organisers can delete the group."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
-        group.delete()
-        return Response(
-            {"message": "Group deleted successfully"}, status=status.HTTP_204_NO_CONTENT
-        )
-
-    @action(
-        detail=False,
-        methods=["get"],
-        url_path="invitations",
-        permission_classes=[IsAuthenticated],
-    )
-    def invitations(self, request):
-        try:
-            profile = Profile.objects.get(user=request.user)
-            memberships = GroupMembership.objects.filter(
-                profile=profile, is_accepted=False
-            ).select_related("group")
-            serializer = GroupMembershipListSerializer(
-                memberships, many=True, context={"request": request}
-            )
-            return Response(serializer.data)
-        except Exception as e:
-            print("Error in invitations:", e)
-            return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
     @action(
         detail=False,
         methods=["get"],
@@ -501,40 +470,6 @@ class GroupViewSet(viewsets.ModelViewSet):
         return Response(
             {"message": f'You have declined the invitation to join "{group.name}".'},
             status=status.HTTP_200_OK,
-        )
-
-    def list(self, request, *args, **kwargs):
-        print("Fetching groups for:", request.user)
-        profile = Profile.objects.get(user=request.user)
-        print("Got profile:", profile)
-
-        queryset = Group.objects.filter(
-            group_memberships__profile=profile, group_memberships__is_accepted=True
-        ).distinct()
-
-        serializer = self.get_serializer(
-            queryset, many=True, context={"request": request}
-        )
-
-        print("serliazer", serializer.data)
-        return Response(serializer.data)
-
-    def destroy(self, request, *args, **kwargs):
-        group = self.get_object()
-        profile = Profile.objects.get(user=request.user)
-
-        # only allow organisers to delete the group
-        if not GroupMembership.objects.filter(
-            group=group, profile=profile, role="organiser"
-        ).exists():
-            return Response(
-                {"error": "Only organisers can delete the group."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
-        group.delete()
-        return Response(
-            {"message": "Group deleted successfully"}, status=status.HTTP_204_NO_CONTENT
         )
 
     @action(
