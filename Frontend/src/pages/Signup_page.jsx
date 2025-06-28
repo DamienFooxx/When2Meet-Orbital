@@ -6,11 +6,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
-import { BASE_URL } from '../utils/config';
+import { BASE_URL, API_PREFIX } from '../utils/config';
 import { useNavigation } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
-
-const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
   
 const Signup_page = () => {
     {/* state hooks */}
@@ -42,7 +40,7 @@ const Signup_page = () => {
         });
 
         try {
-            const response = await axios.post(`${API_PREFIX}${BASE_URL}/api/auth/registration/`, {
+            const response = await axios.post(`${API_PREFIX}${BASE_URL}/auth/registration/`, {
                 username,
                 email,
                 password1: password,

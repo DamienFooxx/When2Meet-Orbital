@@ -1,12 +1,10 @@
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { colors } from '../utils/colors';
-import { BASE_URL } from '../utils/config';
+import { BASE_URL, API_PREFIX } from '../utils/config';
 import axios from 'axios';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { useUser } from '../context/UserContext';
-
-const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
 
 const getColor = (ratio) => {
     if (ratio >= 0.75) return '#0f62fe';
@@ -36,7 +34,7 @@ const HeatmapMonth = ({ isGoogleConnected }) => {
             setLoading(false);
             return;
         }
-        axios.get(`${API_PREFIX}${BASE_URL}/api/availcalendar/month`, {
+        axios.get(`${API_PREFIX}${BASE_URL}/availcalendar/month`, {
             params: {
                 year,
                 month: month + 1 // API expects 1-based month
