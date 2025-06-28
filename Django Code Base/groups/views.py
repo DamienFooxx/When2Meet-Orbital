@@ -11,6 +11,7 @@ from .serializers import (
     GroupInvitationSerializer,
 )
 from django.contrib.auth import get_user_model
+import logging
 
 """
 groups/views.py
@@ -19,6 +20,7 @@ Contains viewsets for managing groups and group memberships.
 """
 User = get_user_model()
 
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 class GroupViewSet(viewsets.ModelViewSet):
@@ -84,7 +86,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             serializer = GroupMembershipListSerializer(memberships, many=True)
             return Response(serializer.data)
         except Exception as e:
-            print("Error in list_members:", e)
+            logger.error(f"Error in list_members: {e}")
             return Response({"error": str(e)}, status=500)
 
     @action(detail=True, methods=["post"], url_path="leave")
@@ -159,7 +161,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             )
             return Response(serializer.data)
         except Exception as e:
-            print("Error in invitations:", e)
+            logger.error(f"Error in invitations: {e}")
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
@@ -372,9 +374,9 @@ class GroupViewSet(viewsets.ModelViewSet):
         )
 
     def list(self, request, *args, **kwargs):
-        print("Fetching groups for:", request.user)
+        logger.info(f"Fetching groups for: {request.user}")
         profile = Profile.objects.get(user=request.user)
-        print("Got profile:", profile)
+        logger.info(f"Got profile: {profile}")
 
         queryset = Group.objects.filter(
             group_memberships__profile=profile, group_memberships__is_accepted=True
@@ -384,7 +386,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             queryset, many=True, context={"request": request}
         )
 
-        print("serliazer", serializer.data)
+        logger.info(f"serializer {serializer.data}")
         return Response(serializer.data)
 
     @action(
@@ -417,7 +419,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             )
             return Response(serializer.data)
         except Exception as e:
-            print("Error in requests:", e)
+            logger.error(f"Error in requests: {e}")
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
@@ -480,33 +482,26 @@ class GroupViewSet(viewsets.ModelViewSet):
     )
     def accept_join_request(self, request, pk=None):
         try:
-            print("Accept join request called by user:", request.user)
+            logger.info(f"Accept join request called by user: {request.user}")
             membership = GroupMembership.objects.select_related("group", "profile").get(
                 id=pk, is_accepted=False, invited_by_organizer=False
             )
-            print(
-                "Membership found:",
-                membership,
-                "Group:",
-                membership.group,
-                "Profile:",
-                membership.profile,
-            )
+            logger.info(f"Membership found: {membership}, Group: {membership.group}, Profile: {membership.profile}")
             organizer_profile = Profile.objects.get(user=request.user)
-            print("Organizer profile:", organizer_profile)
+            logger.info(f"Organizer profile: {organizer_profile}")
             is_organiser = GroupMembership.objects.filter(
                 group=membership.group, profile=organizer_profile, role="organiser"
             ).exists()
-            print("Is organiser:", is_organiser)
+            logger.info(f"Is organiser: {is_organiser}")
             if not is_organiser:
-                print("User is not organiser, returning 403")
+                logger.warning("User is not organiser, returning 403")
                 return Response(
                     {"error": "Only organisers can accept join requests."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
             membership.is_accepted = True
             membership.save()
-            print("Membership accepted and saved")
+            logger.info("Membership accepted and saved")
             return Response(
                 {
                     "message": f"User {membership.profile.user.username} has been added to the group '{membership.group.name}'."
@@ -514,12 +509,12 @@ class GroupViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_200_OK,
             )
         except GroupMembership.DoesNotExist:
-            print("GroupMembership.DoesNotExist for pk:", pk)
+            logger.error(f"GroupMembership.DoesNotExist for pk: {pk}")
             return Response(
                 {"error": "Join request not found."}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            print("Error in accept_join_request:", e)
+            logger.error(f"Error in accept_join_request: {e}")
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
@@ -556,7 +551,7 @@ class GroupViewSet(viewsets.ModelViewSet):
                 {"error": "Join request not found."}, status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-            print("Error in decline_join_request:", e)
+            logger.error(f"Error in decline_join_request: {e}")
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
