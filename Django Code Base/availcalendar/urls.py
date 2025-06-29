@@ -6,7 +6,7 @@ from availcalendar.views import (
     CalendarEntryViewSet,
     ManualAvailabilityViewSet,
     ReminderViewSet,
-    month_availability
+    month_availability,
     ReminderViewSet,
     month_availability
 )
