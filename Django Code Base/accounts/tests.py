@@ -1,19 +1,18 @@
-from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 from accounts.models import Profile, Location
-from django.utils import timezone
-from datetime import timedelta
 from unittest.mock import patch, MagicMock
+
 
 class LocationTestCase(APITestCase):
     """
     Test suite for location authentication
     """
-    @patch('accounts.models.geolocator.geocode')
+
+    @patch("accounts.models.geolocator.geocode")
     def test_valid_location_save_coordinates(self, mock_geocode):
         mock_location = MagicMock()
         mock_location.latitude = 1.3521
@@ -21,31 +20,31 @@ class LocationTestCase(APITestCase):
         mock_geocode.return_value = mock_location
 
         loc = Location(
-            postalcode = "117417",
-            city = "Singapore",
-            country = "SG",
-            street_address = "13 Computing Drive"
+            postalcode="117417",
+            city="Singapore",
+            country="SG",
+            street_address="13 Computing Drive",
         )
         loc.save()
 
         self.assertIsNotNone(loc.latitude)
         self.assertIsNotNone(loc.longitude)
 
-    @patch('accounts.models.geolocator.geocode')
+    @patch("accounts.models.geolocator.geocode")
     def test_invalid_location_save_coordinates(self, mock_geocode):
         mock_geocode.return_value = None
 
         loc = Location(
-            postalcode = "000000",
-            city = "Nowhere",
-            country = "SG",
-            street_address = "Empty Street"
+            postalcode="000000",
+            city="Nowhere",
+            country="SG",
+            street_address="Empty Street",
         )
 
         with self.assertRaises(ValidationError):
             loc.save()
-    
-    @patch('accounts.models.geolocator.geocode')
+
+    @patch("accounts.models.geolocator.geocode")
     def test_location_str_representation(self, mock_geocode):
         """
         Test the __str__ method of Location model returns the correct value
@@ -57,18 +56,16 @@ class LocationTestCase(APITestCase):
         mock_geocode.return_value = mock_location
         # Case 1: postalcode is set
         loc1 = Location.objects.create(
-            postalcode = "117417",
-            city = "Singapore",
-            country = "SG",
-            street_address = "13 Computing Drive"
+            postalcode="117417",
+            city="Singapore",
+            country="SG",
+            street_address="13 Computing Drive",
         )
         self.assertEqual(str(loc1), "117417")
 
         # Case 2: postalcode is blank, fallback to street_address
         loc2 = Location.objects.create(
-            postalcode = "",
-            city = "Singapore",
-            street_address = "6 College Avenue East"
+            postalcode="", city="Singapore", street_address="6 College Avenue East"
         )
         self.assertEqual(str(loc2), "6 College Avenue East")
 
@@ -77,9 +74,10 @@ class AccountTestCase(APITestCase):
     """
     Test suite for the accounts app functionality
     """
+
     def setUp(self):
         # Mock geocode
-        self.mock_geocode = patch('accounts.models.geolocator.geocode').start()
+        self.mock_geocode = patch("accounts.models.geolocator.geocode").start()
         mock_location = MagicMock()
         mock_location.latitude = 1.3521
         mock_location.longitude = 103.8198
@@ -87,34 +85,34 @@ class AccountTestCase(APITestCase):
 
         # Create test users
         self.user1 = User.objects.create_user(
-            username = 'testuser1', 
-            email = 'test1@gmail.com',
-            password = 'testpass123',
-            )
+            username="testuser1",
+            email="test1@gmail.com",
+            password="testpass123",
+        )
         self.user2 = User.objects.create_user(
-            username = 'testuser2', 
-            email = 'test2@gmail.com',
-            password = 'testpass123',
-            )
-        
+            username="testuser2",
+            email="test2@gmail.com",
+            password="testpass123",
+        )
+
         # Get their profiles (auto-created by signal)
-        self.profile1 = Profile.objects.get(user = self.user1)
-        self.profile2 = Profile.objects.get(user = self.user2)
+        self.profile1 = Profile.objects.get(user=self.user1)
+        self.profile2 = Profile.objects.get(user=self.user2)
 
         # Create test locations
         loc1 = Location.objects.create(
-            postalcode = "117417",
-            city = "Singapore",
-            country = "SG",
-            street_address = "13 Computing Drive"
+            postalcode="117417",
+            city="Singapore",
+            country="SG",
+            street_address="13 Computing Drive",
         )
         self.assertEqual(str(loc1), "117417")
 
         loc2 = Location.objects.create(
-            postalcode = "138614",
-            city = "Singapore",
-            country = "SG",
-            street_address = "6 College Avenue East"
+            postalcode="138614",
+            city="Singapore",
+            country="SG",
+            street_address="6 College Avenue East",
         )
 
         # Set up API client
@@ -138,26 +136,23 @@ class AccountTestCase(APITestCase):
 
         # Check that the profile is correctly linked
         profile = Profile.objects.get(user=self.user1)
-        self.assertEqual(profile.user.username, 'testuser1')
+        self.assertEqual(profile.user.username, "testuser1")
 
     def test_profile_update(self):
         """
         Test updating profile information
         """
-        url = reverse('profile')
+        url = reverse("profile")
         loc = Location.objects.create(
-            postalcode = "117417", 
-            city = "Singapore", 
-            country = "SG", 
-            street_address =  "13 Computing Drive"
-            )
+            postalcode="117417",
+            city="Singapore",
+            country="SG",
+            street_address="13 Computing Drive",
+        )
 
-        updated_data = {
-            "name": "Test test",
-            "location": loc.id
-        }
+        updated_data = {"name": "Test test", "location": loc.id}
 
-        response = self.client.put(url, data = updated_data, format = 'json')
+        response = self.client.put(url, data=updated_data, format="json")
 
         # Check if successfully updated
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -175,8 +170,10 @@ class AccountTestCase(APITestCase):
 
         # Create 10 random users
         for i in range(10):
-            user = User.objects.create_user(username = f'uniqueuser{i}', password = "pass123")
-            profile = Profile.objects.get(user = user)
+            user = User.objects.create_user(
+                username=f"uniqueuser{i}", password="pass123"
+            )
+            profile = Profile.objects.get(user=user)
 
             # Check if unique_id is created
             self.assertIsNotNone(profile.unique_id)
@@ -207,7 +204,7 @@ class AccountTestCase(APITestCase):
         """
         self.client.logout()  # ensure no user is authenticated
 
-        url = reverse('profile')
+        url = reverse("profile")
 
         response = self.client.get(url)
 
@@ -218,7 +215,7 @@ class AccountTestCase(APITestCase):
         Test that profile fields can be blank
         """
         # Create a new user
-        user = User.objects.create_user(username = 'blanktest', password = 'pass123')
+        user = User.objects.create_user(username="blanktest", password="pass123")
 
         # Manually create a profile with optional fields left blank
         profile = user.profile
@@ -236,11 +233,11 @@ class AccountTestCase(APITestCase):
             "username": "newuser",
             "email": "newuser@gmail.com",
             "password1": "newpass123",
-            "password2": "newpass123"
+            "password2": "newpass123",
         }
 
-        response = self.client.post("/api/auth/registration/", data, format = 'json')
+        response = self.client.post("/api/auth/registration/", data, format="json")
         self.assertEqual(response.status_code, 201)
 
-        self.assertTrue(User.objects.filter(username = "newuser").exists())
-        self.assertTrue(Profile.objects.filter(user__username = "newuser").exists())
+        self.assertTrue(User.objects.filter(username="newuser").exists())
+        self.assertTrue(Profile.objects.filter(user__username="newuser").exists())

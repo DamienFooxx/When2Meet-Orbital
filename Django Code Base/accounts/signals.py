@@ -9,6 +9,7 @@ accounts/signals.py
 Contains signal handlers for creating or updating user profiles when a User is created or saved.
 """
 
+
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     """
@@ -16,6 +17,6 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
     or updates the Profile when an existing User is saved.
     """
     if created:
-        Profile.objects.create(user = instance)
+        Profile.objects.create(user=instance)
     else:
         instance.profile.save()

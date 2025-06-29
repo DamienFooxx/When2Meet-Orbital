@@ -1,10 +1,12 @@
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert, TextInput, ActivityIndicator } from 'react-native';
 import React, { useState } from 'react';
 import axios from 'axios';
-import { BASE_URL } from '../utils/config';
+import { BASE_URL, API_PREFIX } from '../utils/config';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { useUser } from '../context/UserContext';
+
+const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
 
 const JoinExistingGroup_page = () => {
     const { user, isLoadingUser } = useUser();
@@ -23,7 +25,7 @@ const JoinExistingGroup_page = () => {
 
         setLoading(true);
         // fetch groups from the backend based on the search query (group code)
-        axios.post(`${BASE_URL}/api/groups/join-by-code/`, {
+        axios.post(`${API_PREFIX}${BASE_URL}/groups/join-by-code/`, {
             invite_code: text,
         }, {
             headers: { Authorization: `Token ${user.token}` }
@@ -44,7 +46,7 @@ const JoinExistingGroup_page = () => {
     const requestToJoinGroup = async (groupCode, confirm = false) => {
         try {
             setLoading(true);
-            const response = await axios.post(`${BASE_URL}/api/groups/join-by-code/`, {
+            const response = await axios.post(`${API_PREFIX}${BASE_URL}/groups/join-by-code/`, {
                 invite_code: groupCode,
                 confirm_join: true,
             }, {

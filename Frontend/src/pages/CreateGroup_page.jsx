@@ -7,6 +7,8 @@ import { fonts } from '../utils/fonts';
 import { BASE_URL } from '../utils/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
+
 const CreateGroup_page = () => {
     const [groupName, setGroupName] = useState('');
     const [newMember, setNewMember] = useState('');
@@ -21,7 +23,7 @@ const CreateGroup_page = () => {
             const token = await AsyncStorage.getItem('authToken');
             axios.defaults.headers.common['Authorization'] = `Token ${token}`;
 
-            const res = await axios.get(`${BASE_URL}/api/users/check/?email=${trimmed}`);
+            const res = await axios.get(`${API_PREFIX}${BASE_URL}/api/users/check/?email=${trimmed}`);
             if (res.data.exists) {
                 setMembers([...members, trimmed]);
                 setNewMember('');
@@ -54,7 +56,7 @@ const CreateGroup_page = () => {
             axios.defaults.headers.common['Authorization'] = `Token ${token}`;
 
             const response = await axios.post(
-                `${BASE_URL}/api/groups/`,
+                `${API_PREFIX}${BASE_URL}/api/groups/`,
                 {
                     name: groupName,
                     members: members,
