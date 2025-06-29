@@ -7,6 +7,8 @@ from availcalendar.views import (
     ManualAvailabilityViewSet,
     ReminderViewSet,
     month_availability
+    ReminderViewSet,
+    month_availability
 )
 
 router = DefaultRouter()
@@ -18,7 +20,11 @@ router.register(
 router.register(r"reminders", ReminderViewSet, basename="reminder")
 
 urlpatterns = [
-    path("sync/google/", GoogleCalendarSyncView.as_view(), name="calendar-google-sync"),
+    path(
+        'sync/google/',
+        GoogleCalendarSyncView.as_view(),
+        name='calendar-google-sync'
+    ),
     path('month', month_availability, name='month-availability'),
     path('', include(router.urls)),
 ]
