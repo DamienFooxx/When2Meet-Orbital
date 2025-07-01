@@ -1,6 +1,6 @@
 {
   "name": "RNGoogleSignin",
-  "version": "14.0.1",
+  "version": "14.0.2",
   "summary": "Google sign in for your react native applications",
   "homepage": "https://github.com/react-native-google-signin/google-signin#readme",
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "source": {
     "git": "https://github.com/react-native-google-signin/google-signin-next.git",
-    "tag": "14.0.1"
+    "tag": "14.0.2"
   },
   "source_files": "ios/**/*.{h,m,mm}",
   "dependencies": {
@@ -40,8 +40,7 @@
     "DoubleConversion": [],
     "React-jsi": [],
     "React-renderercss": [],
-    "hermes-engine": [],
-    "React-hermes": []
+    "React-jsc": []
   },
   "compiler_flags": "-DRCT_NEW_ARCH_ENABLED=1 -DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32",
   "pod_target_xcconfig": {

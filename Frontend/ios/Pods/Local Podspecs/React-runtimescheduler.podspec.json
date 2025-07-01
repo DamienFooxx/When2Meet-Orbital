@@ -37,7 +37,6 @@
     "React-rendererconsistency": [],
     "React-debug": [],
     "React-jsinspectortracing": [],
-    "hermes-engine": [],
-    "React-hermes": []
+    "React-jsc": []
   }
 }

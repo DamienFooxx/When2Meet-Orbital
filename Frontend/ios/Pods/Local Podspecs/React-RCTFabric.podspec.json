@@ -54,8 +54,7 @@
     "React-jsinspector": [],
     "React-jsinspectortracing": [],
     "React-renderercss": [],
-    "hermes-engine": [],
-    "React-hermes": []
+    "React-jsc": []
   },
   "testspecs": [
     {

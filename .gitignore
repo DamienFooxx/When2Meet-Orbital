@@ -119,3 +119,5 @@ junit-*.xml
 # Secret Credentials
 .env
 .gitignore
+.dockerignore
+DEPLOYMENT_README.md

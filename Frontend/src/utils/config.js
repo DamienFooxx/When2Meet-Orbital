@@ -1,2 +1,2 @@
 export const BASE_URL = "/api";
-export const API_PREFIX = "http://192.168.1.140:8000";
+export const API_PREFIX = "https://orbital-when2meet-api-686579494898.asia-southeast1.run.app";
