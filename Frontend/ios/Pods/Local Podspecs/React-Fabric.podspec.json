@@ -45,8 +45,7 @@
     "React-cxxreact": [],
     "React-rendererdebug": [],
     "React-graphics": [],
-    "hermes-engine": [],
-    "React-hermes": []
+    "React-jsc": []
   },
   "script_phases": [
     {

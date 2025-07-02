@@ -31,6 +31,13 @@ class Event(models.Model):
         through="EventParticipant",
         related_name="events",
     )
+    confirmed_timeslot = models.ForeignKey(
+        'availcalendar.TimeSlot',
+        on_delete = models.SET_NULL,
+        related_name = "timeslots",
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         db_table = "availcalendar_event"
@@ -45,14 +52,16 @@ class EventParticipant(models.Model):
     """
 
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    participant = models.ForeignKey("accounts.Profile", on_delete=models.CASCADE)
+    participant = models.ForeignKey('accounts.Profile', on_delete=models.CASCADE)
     is_joining = models.CharField(
-        max_length=10,
-        choices=[("going", "Going"), ("maybe", "Maybe"), ("declined", "Declined")],
-        null=True,
-        blank=True,
-        default="maybe",
-    )
+        max_length=10, 
+        choices=[
+            ('going', 'Going'), 
+            ('maybe', 'Maybe'), 
+            ('declined', 'Declined')
+            ], null=True, 
+            blank=True
+        )
 
     class Meta:
         db_table = "availcalendar_eventparticipant"
