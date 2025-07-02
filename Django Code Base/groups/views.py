@@ -352,8 +352,7 @@ class GroupViewSet(viewsets.ModelViewSet):
             # Get all pending join requests for those groups
             memberships = GroupMembership.objects.filter(
                 group__in=organiser_groups,
-                is_accepted=False,
-                invited_by_organizer=False
+                is_accepted=False
             ).select_related('group', 'profile__user')
 
             serializer = GroupMembershipListSerializer(memberships, many=True, context={'request': request})
@@ -432,7 +431,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     def accept_join_request(self, request, pk=None):
         try:
             print('Accept join request called by user:', request.user)
-            membership = GroupMembership.objects.select_related('group', 'profile').get(id=pk, is_accepted=False, invited_by_organizer=False)
+            membership = GroupMembership.objects.select_related('group', 'profile').get(id=pk, is_accepted=False)
             print('Membership found:', membership, 'Group:', membership.group, 'Profile:', membership.profile)
             organizer_profile = Profile.objects.get(user=request.user)
             print('Organizer profile:', organizer_profile)
@@ -455,7 +454,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], url_path='requests/(?P<pk>[^/.]+)/decline-request', permission_classes=[IsAuthenticated])
     def decline_join_request(self, request, pk=None):
         try:
-            membership = GroupMembership.objects.select_related('group', 'profile').get(id=pk, is_accepted=False, invited_by_organizer=False)
+            membership = GroupMembership.objects.select_related('group', 'profile').get(id=pk, is_accepted=False)
             organizer_profile = Profile.objects.get(user=request.user)
             # Check if the current user is an organiser of the group
             if not GroupMembership.objects.filter(group=membership.group, profile=organizer_profile, role='organiser').exists():

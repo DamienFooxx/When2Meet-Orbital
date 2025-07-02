@@ -5,7 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { useUser } from '../context/UserContext';
-import { BASE_URL, API_PREFIX } from '../utils/config';
+import { API_BASE } from '../utils/config';
 import axios from 'axios';
 
 const Profile_page = () => {
@@ -29,7 +29,7 @@ const Profile_page = () => {
                     onPress: async () => {
                         try {
                             await axios.post(
-                                `${API_PREFIX}${BASE_URL}/auth/logout/`,
+                                `${API_BASE}/auth/logout/`,
                                 {},
                                 {
                                     headers: {

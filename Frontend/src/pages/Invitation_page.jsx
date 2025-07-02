@@ -4,7 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useUser } from '../context/UserContext';
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import { BASE_URL, API_PREFIX } from '../utils/config';
+import { API_BASE } from '../utils/config';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { useNavigation } from '@react-navigation/native';
@@ -31,7 +31,7 @@ const Invitation_page = () => {
     const fetchInvitations = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`${API_PREFIX}${BASE_URL}/groups/invitations/`, {
+            const res = await axios.get(`${API_BASE}/groups/invitations/`, {
                 headers: { Authorization: `Token ${user.token}` }
             });
             setInvitations(res.data);
@@ -47,7 +47,7 @@ const Invitation_page = () => {
     const fetchRequests = async () => {
         try { 
             setLoading(true);
-            const res = await axios.get(`${API_PREFIX}${BASE_URL}/groups/requests/`, {
+            const res = await axios.get(`${API_BASE}/groups/requests/`, {
                 headers: { Authorization: `Token ${user.token}` }
             });
             setRequests(res.data);
@@ -59,7 +59,7 @@ const Invitation_page = () => {
     // accept a pending request
     const acceptRequest = async (requestId) => {
         try {
-            await axios.post(`${API_PREFIX}${BASE_URL}/groups/requests/${requestId}/accept-request/`, {}, {
+            await axios.post(`${API_BASE}/groups/requests/${requestId}/accept-request/`, {}, {
                 headers: { Authorization: `Token ${user.token}` }
             });
             fetchRequests();
@@ -73,7 +73,7 @@ const Invitation_page = () => {
     // decline a pending request
     const declineRequest = async (requestId) => {
         try {
-            await axios.post(`${API_PREFIX}${BASE_URL}/groups/requests/${requestId}/decline-request/`, {}, {
+            await axios.post(`${API_BASE}/groups/requests/${requestId}/decline-request/`, {}, {
                 headers: { Authorization: `Token ${user.token}` }
             });
             fetchRequests(); // refresh request list
@@ -86,7 +86,7 @@ const Invitation_page = () => {
     // accept a pending invitation
     const acceptInvitation = async (groupId) => {
         try {
-            await axios.post(`${API_PREFIX}${BASE_URL}/groups/${groupId}/accept-invitation/`, {}, {
+            await axios.post(`${API_BASE}/groups/${groupId}/accept-invitation/`, {}, {
                 headers: { Authorization: `Token ${user.token}` }
             });
 
@@ -101,7 +101,7 @@ const Invitation_page = () => {
 
     const declineInvitation = async (groupId) => {
         try {
-            await axios.post(`${API_PREFIX}${BASE_URL}/groups/${groupId}/decline-invitation/`, {}, {
+            await axios.post(`${API_BASE}/groups/${groupId}/decline-invitation/`, {}, {
             headers: { Authorization: `Token ${user.token}` }
             });
             fetchInvitations(); // Refresh list

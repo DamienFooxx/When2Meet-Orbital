@@ -21,6 +21,6 @@ urlpatterns = [
         GoogleCalendarSyncView.as_view(),
         name='calendar-google-sync'
     ),
-    path('month', month_availability, name='month-availability'),
+    path('month/', month_availability, name='month-availability'),
     path('', include(router.urls)),
 ]
