@@ -6,7 +6,7 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
-import { BASE_URL, API_PREFIX } from '../utils/config';
+import { API_BASE } from '../utils/config';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { useNavigation } from '@react-navigation/native';
@@ -38,7 +38,7 @@ const Login_page = () => {
             console.log('Google ID Token:', accessToken);
 
             // send idToken to Django backend
-            const response = await axios.post(`${API_PREFIX}${BASE_URL}/auth/google/`, {
+            const response = await axios.post(`${API_BASE}/auth/google/`, {
                 access_token: accessToken,
             });
             console.log("login response:", response.data)
@@ -53,7 +53,7 @@ const Login_page = () => {
             axios.defaults.headers.common['Authorization'] = `Token ${token}`;
             
             // fetch user profile from backend
-            const profileRes = await axios.get(`${API_PREFIX}${BASE_URL}/profile/`);
+            const profileRes = await axios.get(`${API_BASE}/profile/`);
             const userData = {
                 token,
                 username: profileRes.data.username,
@@ -98,7 +98,7 @@ const Login_page = () => {
         }
 
         try {
-            const response = await axios.post(`${API_PREFIX}${BASE_URL}/auth/login/`, {
+            const response = await axios.post(`${API_BASE}/auth/login/`, {
                 email: email,
                 password: password,
             });
@@ -111,7 +111,7 @@ const Login_page = () => {
                 axios.defaults.headers.common['Authorization'] = `Token ${token}`;
                 
                 // fetch user profile using email
-                const profileRes = await axios.get(`${API_PREFIX}${BASE_URL}/profile/`);
+                const profileRes = await axios.get(`${API_BASE}/profile/`);
                 const userData = {
                     username: profileRes.data.username,
                     email: profileRes.data.email,

@@ -5,7 +5,7 @@ import { fonts } from '../utils/fonts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import { BASE_URL, API_PREFIX } from '../utils/config';
+import { API_BASE } from '../utils/config';
 import { useUser } from '../context/UserContext';
 import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,7 +34,7 @@ const Main_page = () => {
         axios.defaults.headers.common['Authorization'] = `Token ${token}`;
 
         // GET request to fetch groups
-        const res = await axios.get(`${API_PREFIX}${BASE_URL}/groups/`);
+        const res = await axios.get(`${API_BASE}/groups/`);
 
         // check if there is an array of groups
         if (!Array.isArray(res.data)) {
@@ -85,7 +85,7 @@ const Main_page = () => {
   const handleDelete = async (groupId) => {
     try {
         // cretes a HTTP delete request
-        await axios.delete(`${API_PREFIX}${BASE_URL}/groups/${groupId}/`, {
+        await axios.delete(`${API_BASE}/groups/${groupId}/`, {
             headers: { Authorization: `Token ${user.token}` },
         });
         Alert.alert('Deleted', 'Group has been deleted');
@@ -116,11 +116,6 @@ const Main_page = () => {
         return () => {};
     }, [route.params])
   );
-
-  useEffect(() => {
-    navigation.setParams({ fetchGroups });
-  }, []);
-
 
   return (
     <View style = {styles.container}>
@@ -316,7 +311,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 20,
     marginBottom: 20,
-    alignItems: 'left',
+    alignItems: 'flex-start', // changed from 'left' to 'flex-start' for Yoga compatibility
   },
 
   activitiesText: {
