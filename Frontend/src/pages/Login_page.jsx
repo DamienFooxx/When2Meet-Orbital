@@ -13,6 +13,8 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '../context/UserContext';
 
+const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
+
 const Login_page = () => {
     // state hooks
     const navigation = useNavigation();

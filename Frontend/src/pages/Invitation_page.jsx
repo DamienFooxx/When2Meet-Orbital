@@ -10,6 +10,8 @@ import { fonts } from '../utils/fonts';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
+
 const Invitation_page = () => {
     const navigation = useNavigation();
     const { user, isLoadingUser } = useUser();

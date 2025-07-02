@@ -6,14 +6,18 @@ from availcalendar.views import (
     CalendarEntryViewSet,
     ManualAvailabilityViewSet,
     ReminderViewSet,
+    month_availability,
+    ReminderViewSet,
     month_availability
 )
 
 router = DefaultRouter()
-router.register(r'timeslots', TimeSlotViewSet, basename = 'timeslot')
-router.register(r'calendar-entries', CalendarEntryViewSet, basename = 'calendar-entry')
-router.register(r'manual-availability', ManualAvailabilityViewSet, basename = 'manual-availability')
-router.register(r'reminders', ReminderViewSet, basename = 'reminder')
+router.register(r"timeslots", TimeSlotViewSet, basename="timeslot")
+router.register(r"calendar-entries", CalendarEntryViewSet, basename="calendar-entry")
+router.register(
+    r"manual-availability", ManualAvailabilityViewSet, basename="manual-availability"
+)
+router.register(r"reminders", ReminderViewSet, basename="reminder")
 
 urlpatterns = [
     path(

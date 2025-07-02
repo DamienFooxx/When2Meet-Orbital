@@ -6,6 +6,8 @@ import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { useUser } from '../context/UserContext';
 
+const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
+
 const JoinExistingGroup_page = () => {
     const { user, isLoadingUser } = useUser();
     const [searchQuery, setSearchQuery] = useState('');

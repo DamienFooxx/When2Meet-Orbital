@@ -8,6 +8,8 @@ import { useUser } from '../context/UserContext';
 import { API_BASE } from '../utils/config';
 import axios from 'axios';
 
+const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
+
 const Profile_page = () => {
     const navigation = useNavigation();
     const { user, logout } = useUser(); // access user
