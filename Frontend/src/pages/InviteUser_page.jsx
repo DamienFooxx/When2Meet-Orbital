@@ -2,14 +2,12 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ScrollView 
 import React, { useState } from 'react';
 import { useUser } from '../context/UserContext';
 import axios from 'axios';
-import { BASE_URL } from '../utils/config';
+import { API_BASE } from '../utils/config';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
 
 const InviteUser_page = () => {
     const { user } = useUser();
@@ -31,7 +29,7 @@ const InviteUser_page = () => {
             const token = await AsyncStorage.getItem('authToken');
             axios.defaults.headers.common['Authorization'] = `Token ${token}`;
 
-            const res = await axios.get(`${API_PREFIX}${BASE_URL}/api/users/check/?email=${trimmed}`);
+            const res = await axios.get(`${API_BASE}/users/check/?email=${trimmed}`);
             if (res.data.exists) {
                 setInvited([...invited, trimmed]);
                 setIdentifier('');
@@ -68,7 +66,7 @@ const InviteUser_page = () => {
             const token = await AsyncStorage.getItem('authToken');
             axios.defaults.headers.common['Authorization'] = `Token ${token}`;
 
-            const res = await axios.post(`${API_PREFIX}${BASE_URL}/api/groups/${group.id}/invite/`, {
+            const res = await axios.post(`${API_BASE}/groups/${group.id}/invite/`, {
                 identifiers: invited,
             });
 

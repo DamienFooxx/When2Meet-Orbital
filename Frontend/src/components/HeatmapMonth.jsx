@@ -34,15 +34,21 @@ const HeatmapMonth = ({ isGoogleConnected }) => {
             setLoading(false);
             return;
         }
-        axios.get(`${API_PREFIX}${BASE_URL}/availcalendar/month`, {
+        axios.get(`${API_PREFIX}${BASE_URL}/availcalendar/month/`, {
             params: {
                 year,
                 month: month + 1 // API expects 1-based month
             },
             headers: { Authorization: `Token ${user.token}` }
         })
-            .then(res => setData(res.data))
-            .catch(() => setData([]))
+            .then(res => {
+                console.log('API data:', res.data);
+                setData(res.data)
+            })
+            .catch((err) => {
+                console.error('HeatmapMonth API error:', err);
+                setData([])
+            })
             .finally(() => setLoading(false));
     }, [isGoogleConnected, year, month, user]);
 
@@ -50,6 +56,7 @@ const HeatmapMonth = ({ isGoogleConnected }) => {
     data.forEach(({ date, availableHours, maxHours }) => {
         grouped[date] = maxHours > 0 ? availableHours / maxHours : 0;
     });
+    console.log('Grouped ratios:', grouped);
 
     const firstDay = new Date(year, month, 1);
     const startDay = firstDay.getDay();
