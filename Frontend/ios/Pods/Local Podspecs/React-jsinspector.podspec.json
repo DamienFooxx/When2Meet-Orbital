@@ -32,7 +32,6 @@
     "React-jsinspectortracing": [],
     "React-perflogger": [
       "0.79.2"
-    ],
-    "hermes-engine": []
+    ]
   }
 }

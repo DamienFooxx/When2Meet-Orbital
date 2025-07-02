@@ -32,7 +32,6 @@
     "glog": [],
     "ReactCommon/turbomodule/bridging": [],
     "React-featureflags": [],
-    "React-debug": [],
-    "hermes-engine": []
+    "React-debug": []
   }
 }

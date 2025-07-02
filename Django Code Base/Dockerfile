@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.13-slim
+FROM --platform=linux/amd64 python:3.11-slim
 
 # Set environment variables
 # Prevent Python from writing pyc files to disc
@@ -22,4 +22,4 @@ RUN pip install -r requirements.txt
 # Copy the rest of the application's code into the container
 COPY . .
 
-CMD gunicorn Main.wsgi:application --bind 0.0.0.0:8080
+CMD ["gunicorn", "Main.wsgi:application", "--bind", "0.0.0.0:8080"]

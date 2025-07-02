@@ -10,7 +10,7 @@
 #endif
 #endif
 
-#import "React/RCTHermesInstanceFactory.h"
+#import "React/RCTJscInstanceFactory.h"
 
 FOUNDATION_EXPORT double RCTRuntimeVersionNumber;
 FOUNDATION_EXPORT const unsigned char RCTRuntimeVersionString[];

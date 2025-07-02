@@ -1,0 +1,23 @@
+current directory: /Users/damienfoo/Desktop/Orbital/Frontend/vendor/bundle/ruby/3.4.0/gems/json-2.12.0/ext/json/ext/parser
+/Users/damienfoo/.rbenv/versions/3.4.4/bin/ruby extconf.rb
+checking for rb_enc_interned_str() in ruby.h... yes
+checking for rb_hash_new_capa() in ruby.h... yes
+checking for rb_hash_bulk_insert() in ruby.h... yes
+checking for strnlen() in string.h... yes
+checking for whether -std=c99 is accepted as CFLAGS... yes
+creating Makefile
+
+current directory: /Users/damienfoo/Desktop/Orbital/Frontend/vendor/bundle/ruby/3.4.0/gems/json-2.12.0/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20250701-70413-zehka0 sitelibdir\=./.gem.20250701-70413-zehka0 clean
+
+current directory: /Users/damienfoo/Desktop/Orbital/Frontend/vendor/bundle/ruby/3.4.0/gems/json-2.12.0/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20250701-70413-zehka0 sitelibdir\=./.gem.20250701-70413-zehka0
+compiling parser.c
+linking shared-object json/ext/parser.bundle
+
+current directory: /Users/damienfoo/Desktop/Orbital/Frontend/vendor/bundle/ruby/3.4.0/gems/json-2.12.0/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20250701-70413-zehka0 sitelibdir\=./.gem.20250701-70413-zehka0 install
+/usr/bin/install -c -m 0755 parser.bundle ./.gem.20250701-70413-zehka0/json/ext
+
+current directory: /Users/damienfoo/Desktop/Orbital/Frontend/vendor/bundle/ruby/3.4.0/gems/json-2.12.0/ext/json/ext/parser
+make DESTDIR\= sitearchdir\=./.gem.20250701-70413-zehka0 sitelibdir\=./.gem.20250701-70413-zehka0 clean
