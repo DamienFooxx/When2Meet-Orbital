@@ -28,9 +28,6 @@ def get_secret(secret_name):
 
 SECRET_KEY = get_secret("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
 ALLOWED_HOSTS = ["*"]
 
 # CORS Configuration
@@ -39,6 +36,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:8081",
+    "http://localhost:8080",
+    "http://localhost:8000",
     "http://localhost:19006",
     "exp://localhost:19000",
 ]
