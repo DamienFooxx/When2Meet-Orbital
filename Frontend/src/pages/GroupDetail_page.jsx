@@ -9,8 +9,6 @@ import { Alert } from 'react-native';
 import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
-
 const GroupDetail_page = () => {
     const { params } = useRoute();
     const { group } = params || {};
