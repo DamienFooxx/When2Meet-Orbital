@@ -1,7 +1,6 @@
-#!/bin/bash
-
 # Deployment script for Orbital When2Meet Django application
 # Project: orbitalwhen2meet-test
+# This is only for google cloud run deployment
 
 set -e  # Exit on any error
 

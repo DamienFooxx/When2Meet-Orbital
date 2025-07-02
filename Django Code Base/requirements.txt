@@ -1,4 +1,4 @@
-Django==5.2.3
+Django==5.2.2
 djangorestframework==3.16.0
 django-cors-headers==4.7.0
 dj-rest-auth==7.0.1
