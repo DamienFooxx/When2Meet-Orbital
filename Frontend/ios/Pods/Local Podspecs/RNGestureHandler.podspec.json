@@ -1,6 +1,6 @@
 {
   "name": "RNGestureHandler",
-  "version": "2.25.0",
+  "version": "2.27.1",
   "summary": "Declarative API exposing native platform touch and gesture system to React Native",
   "homepage": "https://github.com/software-mansion/react-native-gesture-handler",
   "license": "MIT",
@@ -9,7 +9,7 @@
   },
   "source": {
     "git": "https://github.com/software-mansion/react-native-gesture-handler",
-    "tag": "2.25.0"
+    "tag": "2.27.1"
   },
   "source_files": "apple/**/*.{h,m,mm}",
   "requires_arc": true,
@@ -47,8 +47,7 @@
     "DoubleConversion": [],
     "React-jsi": [],
     "React-renderercss": [],
-    "hermes-engine": [],
-    "React-hermes": []
+    "React-jsc": []
   },
   "pod_target_xcconfig": {
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/Headers/Private/Yoga\"",
