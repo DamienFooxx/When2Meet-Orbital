@@ -33,7 +33,6 @@
     "React-featureflags": [],
     "React-runtimeexecutor": [],
     "React-jsinspector": [],
-    "hermes-engine": [],
-    "React-hermes": []
+    "React-jsc": []
   }
 }
