@@ -1,0 +1,19 @@
+current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/nkf-0.2.0/ext/nkf
+/Users/Joanne/.rbenv/versions/3.2.2/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20250704-37566-ufv3b sitelibdir\=./.gem.20250704-37566-ufv3b clean
+
+current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20250704-37566-ufv3b sitelibdir\=./.gem.20250704-37566-ufv3b
+compiling nkf.c
+linking shared-object nkf.bundle
+ld: warning: ignoring duplicate libraries: '-lruby.3.2'
+
+current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20250704-37566-ufv3b sitelibdir\=./.gem.20250704-37566-ufv3b install
+/usr/bin/install -c -m 0755 nkf.bundle ./.gem.20250704-37566-ufv3b
+
+current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20250704-37566-ufv3b sitelibdir\=./.gem.20250704-37566-ufv3b clean
