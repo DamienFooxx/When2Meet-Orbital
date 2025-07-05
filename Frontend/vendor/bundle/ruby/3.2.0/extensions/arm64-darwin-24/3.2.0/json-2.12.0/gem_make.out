@@ -8,17 +8,17 @@ checking for whether -std=c99 is accepted as CFLAGS... yes
 creating Makefile
 
 current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/json-2.12.0/ext/json/ext/parser
-make DESTDIR\= sitearchdir\=./.gem.20250704-37566-tjlf20 sitelibdir\=./.gem.20250704-37566-tjlf20 clean
+make DESTDIR\= sitearchdir\=./.gem.20250704-72972-r5g986 sitelibdir\=./.gem.20250704-72972-r5g986 clean
 
 current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/json-2.12.0/ext/json/ext/parser
-make DESTDIR\= sitearchdir\=./.gem.20250704-37566-tjlf20 sitelibdir\=./.gem.20250704-37566-tjlf20
+make DESTDIR\= sitearchdir\=./.gem.20250704-72972-r5g986 sitelibdir\=./.gem.20250704-72972-r5g986
 compiling parser.c
 linking shared-object json/ext/parser.bundle
 ld: warning: ignoring duplicate libraries: '-lruby.3.2'
 
 current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/json-2.12.0/ext/json/ext/parser
-make DESTDIR\= sitearchdir\=./.gem.20250704-37566-tjlf20 sitelibdir\=./.gem.20250704-37566-tjlf20 install
-/usr/bin/install -c -m 0755 parser.bundle ./.gem.20250704-37566-tjlf20/json/ext
+make DESTDIR\= sitearchdir\=./.gem.20250704-72972-r5g986 sitelibdir\=./.gem.20250704-72972-r5g986 install
+/usr/bin/install -c -m 0755 parser.bundle ./.gem.20250704-72972-r5g986/json/ext
 
 current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/json-2.12.0/ext/json/ext/parser
-make DESTDIR\= sitearchdir\=./.gem.20250704-37566-tjlf20 sitelibdir\=./.gem.20250704-37566-tjlf20 clean
+make DESTDIR\= sitearchdir\=./.gem.20250704-72972-r5g986 sitelibdir\=./.gem.20250704-72972-r5g986 clean

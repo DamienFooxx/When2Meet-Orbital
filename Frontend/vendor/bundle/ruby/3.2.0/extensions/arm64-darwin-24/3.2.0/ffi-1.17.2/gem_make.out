@@ -10,10 +10,10 @@ creating extconf.h
 creating Makefile
 
 current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/ffi-1.17.2/ext/ffi_c
-make DESTDIR\= sitearchdir\=./.gem.20250704-37566-6y5jug sitelibdir\=./.gem.20250704-37566-6y5jug clean
+make DESTDIR\= sitearchdir\=./.gem.20250704-72972-5e2mga sitelibdir\=./.gem.20250704-72972-5e2mga clean
 
 current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/ffi-1.17.2/ext/ffi_c
-make DESTDIR\= sitearchdir\=./.gem.20250704-37566-6y5jug sitelibdir\=./.gem.20250704-37566-6y5jug
+make DESTDIR\= sitearchdir\=./.gem.20250704-72972-5e2mga sitelibdir\=./.gem.20250704-72972-5e2mga
 compiling AbstractMemory.c
 compiling ArrayType.c
 compiling Buffer.c
@@ -41,8 +41,8 @@ linking shared-object ffi_c.bundle
 ld: warning: ignoring duplicate libraries: '-lffi', '-lruby.3.2'
 
 current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/ffi-1.17.2/ext/ffi_c
-make DESTDIR\= sitearchdir\=./.gem.20250704-37566-6y5jug sitelibdir\=./.gem.20250704-37566-6y5jug install
-/usr/bin/install -c -m 0755 ffi_c.bundle ./.gem.20250704-37566-6y5jug
+make DESTDIR\= sitearchdir\=./.gem.20250704-72972-5e2mga sitelibdir\=./.gem.20250704-72972-5e2mga install
+/usr/bin/install -c -m 0755 ffi_c.bundle ./.gem.20250704-72972-5e2mga
 
 current directory: /Users/Joanne/When2Meet-Orbital/Frontend/vendor/bundle/ruby/3.2.0/gems/ffi-1.17.2/ext/ffi_c
-make DESTDIR\= sitearchdir\=./.gem.20250704-37566-6y5jug sitelibdir\=./.gem.20250704-37566-6y5jug clean
+make DESTDIR\= sitearchdir\=./.gem.20250704-72972-5e2mga sitelibdir\=./.gem.20250704-72972-5e2mga clean

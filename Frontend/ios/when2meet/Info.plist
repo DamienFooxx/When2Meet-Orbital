@@ -20,8 +20,22 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>google</string>
+		<string>com.googleusercontent.apps.686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -32,7 +46,7 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string/>
+	<string></string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
@@ -58,21 +72,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-    <key>CFBundleURLTypes</key>
-    <array>
-    <dict>
-        <key>CFBundleURLSchemes</key>
-        <array>
-        <string>com.googleusercontent.apps.686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4</string>
-        </array>
-    </dict>
-    </array>
-
-    <key>LSApplicationQueriesSchemes</key>
-  <array>
-    <string>google</string>
-    <string>com.googleusercontent.apps.686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4</string>
-  </array>
-
 </dict>
 </plist>
