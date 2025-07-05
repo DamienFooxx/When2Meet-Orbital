@@ -1273,7 +1273,7 @@ PODS:
     - React-jsiexecutor
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
-  - react-native-safe-area-context (5.5.0):
+  - react-native-safe-area-context (5.4.1):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1287,8 +1287,8 @@ PODS:
     - React-ImageManager
     - React-jsc
     - React-jsi
-    - react-native-safe-area-context/common (= 5.5.0)
-    - react-native-safe-area-context/fabric (= 5.5.0)
+    - react-native-safe-area-context/common (= 5.4.1)
+    - react-native-safe-area-context/fabric (= 5.4.1)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1298,7 +1298,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context/common (5.5.0):
+  - react-native-safe-area-context/common (5.4.1):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1321,7 +1321,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context/fabric (5.5.0):
+  - react-native-safe-area-context/fabric (5.4.1):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1663,7 +1663,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNCClipboard (1.16.3):
+  - RNCClipboard (1.16.2):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1686,7 +1686,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNCPicker (2.11.1):
+  - RNCPicker (2.11.0):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1709,7 +1709,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNGestureHandler (2.27.1):
+  - RNGestureHandler (2.25.0):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1732,7 +1732,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNGoogleSignin (14.0.2):
+  - RNGoogleSignin (14.0.1):
     - DoubleConversion
     - glog
     - GoogleSignIn (~> 7.1)
@@ -2238,7 +2238,7 @@ SPEC CHECKSUMS:
   React-logger: 8edfcedc100544791cd82692ca5a574240a16219
   React-Mapbuffer: c3f4b608e4a59dd2f6a416ef4d47a14400194468
   React-microtasksnativemodule: 5c70006073e9a37215d789a7838a5163aacde1cb
-  react-native-safe-area-context: f1c7f577c2c5458bb0586a79683c61bd89adc865
+  react-native-safe-area-context: 244a897d4614a76e69bca6c45c63f49275486134
   React-NativeModulesApple: d3eb18811640d9889dd157c367b964ca7efb1743
   React-oscompat: ef5df1c734f19b8003e149317d041b8ce1f7d29c
   React-perflogger: 9a151e0b4c933c9205fd648c246506a83f31395d
@@ -2270,10 +2270,10 @@ SPEC CHECKSUMS:
   ReactCodegen: d626183718fa3f625325ef451b8b03b640a89d42
   ReactCommon: 10aa03e315dae449ec6345233fff8b3a1e004fb8
   RNCAsyncStorage: f4b48b7eb2ae9296be4df608ff60c1b12a469b7a
-  RNCClipboard: 95964d5a298dc5d01092fece3827004e7c055f98
-  RNCPicker: dc7d4f0611e19f545fb179855ec48ddfe4c5482d
-  RNGestureHandler: f88ec6392de1f43a68e16a4887c9f545849d24fa
-  RNGoogleSignin: eb606e3241929a3d2ff4da9848cc7b6a1f714736
+  RNCClipboard: 474795710683e3d48a963adb71f0743f1a28dbd0
+  RNCPicker: 3d28274a0456c14f11833a9c10e8e310faf805d3
+  RNGestureHandler: 6037c54ce24ffad49b9a5945bd145c9b82cd7b9b
+  RNGoogleSignin: d51de624a876bd52b59662e59ac3370c2345739f
   RNReanimated: f9bf5228e592f5966eaede70a5ce0a0d42a68bb8
   RNScreens: dd9a329b21412c5322a5447fc2c3ae6471cf6e5a
   RNVectorIcons: a6b0ef90022e1383800ece67d832535d57625aa5
@@ -2282,4 +2282,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: ae2f22af60c342b8af04f1c30213435c894a630d
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
