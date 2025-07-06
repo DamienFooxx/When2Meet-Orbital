@@ -27,18 +27,24 @@ const Login_page = () => {
     // Google login
     const handleGoogleLogin = async () => {
         try {
-            // ensure Google Play Services are available
             await GoogleSignin.hasPlayServices();
-
-            // prompt user to sign in
             await GoogleSignin.signOut();
             const userInfo = await GoogleSignin.signIn();
-            const { accessToken } = await GoogleSignin.getTokens();
-
-            console.log('Google ID Token:', accessToken);
-
-            // send idToken to Django backend
+            if (!userInfo) {
+                throw new Error('Google sign-in was cancelled or failed.');
+            }
+            // Prefer idToken from userInfo if available
+            const idToken = userInfo.idToken;
+            let accessToken;
+            try {
+                const tokens = await GoogleSignin.getTokens();
+                accessToken = tokens.accessToken;
+            } catch (tokenErr) {
+                console.warn('Could not get accessToken, proceeding with idToken only.');
+            }
+            // Send idToken (preferred) or accessToken to backend
             const response = await axios.post(`${API_BASE}/auth/google/`, {
+                id_token: idToken,
                 access_token: accessToken,
             });
             console.log("login response:", response.data)
@@ -74,7 +80,6 @@ const Login_page = () => {
                 error.response?.data?.non_field_errors?.[0] ||
                 error.response?.data?.detail ||
                 error.message;
-
             console.error('Google login failed:', message);
             Alert.alert('Google login failed', message);
         }
