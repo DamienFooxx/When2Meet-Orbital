@@ -6,14 +6,12 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
-import { API_BASE } from '../utils/config';
+import { API_BASE, BASE_URL } from '../utils/config';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '../context/UserContext';
-
-const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
 
 const Login_page = () => {
     // state hooks
@@ -27,24 +25,18 @@ const Login_page = () => {
     // Google login
     const handleGoogleLogin = async () => {
         try {
+            // ensure Google Play Services are available
             await GoogleSignin.hasPlayServices();
+
+            // prompt user to sign in
             await GoogleSignin.signOut();
             const userInfo = await GoogleSignin.signIn();
-            if (!userInfo) {
-                throw new Error('Google sign-in was cancelled or failed.');
-            }
-            // Prefer idToken from userInfo if available
-            const idToken = userInfo.idToken;
-            let accessToken;
-            try {
-                const tokens = await GoogleSignin.getTokens();
-                accessToken = tokens.accessToken;
-            } catch (tokenErr) {
-                console.warn('Could not get accessToken, proceeding with idToken only.');
-            }
-            // Send idToken (preferred) or accessToken to backend
+            const { accessToken } = await GoogleSignin.getTokens();
+
+            console.log('Google ID Token:', accessToken);
+
+            // send idToken to Django backend
             const response = await axios.post(`${API_BASE}/auth/google/`, {
-                id_token: idToken,
                 access_token: accessToken,
             });
             console.log("login response:", response.data)
@@ -80,6 +72,7 @@ const Login_page = () => {
                 error.response?.data?.non_field_errors?.[0] ||
                 error.response?.data?.detail ||
                 error.message;
+
             console.error('Google login failed:', message);
             Alert.alert('Google login failed', message);
         }
@@ -87,7 +80,7 @@ const Login_page = () => {
 
     useEffect(() => {
         GoogleSignin.configure({
-            webClientId: '686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4.apps.googleusercontent.com',
+            webClientId: '686579494898-bj69695ffg7lhefk341403tvin32kl31.apps.googleusercontent.com',
             iosClientId: '686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4.apps.googleusercontent.com',
             offlineAccess: true,
             forceCodeForRefreshToken: true,
