@@ -23,31 +23,69 @@
     "RCT-Folly/Fabric": [
       "2024.11.18.00"
     ],
-    "React-jsiexecutor": [],
-    "RCTRequired": [],
-    "RCTTypeSafety": [],
-    "ReactCommon/turbomodule/core": [],
-    "React-jsi": [],
-    "React-logger": [],
-    "glog": [],
-    "DoubleConversion": [],
+    "React-jsiexecutor": [
+
+    ],
+    "RCTRequired": [
+
+    ],
+    "RCTTypeSafety": [
+
+    ],
+    "ReactCommon/turbomodule/core": [
+
+    ],
+    "React-jsi": [
+
+    ],
+    "React-logger": [
+
+    ],
+    "glog": [
+
+    ],
+    "DoubleConversion": [
+
+    ],
     "fast_float": [
       "6.1.4"
     ],
     "fmt": [
       "11.0.2"
     ],
-    "React-Core": [],
-    "React-debug": [],
-    "React-featureflags": [],
-    "React-utils": [],
-    "React-runtimescheduler": [],
-    "React-cxxreact": [],
-    "Yoga": [],
-    "React-rendererdebug": [],
-    "React-graphics": [],
-    "React-Fabric": [],
-    "React-jsc": []
+    "React-Core": [
+
+    ],
+    "React-debug": [
+
+    ],
+    "React-featureflags": [
+
+    ],
+    "React-utils": [
+
+    ],
+    "React-runtimescheduler": [
+
+    ],
+    "React-cxxreact": [
+
+    ],
+    "Yoga": [
+
+    ],
+    "React-rendererdebug": [
+
+    ],
+    "React-graphics": [
+
+    ],
+    "React-Fabric": [
+
+    ],
+    "React-jsc": [
+
+    ]
   },
   "script_phases": [
     {
@@ -176,7 +214,9 @@
         "RCT-Folly/Fabric": [
           "2024.11.18.00"
         ],
-        "React-Fabric": []
+        "React-Fabric": [
+
+        ]
       },
       "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32",
       "source_files": [

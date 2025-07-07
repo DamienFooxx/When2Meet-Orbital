@@ -22,13 +22,29 @@
     "DEFINES_MODULE": "YES"
   },
   "dependencies": {
-    "RCT-Folly": [],
-    "React-jsi": [],
-    "React-jsiexecutor": [],
-    "React-jsc": [],
-    "ReactCommon/turbomodule/core": [],
-    "React-runtimescheduler": [],
-    "React-RCTFBReactNativeSpec": [],
-    "glog": []
+    "RCT-Folly": [
+
+    ],
+    "React-jsi": [
+
+    ],
+    "React-jsiexecutor": [
+
+    ],
+    "React-jsc": [
+
+    ],
+    "ReactCommon/turbomodule/core": [
+
+    ],
+    "React-runtimescheduler": [
+
+    ],
+    "React-RCTFBReactNativeSpec": [
+
+    ],
+    "glog": [
+
+    ]
   }
 }

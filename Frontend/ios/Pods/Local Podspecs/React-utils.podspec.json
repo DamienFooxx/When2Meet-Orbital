@@ -28,8 +28,14 @@
     "React-jsi": [
       "0.79.2"
     ],
-    "glog": [],
-    "React-jsc": [],
-    "React-debug": []
+    "glog": [
+
+    ],
+    "React-jsc": [
+
+    ],
+    "React-debug": [
+
+    ]
   }
 }

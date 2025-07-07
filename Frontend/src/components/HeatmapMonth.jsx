@@ -14,7 +14,7 @@ const getColor = (ratio) => {
    return '#f0f0f0';
 };
 
-const HeatmapMonth = ({ isGoogleConnected }) => {
+const HeatmapMonth = ({ isGoogleConnected, onDateSelect, selectedRange }) => {
     const { user } = useUser();
     const [monthOffset, setMonthOffset] = useState(0); // 0  = current month
     const [data, setData] = useState([]);
@@ -72,6 +72,16 @@ const HeatmapMonth = ({ isGoogleConnected }) => {
     const handlePrev = () => setMonthOffset(offset => offset - 1);
     const handleNext = () => setMonthOffset(offset => offset + 1);
 
+    // Helper to check if a date is in the selected range
+    const isInRange = (dateStr) => {
+        if (!selectedRange?.start || !selectedRange?.end) return false;
+        return dateStr >= selectedRange.start && dateStr <= selectedRange.end;
+    };
+    // Helper to check if a date is the start or end
+    const isEdge = (dateStr) => {
+        return dateStr === selectedRange?.start || dateStr === selectedRange?.end;
+    };
+
     if (loading) return <ActivityIndicator style = {{ marginTop: 20 }} color = {colors.primary}/>;
 
   return (
@@ -95,11 +105,27 @@ const HeatmapMonth = ({ isGoogleConnected }) => {
       </View>
 
       <View style = {styles.grid}>
-        {grid.map((cell, i) => (
-            <View key = {i} style = {[styles.cell, { backgroundColor: getColor(cell?.ratio) }]}>
-                {cell && <Text style = {styles.cellText}>{cell.day}</Text>}
-            </View>
-        ))}
+        {grid.map((cell, i) => {
+            if (!cell) return <View key={i} style={styles.cell} />;
+            const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${cell.day.toString().padStart(2, '0')}`;
+            const isSelected = isInRange(dateStr);
+            const isEdgeDay = isEdge(dateStr);
+            return (
+                <TouchableOpacity
+                  key={i}
+                  style={[
+                    styles.cell,
+                    { backgroundColor: isSelected ? (isEdgeDay ? '#7ecbff' : '#cbeafe') : getColor(cell.ratio),
+                      borderWidth: isEdgeDay ? 2 : 0,
+                      borderColor: isEdgeDay ? '#4fc3f7' : 'transparent',
+                    }
+                  ]}
+                  onPress={() => onDateSelect && onDateSelect(dateStr)}
+                >
+                  <Text style={styles.cellText}>{cell.day}</Text>
+                </TouchableOpacity>
+            );
+        })}
       </View>
 
       {!isGoogleConnected && (

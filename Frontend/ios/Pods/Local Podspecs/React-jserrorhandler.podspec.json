@@ -27,11 +27,23 @@
     "RCT-Folly/Fabric": [
       "2024.11.18.00"
     ],
-    "React-jsi": [],
-    "React-cxxreact": [],
-    "glog": [],
-    "ReactCommon/turbomodule/bridging": [],
-    "React-featureflags": [],
-    "React-debug": []
+    "React-jsi": [
+
+    ],
+    "React-cxxreact": [
+
+    ],
+    "glog": [
+
+    ],
+    "ReactCommon/turbomodule/bridging": [
+
+    ],
+    "React-featureflags": [
+
+    ],
+    "React-debug": [
+
+    ]
   }
 }

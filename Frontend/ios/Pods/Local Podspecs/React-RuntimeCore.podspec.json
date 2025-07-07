@@ -32,19 +32,47 @@
     "RCT-Folly/Fabric": [
       "2024.11.18.00"
     ],
-    "React-jsiexecutor": [],
-    "React-cxxreact": [],
-    "React-runtimeexecutor": [],
-    "glog": [],
-    "React-jsi": [],
-    "React-jserrorhandler": [],
-    "React-performancetimeline": [],
-    "React-runtimescheduler": [],
-    "React-utils": [],
-    "React-featureflags": [],
-    "React-Fabric": [],
-    "React-jsc": [],
-    "React-jsinspector": [],
-    "React-jsitooling": []
+    "React-jsiexecutor": [
+
+    ],
+    "React-cxxreact": [
+
+    ],
+    "React-runtimeexecutor": [
+
+    ],
+    "glog": [
+
+    ],
+    "React-jsi": [
+
+    ],
+    "React-jserrorhandler": [
+
+    ],
+    "React-performancetimeline": [
+
+    ],
+    "React-runtimescheduler": [
+
+    ],
+    "React-utils": [
+
+    ],
+    "React-featureflags": [
+
+    ],
+    "React-Fabric": [
+
+    ],
+    "React-jsc": [
+
+    ],
+    "React-jsinspector": [
+
+    ],
+    "React-jsitooling": [
+
+    ]
   }
 }

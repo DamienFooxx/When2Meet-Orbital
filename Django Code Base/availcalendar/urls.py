@@ -7,8 +7,6 @@ from availcalendar.views import (
     ManualAvailabilityViewSet,
     ReminderViewSet,
     month_availability,
-    ReminderViewSet,
-    month_availability
 )
 
 router = DefaultRouter()

@@ -19,6 +19,8 @@
     "DEFINES_MODULE": "YES"
   },
   "dependencies": {
-    "ReactCodegen": []
+    "ReactCodegen": [
+
+    ]
   }
 }
