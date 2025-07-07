@@ -29,7 +29,6 @@ const Login_page = () => {
             await GoogleSignin.hasPlayServices();
 
             // prompt user to sign in
-            await GoogleSignin.signOut();
             const userInfo = await GoogleSignin.signIn();
             const { accessToken } = await GoogleSignin.getTokens();
 

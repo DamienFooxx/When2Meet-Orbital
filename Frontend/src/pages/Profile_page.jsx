@@ -7,8 +7,8 @@ import { fonts } from '../utils/fonts';
 import { useUser } from '../context/UserContext';
 import { API_BASE } from '../utils/config';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
 
 const Profile_page = () => {
     const navigation = useNavigation();
@@ -39,6 +39,10 @@ const Profile_page = () => {
                                     },
                                 }
                             );
+                            // Remove token from AsyncStorage and axios
+                            await AsyncStorage.removeItem('authToken');
+                            await AsyncStorage.removeItem('isLoggedIn');
+                            delete axios.defaults.headers.common['Authorization'];
                             await logout(); // sets user to null
                             navigation.replace('Login');
                         } catch (error) {
