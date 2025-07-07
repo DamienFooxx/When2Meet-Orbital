@@ -51,6 +51,10 @@ class GoogleLogin(SocialLoginView):
 
     adapter_class = GoogleOAuth2Adapter
 
+    def post(self, request, *args, **kwargs):
+        print("GoogleLogin POST data:", request.data)
+        return super().post(request, *args, **kwargs)
+
 
 class ProfileView(APIView):
     """

@@ -32,9 +32,9 @@ const Login_page = () => {
             const userInfo = await GoogleSignin.signIn();
             const { accessToken } = await GoogleSignin.getTokens();
 
-            console.log('Google ID Token:', accessToken);
+            console.log('Google Access Token:', accessToken);
 
-            // send idToken to Django backend
+            // send accessToken to Django backend
             const response = await axios.post(`${API_BASE}/auth/google/`, {
                 access_token: accessToken,
             });
@@ -83,7 +83,7 @@ const Login_page = () => {
             iosClientId: '686579494898-1sod8avn0kdleun3d5n1k398rs3kr7g4.apps.googleusercontent.com',
             offlineAccess: true,
             forceCodeForRefreshToken: true,
-            scopes: ['profile', 'email'],
+            scopes: ['profile', 'email', 'https://www.googleapis.com/auth/calendar.readonly'],
         });
     }, []);
 

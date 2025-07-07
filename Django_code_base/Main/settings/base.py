@@ -29,7 +29,7 @@ def get_secret(secret_name):
 SECRET_KEY = get_secret("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True # Set to False in production
 
 ALLOWED_HOSTS = ["*"]
 
@@ -232,3 +232,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.AllowAny",  # Change to IsAuthenticated when deployed
     ],
 }
+
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
