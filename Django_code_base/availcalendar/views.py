@@ -165,28 +165,79 @@ def month_availability(request):
     start = date(year, month, 1)
     end = date(year, month, days_in_month)
 
+    # Check if we have recent Google Calendar data for this month
+    google_entries_count = CalendarEntry.objects.filter(
+        user=profile,
+        start_date__gte=start,
+        start_date__lte=end,
+        source='google'
+    ).count()
+    
+    # If no Google Calendar data exists for this month, trigger sync
+    if google_entries_count == 0:
+        token = get_google_token(profile.user.id)
+        if token:
+            # Convert dates to datetime for the sync task with proper timezone
+            from datetime import datetime, time, timezone
+            start_dt = datetime.combine(start, time.min).replace(tzinfo=timezone.utc)
+            end_dt = datetime.combine(end, time.max).replace(tzinfo=timezone.utc)
+            
+            sync_google_calendar_task.delay(
+                user_id=profile.user.id,
+                start_iso=start_dt.isoformat(),
+                end_iso=end_dt.isoformat(),
+                calendar_ids=["primary"]
+            )
+
     # Get all timeslots for this user in the month
     timeslots = TimeSlot.objects.filter(
         user=profile,
         start_date__gte=start,
         start_date__lte=end
     )
+    
+    # Get Google Calendar busy slots (these reduce availability)
+    google_busy_slots = CalendarEntry.objects.filter(
+        user=profile,
+        start_date__gte=start,
+        start_date__lte=end,
+        source='google'
+    )
 
-    # Aggregate available hours per day
-    daily = {}
+    # Aggregate available hours per day from manual timeslots
+    daily_available = {}
     for ts in timeslots:
         d = ts.start_date.isoformat()
-        daily.setdefault(d, 0)
-        daily[d] += ts.duration / 60  # duration is in minutes
+        daily_available.setdefault(d, 0)
+        daily_available[d] += ts.duration / 60  # duration is in minutes
+
+    # Aggregate busy hours per day from Google Calendar
+    daily_busy = {}
+    for entry in google_busy_slots:
+        d = entry.start_date.isoformat()
+        daily_busy.setdefault(d, 0)
+        daily_busy[d] += entry.duration / 60  # duration is in minutes
 
     # Assume max available hours per day is 8 (customize as needed)
     max_hours = 8
     result = []
     for day in range(1, days_in_month + 1):
         d = date(year, month, day).isoformat()
+        available = daily_available.get(d, 0)
+        busy = daily_busy.get(d, 0)
+        
+        # If we have manual availability, subtract busy time
+        # If no manual availability is set, assume full day is available minus busy time
+        if available > 0:
+            net_available = max(0, available - busy)
+        else:
+            # Default availability minus busy time
+            net_available = max(0, max_hours - busy)
+        
         result.append({
             'date': d,
-            'availableHours': round(daily.get(d, 0), 2),
+            'availableHours': round(net_available, 2),
             'maxHours': max_hours
         })
+    
     return Response(result)

@@ -1,11 +1,34 @@
 from rest_framework import serializers
 from accounts.models import Profile
+from dj_rest_auth.registration.serializers import SocialLoginSerializer
+from allauth.socialaccount.models import SocialAccount, SocialToken, SocialApp
+from django.conf import settings
+import os
 
 """
 accounts/serializers.py
 
 Contains serializers to validate and parse incoming request data for the accounts app.
 """
+
+
+class GoogleLoginSerializer(SocialLoginSerializer):
+    """
+    Custom Google login serializer for context management.
+    Token storage is handled in the view after successful authentication.
+    """
+    
+    def validate(self, attrs):
+        # Ensure we have proper context
+        request = self.context.get('request')
+        
+        if not request:
+            raise serializers.ValidationError("Request context is required")
+        
+        # Call parent validation
+        validated_attrs = super().validate(attrs)
+        
+        return validated_attrs
 
 
 class ProfileSerializer(serializers.ModelSerializer):

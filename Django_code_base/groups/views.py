@@ -363,9 +363,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         )
 
     def list(self, request, *args, **kwargs):
-        print("Fetching groups for:", request.user)
         profile = Profile.objects.get(user=request.user)
-        print("Got profile:", profile)
 
         queryset = Group.objects.filter(
             group_memberships__profile=profile, group_memberships__is_accepted=True
@@ -375,7 +373,6 @@ class GroupViewSet(viewsets.ModelViewSet):
             queryset, many=True, context={"request": request}
         )
 
-        print("serliazer", serializer.data)
         return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
@@ -504,9 +501,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         )
 
     def list(self, request, *args, **kwargs):
-        print("Fetching groups for:", request.user)
         profile = Profile.objects.get(user=request.user)
-        print("Got profile:", profile)
 
         queryset = Group.objects.filter(
             group_memberships__profile=profile, group_memberships__is_accepted=True
@@ -516,7 +511,6 @@ class GroupViewSet(viewsets.ModelViewSet):
             queryset, many=True, context={"request": request}
         )
 
-        print("serliazer", serializer.data)
         return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):

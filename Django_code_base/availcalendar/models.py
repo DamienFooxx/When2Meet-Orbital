@@ -81,7 +81,9 @@ class CalendarEntry(models.Model):
     event = models.ForeignKey(
         'events.Event',
         on_delete = models.CASCADE,
-        related_name = "CalendarEntry"
+        related_name = "CalendarEntry",
+        null = True,
+        blank = True,
     )
 
     def __str__(self):

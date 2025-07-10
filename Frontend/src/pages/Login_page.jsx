@@ -32,13 +32,10 @@ const Login_page = () => {
             const userInfo = await GoogleSignin.signIn();
             const { accessToken } = await GoogleSignin.getTokens();
 
-            console.log('Google Access Token:', accessToken);
-
             // send accessToken to Django backend
             const response = await axios.post(`${API_BASE}/auth/google/`, {
                 access_token: accessToken,
             });
-            console.log("login response:", response.data)
 
             const token = response.data.key;
 
@@ -57,7 +54,7 @@ const Login_page = () => {
                 email: profileRes.data.email,
             };
 
-            console.log("stored user data with token:", userData);
+            console.log('Google social token stored for user:', userData.email);
 
             await login(userData);
             Alert.alert('Google login successful');

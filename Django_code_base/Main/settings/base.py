@@ -214,12 +214,17 @@ SOCIALACCOUNT_PROVIDERS = {
         "SCOPE": [
             "profile",
             "email",
+            "https://www.googleapis.com/auth/calendar.readonly",
         ],
         "AUTH_PARAMS": {
-            "access_type": "online",
+            "access_type": "offline",  # Changed to offline for refresh tokens
+            "prompt": "consent",  # Force consent screen to get refresh token
         },
     }
 }
+
+# Specify which Google app to use if multiple exist
+SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'
 
 # =====================
 # Django REST Framework

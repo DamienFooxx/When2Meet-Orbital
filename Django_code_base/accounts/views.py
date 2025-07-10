@@ -27,7 +27,6 @@ class CheckUserByEmail(APIView):
     def get(self, request):
         try:
             email = request.query_params.get("email", "").strip()
-            print("Received email:", email)
 
             if not email:
                 return Response(
@@ -35,12 +34,9 @@ class CheckUserByEmail(APIView):
                 )
 
             exists = User.objects.filter(email__iexact=email).exists()
-            print("User exists:", exists)
 
             return Response({"exists": exists})
         except Exception as e:
-            print("Exception:", e)
-            traceback.print_exc()
             return Response({"exists": False, "error": str(e)}, status=500)
 
 
@@ -50,10 +46,84 @@ class GoogleLogin(SocialLoginView):
     """
 
     adapter_class = GoogleOAuth2Adapter
+    serializer_class = None  # Will be set in get_serializer_class()
+    
+    def get_serializer_class(self):
+        from .serializers import GoogleLoginSerializer
+        return GoogleLoginSerializer
+    
+    def get_serializer(self, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        # Ensure context is properly set
+        kwargs.setdefault('context', self.get_serializer_context())
+        return serializer_class(*args, **kwargs)
+    
+    def get_serializer_context(self):
+        """
+        Extra context provided to the serializer class.
+        """
+        context = super().get_serializer_context()
+        context.update({
+            'view': self,
+            'request': self.request,
+        })
+        return context
 
     def post(self, request, *args, **kwargs):
-        print("GoogleLogin POST data:", request.data)
-        return super().post(request, *args, **kwargs)
+        # Store the access token from the request for later use
+        access_token = request.data.get('access_token')
+        
+        try:
+            response = super().post(request, *args, **kwargs)
+            
+            # If login was successful and we have an authenticated user, store the social token
+            if (response.status_code == 200 and hasattr(request, 'user') and 
+                request.user.is_authenticated and access_token):
+                
+                try:
+                    # Get the user's Google social account
+                    google_account = SocialAccount.objects.filter(
+                        user=request.user, provider='google'
+                    ).first()
+                    
+                    if google_account:
+                        # Get the Google OAuth app
+                        from allauth.socialaccount.models import SocialApp
+                        google_app = SocialApp.objects.filter(provider='google').first()
+                        
+                        if google_app:
+                            # Check if token already exists
+                            existing_token = SocialToken.objects.filter(
+                                account=google_account, app=google_app
+                            ).first()
+                            
+                            if existing_token:
+                                existing_token.token = access_token
+                                existing_token.token_secret = ''
+                                existing_token.expires_at = None
+                                existing_token.save()
+                                print(f"Google social token updated for user: {request.user.email}")
+                            else:
+                                social_token = SocialToken.objects.create(
+                                    app=google_app,
+                                    account=google_account,
+                                    token=access_token,
+                                    token_secret='',
+                                    expires_at=None
+                                )
+                                print(f"Google social token created for user: {request.user.email}")
+                        
+                except Exception as token_error:
+                    print(f"Error storing social token: {token_error}")
+            
+            return response
+            
+        except Exception as e:
+            print(f"Google login error: {e}")
+            return Response(
+                {"error": "Google login failed", "details": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class ProfileView(APIView):
