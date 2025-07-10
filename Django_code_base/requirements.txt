@@ -16,6 +16,7 @@ split-settings==1.0.0
 gunicorn==22.0.0
 
 # Linters
+drf_yasg
 flake8==7.1.0
 black==24.4.2
 

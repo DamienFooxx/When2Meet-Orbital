@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM --platform=linux/amd64 python:3.11-slim
+FROM python:3.11-slim
 
 # Set environment variables
 # Prevent Python from writing pyc files to disc
