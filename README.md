@@ -7,6 +7,7 @@ The When2Meet project aims to deliver a full-stack, production-level mobile appl
 The app positions itself as a Smart Meet-Up Scheduler capable of both understanding user availability and recommending the most optimal time and place to meet, thereby reducing the cognitive and logistical burden typically associated with group planning.
 
 ## Table of Contents
+- [API Documentation](#api-documentation)
 - [Motivation](#motivation)
 - [Aim](#aim)
 - [User Stories](#user-stories)
@@ -19,6 +20,12 @@ The app positions itself as a Smart Meet-Up Scheduler capable of both understand
 - [Software Engineering Principles](#software-engineering-principles)
 - [Notes](#notes)
 - [License](#license)
+
+> **ℹ️ API Documentation:**
+> 
+> Access the full interactive API docs here (when backend is running):
+> 
+> **[http://localhost:8000/swagger/](http://localhost:8000/swagger/)**
 
 ### Motivation
 People find it very difficult to find a consensus on when to meet because of conflicting schedules. In addition, discussing when to meet can cause very long chats which may result in an unclear decision on where and when to meet. Moreover, people may easily forget about arrangements made with the group because of it being in text form and making it hard to remember and find chats about the event.
