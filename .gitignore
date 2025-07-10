@@ -93,18 +93,22 @@ ios/Pods/
 ios/build/
 ios/Podfile.lock
 ios/DerivedData/
-ios/.xcconfig
 ios/.DS_Store
 
 # Xcode
-*.xcodeproj/when2meet.xscworkspace/xcuserdata
-.plistFrontend/ios/when2meet.xcworkspace/xcuserdata/
-# Ignore Xcode user interface state
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
 *.xcuserstate
 *.xcuserdata/
-*.xscworkspace/xcuserdata
 *.xcscmblueprint
 *.xcsettings
+ios/**/*.xcuserstate
+ios/**/*.xcuserdata
+ios/**/UserInterfaceState.xcuserstate
+ios/**/xcshareddata/WorkspaceSettings.xcsettings
+
+# Specific problematic files
+Frontend/ios/when2meet.xcworkspace/xcuserdata/
 *.keystore
 *.jks
 *.p8

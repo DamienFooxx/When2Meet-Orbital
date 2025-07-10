@@ -292,19 +292,30 @@ This is the Django backend for When2Meet mobile app.
 
 Before you begin setting up the When2Meet application, ensure you have the following prerequisites installed and configured:
 
-### Required Software
-- **Python**: Version 3.8 or higher. You can download it from [python.org](https://www.python.org/downloads/).
-- **Django**: Version 3.2 or higher. You can install it using pip: `pip install django`.
-- **Node.js**: Version 14 or higher. You can download it from [nodejs.org](https://nodejs.org/).
-- **npm**: Usually comes with Node.js. You can check your version by running `npm -v`.
-- **PostgreSQL**: Version 12 or higher. You can download it from [postgresql.org](https://www.postgresql.org/download/).
-- **Git**: For version control. You can download it from [git-scm.com](https://git-scm.com/downloads).
+### Common Requirements
+- **Python**: Version 3.8 or higher. Download from [python.org](https://www.python.org/downloads/)
+- **Node.js**: Version 14 or higher. Download from [nodejs.org](https://nodejs.org/)
+- **npm**: Usually comes with Node.js. Check version with `npm -v`
+- **PostgreSQL**: Version 12 or higher. Download from [postgresql.org](https://www.postgresql.org/download/)
+- **Redis**: For Celery task queue
+- **Git**: For version control. Download from [git-scm.com](https://git-scm.com/downloads)
+
+### Platform-Specific Requirements
+
+**macOS:**
+- **Xcode**: Required for iOS development
+- **Homebrew**: Recommended package manager - install from [brew.sh](https://brew.sh/)
+- **rbenv**: For Ruby version management
+- **CocoaPods**: For iOS dependencies
+
+**Windows:**
+- **Android Studio**: Required for Android development
+- **Windows Subsystem for Linux (WSL)**: Optional but recommended for better compatibility
+- **PowerShell**: May require execution policy changes for scripts
 
 ### Development Tools
-- **Code Editor**: A code editor like [Visual Studio Code](https://code.visualstudio.com/).
-
-### Additional Tools
-- **Metro Bundler**: Required for running the React Native application. It comes with React Native, but ensure it's installed and configured correctly.
+- **Code Editor**: Recommended: [Visual Studio Code](https://code.visualstudio.com/)
+- **Metro Bundler**: Comes with React Native installation
 
 Please ensure that you have fulfilled the prequisites for testing this application.
 
@@ -321,167 +332,361 @@ Once added, you will be able to clone the private repository and test the app ac
 
 ## How to Setup
 
-### Backend Setup
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/DamienFooxx/When2Meet-Orbital.git
-   cd When2Meet-Orbital
-   ```
-2. **Create and Activate Virtual Environment**
-   ```bash
-   # For macOS/Linux
-   python -m venv w2m
-   source w2m/bin/activate
-   # For Windows
-   python -m venv w2m
-   .\w2m\Scripts\activate
-   ```
-3. **Install Backend Dependencies**
-   ```bash
-   cd "Django Code Base"
-   pip install -r requirements.txt
-   cd ..
-   ```
-4. **Set Up Environment Variables**
-   - Copy `.env.example` to `.env` in the Django Code Base directory and update as needed.
-5. **Set Up PostgreSQL Database**
-   - Install PostgreSQL and follow the provided SQL setup script.
-6. **Apply Migrations**
-   ```bash
-   cd "Django Code Base"
-   python manage.py makemigrations
-   python manage.py migrate
-   cd ..
-   ```
-7. **Run the Backend Server**
-   ```bash
-   cd "Django Code Base"
-   python manage.py runserver 0.0.0.0:8000
-   cd ..
-   ```
+### Backend Setup (Django)
 
-### Frontend Setup
-1. **Install Node.js and npm**
-   - Make sure you have Node.js (v14 or higher) and npm installed. Check with `node -v` and `npm -v`.
-2. **Install Frontend Dependencies**
-   ```bash
-   cd Frontend
-   npm install
-   ```
-3. **Set Up iOS Environment (for Mac/iOS only)**
-   - Install Ruby and rbenv if not already installed:
-     ```bash
-     brew install rbenv
-     rbenv init
-     rbenv install 3.4.4
-     gem install bundler -v 2.6.9
-     gem install cocoapods
-     ```
-   - Install CocoaPods dependencies:
-     ```bash
-     cd ios
-     pod install
-     cd ..
-     ```
-4. **Configure API Base URL**
-   - Edit `Frontend/src/utils/config.js` and set `API_BASE` to your backend server's IP address, e.g.:
-     ```js
-     export const API_BASE = "http://<your-ip>:8000/api";
-     ```
-5. **Start Metro Bundler**
-   ```bash
-   npx react-native start
-   ```
-6. **Run the App on iOS Simulator**
-   ```bash
-   cd ios
-   pod install
-   cd ..
-   npx react-native run-ios
-   ```
+#### 1. Clone the Repository
+```bash
+git clone https://github.com/DamienFooxx/When2Meet-Orbital.git
+cd When2Meet-Orbital
+```
+
+#### 2. Create and Activate Virtual Environment
+
+**macOS/Linux:**
+```bash
+python3 -m venv w2m
+source w2m/bin/activate
+```
+
+**Windows (Command Prompt):**
+```cmd
+python -m venv w2m
+w2m\Scripts\activate
+```
+
+**Windows (PowerShell):**
+```powershell
+python -m venv w2m
+w2m\Scripts\Activate.ps1
+```
+
+#### 3. Install Backend Dependencies
+```bash
+cd "Django Code Base"
+pip install -r requirements.txt
+cd ..
+```
+
+#### 4. Database Setup
+
+**Install PostgreSQL:**
+
+**macOS:**
+```bash
+brew install postgresql
+brew services start postgresql
+```
+
+**Windows:**
+- Download PostgreSQL from https://www.postgresql.org/download/windows/
+- Follow installer instructions
+- Start PostgreSQL service:
+```cmd
+net start postgresql-x64-14
+```
+
+**Create Database:**
+```sql
+psql -U postgres
+CREATE DATABASE when2meet_db;
+CREATE USER when2meet_user WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE when2meet_db TO when2meet_user;
+\q
+```
+
+#### 5. Redis Setup
+
+**macOS:**
+```bash
+brew install redis
+brew services start redis
+```
+
+**Windows:**
+- Download Redis from https://github.com/microsoftarchive/redis/releases
+- Extract and run redis-server.exe
+- Or use WSL: `sudo apt-get install redis-server`
+
+#### 6. Environment Variables
+Create `.env` file in `Django Code Base` directory:
+```env
+SECRET_KEY=your-secret-key-here
+DB_NAME=when2meet_db
+DB_USER=when2meet_user
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
+
+#### 7. Apply Migrations
+```bash
+cd "Django Code Base"
+python manage.py makemigrations
+python manage.py migrate
+cd ..
+```
+
+#### 8. Run the Backend Server
+```bash
+cd "Django Code Base"
+python manage.py runserver 0.0.0.0:8000
+cd ..
+```
+
+### Frontend Setup (React Native)
+
+#### 1. Install Frontend Dependencies
+```bash
+cd Frontend
+npm install
+```
+
+#### 2. Platform-Specific Setup
+
+**iOS (macOS only):**
+```bash
+# Install Ruby and rbenv
+brew install rbenv
+rbenv init
+rbenv install 3.4.4
+rbenv global 3.4.4
+
+# Install CocoaPods
+gem install bundler -v 2.6.9
+gem install cocoapods
+
+# Install iOS dependencies
+cd ios
+pod install
+cd ..
+```
+
+**Android (macOS/Windows/Linux):**
+- Install Android Studio
+- Set up Android SDK and emulator
+- Configure environment variables:
+
+**macOS/Linux:**
+```bash
+export ANDROID_HOME=$HOME/Library/Android/sdk  # macOS
+export ANDROID_HOME=$HOME/Android/Sdk          # Linux
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+```
+
+**Windows (Command Prompt):**
+```cmd
+set ANDROID_HOME=%USERPROFILE%\AppData\Local\Android\Sdk
+set PATH=%PATH%;%ANDROID_HOME%\emulator
+set PATH=%PATH%;%ANDROID_HOME%\tools
+set PATH=%PATH%;%ANDROID_HOME%\tools\bin
+set PATH=%PATH%;%ANDROID_HOME%\platform-tools
+```
+
+**Windows (PowerShell):**
+```powershell
+$env:ANDROID_HOME = "$env:USERPROFILE\AppData\Local\Android\Sdk"
+$env:PATH += ";$env:ANDROID_HOME\emulator"
+$env:PATH += ";$env:ANDROID_HOME\tools"
+$env:PATH += ";$env:ANDROID_HOME\tools\bin"
+$env:PATH += ";$env:ANDROID_HOME\platform-tools"
+```
+
+#### 3. Configure API Base URL
+Edit `Frontend/src/utils/config.js`:
+```javascript
+export const API_BASE = "http://<your-ip>:8000/api";
+```
+
+#### 4. Start Metro Bundler
+```bash
+npx react-native start
+```
+
+#### 5. Run the App
+
+**iOS (macOS only):**
+```bash
+cd ios
+pod install
+cd ..
+npx react-native run-ios
+```
+
+**Android:**
+```bash
+npx react-native run-android
+```
+
+## Development Workflow
+
+### Starting the Development Environment
+
+**macOS:**
+```bash
+# Terminal 1: Start services
+brew services start postgresql
+brew services start redis
+
+# Terminal 2: Start Django backend
+cd "Django Code Base"
+source w2m/bin/activate
+python manage.py runserver 0.0.0.0:8000
+
+# Terminal 3: Start React Native Metro
+cd Frontend
+npx react-native start
+
+# Terminal 4: Run on device/emulator
+npx react-native run-ios    # or run-android
+```
+
+**Windows:**
+```cmd
+# Command Prompt 1: Start services
+net start postgresql-x64-14
+redis-server.exe
+
+# Command Prompt 2: Start Django backend
+cd "Django Code Base"
+w2m\Scripts\activate
+python manage.py runserver 0.0.0.0:8000
+
+# Command Prompt 3: Start React Native Metro
+cd Frontend
+npx react-native start
+
+# Command Prompt 4: Run on device/emulator
+npx react-native run-android
+```
 
 ---
 
 ## Troubleshooting Common Issues
 
 ### Database Connection Issues
-- **Error**: Unable to connect to PostgreSQL.
-    - **Solution**: Ensure PostgreSQL is running. On macOS, use `brew services start postgresql`. On Windows, check the PostgreSQL service in the Services app.
+- **Error**: Unable to connect to PostgreSQL
+- **Solution**: 
+  - **macOS**: `brew services start postgresql`
+  - **Windows**: Check PostgreSQL service in Services app or run `net start postgresql-x64-14`
+  - Verify database credentials in `.env` file
+
+### Python Virtual Environment Issues
+- **Error**: Cannot activate virtual environment
+- **Solution**:
+  - **Windows**: Enable script execution: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
+  - Ensure Python is in system PATH
+
+### Redis Connection Issues
+- **Error**: Redis connection failed
+- **Solution**:
+  - **macOS**: `brew services list | grep redis` to check status
+  - **Windows**: Check Task Manager for redis-server.exe process
+  - Verify Redis is running on localhost:6379
 
 ### Migration Errors
-- **Error**: `No migrations to apply` or `django.db.utils.OperationalError`.
-    - **Solution**: Ensure you are in the correct directory (`Django Code Base`) and that your virtual environment is activated. Run `python manage.py migrate` again.
+- **Error**: `No migrations to apply` or `django.db.utils.OperationalError`
+- **Solution**: Ensure you are in the correct directory (`Django Code Base`) and that your virtual environment is activated. Run `python manage.py migrate` again.
 
 ### Environment Variables
-- **Error**: Missing environment variables.
-    - **Solution**: Ensure you have created a `.env` file in the root of the frontend folder and the `Django Code Base` directory, and that it contains the necessary variables.
+- **Error**: Missing environment variables
+- **Solution**: Ensure you have created a `.env` file in the `Django Code Base` directory and that it contains the necessary variables.
 
 ### Frontend Build Issues
-- **Error**: Metro Bundler fails to start.
-    - **Solution**: Ensure you are in the `when2meet_frontend` directory and that all dependencies are installed. Run `npm install` again if necessary.
+- **Error**: Metro Bundler fails to start
+- **Solution**: Ensure you are in the `Frontend` directory and that all dependencies are installed. Run `npm install` again if necessary.
 
 ### API Endpoint Issues
-- **Error**: 404 Not Found when accessing API endpoints.
-    - **Solution**: Check the URL patterns in your `urls.py` files to ensure they are correctly defined and included in the main URL configuration.
+- **Error**: 404 Not Found when accessing API endpoints
+- **Solution**: Check the URL patterns in your `urls.py` files to ensure they are correctly defined and included in the main URL configuration.
 
 ### Authentication Issues
-- **Error**: Unable to authenticate with Google OAuth.
-    - **Solution**: Ensure your Google OAuth credentials are correctly set up in the Google Cloud Console and that the redirect URIs are properly configured.
+- **Error**: Unable to authenticate with Google OAuth
+- **Solution**: Ensure your Google OAuth credentials are correctly set up in the Google Cloud Console and that the redirect URIs are properly configured.
 
-### Node.js Not Found or Wrong Version
-- **Error:** `/Users/Joanne/.nvm/versions/node/v18.20.8/bin/node: No such file or directory`
-- **Cause:** The iOS build is trying to use a Node.js path from another developer's machine.
-- **Solution:**
-  1. On your own machine, run:
-     ```sh
+### Node.js Path Issues (iOS)
+- **Error**: `/Users/Joanne/.nvm/versions/node/v18.20.8/bin/node: No such file or directory`
+- **Cause**: The iOS build is trying to use a Node.js path from another developer's machine
+- **Solution**:
+  1. Find your Node.js path:
+     ```bash
      which node
      ```
-  2. Create or edit the file `Frontend/ios/.xcode.env.local` and add:
-     ```sh
+  2. Create `Frontend/ios/.xcode.env.local`:
+     ```bash
      export NODE_BINARY=/path/to/your/node
      ```
-     (Replace with the output from `which node`.)
   3. Clean and rebuild:
-     ```sh
+     ```bash
      cd ios
      xcodebuild clean
      cd ..
      npx react-native run-ios
      ```
-- **Note:** Each developer must set their own Node path in `.xcode.env.local` to match their system. Do not use a hardcoded path from another machine.
+- **Note**: Each developer must set their own Node path in `.xcode.env.local` to match their system. Do not use a hardcoded path from another machine.
 
 ### iOS Build: CLEAN FAILED
-- **Error:** `Could not delete .../ios/build because it was not created by the build system.`
-- **Solution:**
+- **Error**: `Could not delete .../ios/build because it was not created by the build system`
+- **Solution**:
   - Manually delete the build directory:
-    ```sh
+    ```bash
     rm -rf ./Frontend/ios/build
     ```
   - Then try cleaning and rebuilding again.
 
-### CocoaPods or Ruby/Bundler Issues
-- **Error:** `cannot load such file -- cocoapods (LoadError)` or `Could not find cocoapods-1.15.2 ... in locally installed gems (Bundler::GemNotFound)`
-- **Solution:**
-  - Make sure you are using the correct Ruby version (check with `rbenv versions` and `rbenv global 3.4.4`).
+### CocoaPods or Ruby/Bundler Issues (macOS)
+- **Error**: `cannot load such file -- cocoapods (LoadError)` or `Could not find cocoapods-1.15.2 ... in locally installed gems (Bundler::GemNotFound)`
+- **Solution**:
+  - Make sure you are using the correct Ruby version (check with `rbenv versions` and `rbenv global 3.4.4`)
   - Install CocoaPods and Bundler:
-    ```sh
+    ```bash
     gem install bundler -v 2.6.9
     gem install cocoapods
     ```
-  - If you have a `Gemfile`, run `bundle install` in the `ios` directory.
-  - Then run `pod install` in the `ios` directory.
+  - If you have a `Gemfile`, run `bundle install` in the `ios` directory
+  - Then run `pod install` in the `ios` directory
 
-### Metro Bundler Fails to Start
-- **Solution:**
-  - Make sure you are in the `Frontend` directory and all dependencies are installed (`npm install`).
-  - Try restarting Metro with `npx react-native start --reset-cache`.
+### Metro Bundler Issues
+- **Error**: Metro fails to start
+- **Solution**:
+  - Clear cache: `npx react-native start --reset-cache`
+  - Clear npm cache: `npm start -- --reset-cache`
+  - Ensure all dependencies installed: `npm install`
+
+### Android Build Issues
+- **Error**: Android build fails
+- **Solution**:
+  - Verify ANDROID_HOME environment variable
+  - Check Android SDK installation
+  - Ensure Android emulator is running
+  - Clean project: 
+    - **macOS/Linux**: `cd android && ./gradlew clean`
+    - **Windows**: `cd android && gradlew clean`
 
 ### API/Network Issues
-- **Error:** `Network error` or `Request failed with status code 500/404`
-- **Solution:**
-  - Make sure your backend server is running and accessible from your device/simulator.
-  - Double-check the `API_BASE` in `config.js` matches your backend IP and port.
-  - Ensure your device/simulator is on the same network as your backend.
+- **Error**: `Network error` or `Request failed with status code 500/404`
+- **Solution**:
+  - Make sure your backend server is running and accessible from your device/simulator
+  - Double-check the `API_BASE` in `config.js` matches your backend IP and port
+  - Ensure your device/simulator is on the same network as your backend
+  - For Android emulator, use `10.0.2.2` instead of `localhost`
+
+### Platform-Specific Notes
+
+**macOS Users:**
+- iOS development requires Xcode and macOS
+- Use Homebrew for package management
+- Some npm packages require Xcode command line tools: `xcode-select --install`
+
+**Windows Users:**
+- iOS development not supported
+- Consider using WSL for better compatibility with some development tools
+- PowerShell may require execution policy changes: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
+- Use Android Studio for Android development
 ---
 ## Notes
 - Ensure you handle errors gracefully and store the authentication token securely.
