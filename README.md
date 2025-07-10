@@ -292,6 +292,8 @@ This is the Django backend for When2Meet mobile app.
 
 Before you begin setting up the When2Meet application, ensure you have the following prerequisites installed and configured:
 
+> **Note for Evaluators**: This app supports both iOS and Android platforms. Windows users can fully test all app features using the Android version with Android Studio. macOS users can test both iOS and Android versions.
+
 ### Common Requirements
 - **Python**: Version 3.8 or higher. Download from [python.org](https://www.python.org/downloads/)
 - **Node.js**: Version 14 or higher. Download from [nodejs.org](https://nodejs.org/)
@@ -362,7 +364,7 @@ w2m\Scripts\Activate.ps1
 
 #### 3. Install Backend Dependencies
 ```bash
-cd "Django Code Base"
+cd Django_code_base
 pip install -r requirements.txt
 cd ..
 ```
@@ -394,43 +396,45 @@ GRANT ALL PRIVILEGES ON DATABASE when2meet_db TO when2meet_user;
 \q
 ```
 
-#### 5. Redis Setup
+#### 5. Redis Setup (Required for Background Tasks)
 
 **macOS:**
 ```bash
-brew install redis
-brew services start redis
+psql postgres
 ```
-
-**Windows:**
-- Download Redis from https://github.com/microsoftarchive/redis/releases
-- Extract and run redis-server.exe
-- Or use WSL: `sudo apt-get install redis-server`
-
-#### 6. Environment Variables
-Create `.env` file in `Django Code Base` directory:
-```env
-SECRET_KEY=your-secret-key-here
-DB_NAME=when2meet_db
-DB_USER=when2meet_user
-DB_PASSWORD=your_password
-DB_HOST=localhost
-DB_PORT=5432
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
+Then follow the postgreSQL_setupDB.sql script, inserting line by line
+```bash
+CREATE DATABASE when2meet;
+\c when2meet
+CREATE USER admin WITH PASSWORD 'orbital2425';
+ALTER ROLE admin SET client_encoding TO 'utf8';
+ALTER ROLE admin SET default_transaction_isolation TO 'read committed';
+ALTER ROLE admin SET timezone TO 'ASIA/SINGAPORE';
+GRANT ALL PRIVILEGES ON DATABASE when2meet TO admin;
+\
+-- type \l to check if the database is setup correctly
 ```
 
 #### 7. Apply Migrations
 ```bash
-cd "Django Code Base"
+cd Django_code_base
 python manage.py makemigrations
 python manage.py migrate
 cd ..
 ```
 
-#### 8. Run the Backend Server
+#### 8. Start Background Task Worker (Celery)
+In a separate terminal, start the Celery worker for Google Calendar sync:
 ```bash
-cd "Django Code Base"
+cd Django_code_base
+source w2m/bin/activate  # On macOS/Linux
+# or w2m\Scripts\activate  # On Windows
+celery -A Main worker --loglevel=info
+```
+
+#### 9. Run the Backend Server
+```bash
+cd Django_code_base
 python manage.py runserver 0.0.0.0:8000
 cd ..
 ```
@@ -683,10 +687,16 @@ npx react-native run-android
 - Some npm packages require Xcode command line tools: `xcode-select --install`
 
 **Windows Users:**
-- iOS development not supported
+- iOS development not supported (this is a platform limitation - Windows cannot run Xcode)
+- **However, Windows users can fully test the app using Android Studio and Android emulators**
 - Consider using WSL for better compatibility with some development tools
 - PowerShell may require execution policy changes: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 - Use Android Studio for Android development
+
+**For Peer Evaluators:**
+- **Windows users**: Follow the Android setup instructions - you'll have access to all app features
+- **macOS users**: Can test both iOS and Android versions
+- Both platforms provide identical functionality and user experience
 ---
 ## Notes
 - Ensure you handle errors gracefully and store the authentication token securely.
