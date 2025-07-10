@@ -22,4 +22,7 @@ RUN pip install -r requirements.txt
 # Copy the rest of the application's code into the container
 COPY . .
 
+# Expose port 8080 for Cloud Run
+EXPOSE 8080
+
 CMD ["gunicorn", "Main.wsgi:application", "--bind", "0.0.0.0:8080"]
