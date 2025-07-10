@@ -125,3 +125,4 @@ junit-*.xml
 .gitignore
 .dockerignore
 DEPLOYMENT_README.md
+dump.rdb
