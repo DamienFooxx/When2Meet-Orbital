@@ -109,7 +109,6 @@ const CreateEvent_page = ({ visible, onClose, onCreate }) => {
         setTitle('');
         setDescription('');
         setMode('');
-        setDuration('');
         setSelectedRange({ start: null, end: null });
     };
 
@@ -118,7 +117,6 @@ const CreateEvent_page = ({ visible, onClose, onCreate }) => {
         setTitle('');
         setDescription('');
         setMode('');
-        setDuration('');
         setSelectedRange({ start: null, end: null });
         setSelectedGroup('');
         navigation.navigate('Main');
