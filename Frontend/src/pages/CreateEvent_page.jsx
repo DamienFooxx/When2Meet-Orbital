@@ -1,62 +1,65 @@
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, Modal, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from 'react';
-import RNPickerSelect from 'react-native-picker-select';
-import { Picker } from '@react-native-picker/picker';
+import DropDownPicker from 'react-native-dropdown-picker';
 import RNCalendarEvents from 'react-native-calendar-events';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { useNavigation } from '@react-navigation/native';
 import HeatmapMonth from '../components/HeatmapMonth';
+import { API_BASE } from '../utils/config';
+import axios from 'axios';
+import { Picker } from '@react-native-picker/picker';
 
 const CreateEvent_page = ({ visible, onClose, onCreate }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
 
-    const [mode, setMode] = useState('');
-    const [duration, setDuration] = useState('');
-
-    // Remove time pickers, use only date range
     const [selectedRange, setSelectedRange] = useState({ start: null, end: null });
 
-    // Replace Add Users with Add Groups
-    const [selectedGroup, setSelectedGroup] = useState('');
-    const groupOptions = [
-      { label: 'Group A', value: 'groupA' },
-      { label: 'Group B', value: 'groupB' },
-      { label: 'Group C', value: 'groupC' },
-    ]; // TODO: Replace with real group data from backend
+    const [selectedGroup, setSelectedGroup] = useState(null);
+    const [groupOptions, setGroupOptions] = useState([]);
+    const [groupsLoading, setGroupsLoading] = useState(true);
+    const [groupPickerOpen, setGroupPickerOpen] = useState(false);
+
+    const [mode, setMode] = useState(null);
+    const [modePickerOpen, setModePickerOpen] = useState(false);
+    const [modeOptions] = useState([
+        { label: 'Online', value: 'online' },
+        { label: 'In-person', value: 'inperson' },
+    ]);
+
+    const [durationHour, setDurationHour] = useState(1);
+    const [durationHourPickerOpen, setDurationHourPickerOpen] = useState(false);
+    const [durationMinute, setDurationMinute] = useState(0);
+    const [durationMinutePickerOpen, setDurationMinutePickerOpen] = useState(false);
+    const hourOptions = Array.from({ length: 12 }, (_, i) => ({ label: `${i+1} hr`, value: i+1 }));
+    const minuteOptions = [0, 15, 30, 45].map(m => ({ label: `${m} min`, value: m }));
 
     const navigation = useNavigation();
 
-    const pickerSelectStyles = {
-        inputIOS: {
-            fontSize: 14,
-            backgroundColor: colors.dropdownContainer,
-            color: colors.containerText,
-            paddingVertical: 8,
-            paddingHorizontal: 12,
-            borderRadius: 6,
-            width: 100,
-        },
-        inputAndroid: {
-            fontSize: 14,
-            backgroundColor: colors.dropdownContainer,
-            color: colors.containerText,
-            paddingVertical: 8,
-            paddingHorizontal: 12,
-            borderRadius: 6,
-        },
-        iconContainer: {
-            top: 10,
-            right: 5,
-        },
-        };
-
-
     useEffect(() => {
         RNCalendarEvents.requestPermissions();
+    }, []);
+
+    useEffect(() => {
+        // Fetch groups from backend
+        const fetchGroups = async () => {
+            try {
+                const res = await axios.get(`${API_BASE}/groups/`);
+                if (Array.isArray(res.data) && res.data.length > 0) {
+                    setGroupOptions(res.data.map(group => ({ label: group.name, value: group.id })));
+                } else {
+                    setGroupOptions([]);
+                }
+            } catch (error) {
+                setGroupOptions([]);
+            } finally {
+                setGroupsLoading(false);
+            }
+        };
+        fetchGroups();
     }, []);
 
     // Handler for selecting a date from the heatmap
@@ -81,12 +84,13 @@ const CreateEvent_page = ({ visible, onClose, onCreate }) => {
             Alert.alert("Please select a date range for the event");
             return;
         }
+        const totalDuration = durationHour * 60 + durationMinute;
         const newEvent = {
             id: Date.now().toString(),
             title,
             description,
             mode,
-            duration,
+            duration: totalDuration,
             host: true, // Optional
             startDate: selectedRange.start,
             endDate: selectedRange.end,
@@ -152,60 +156,88 @@ const CreateEvent_page = ({ visible, onClose, onCreate }) => {
                 />
 
                 <View style = {styles.detailsContainer}>
-                    <View style = {styles.dropdownSection}>
-                        <Text style = {styles.dropdownLabel}>In-person / Online</Text>
-                        <RNPickerSelect
-                            onValueChange = {(value) => setMode(value)}
-                            items = {[
-                                { label: 'Online', value: 'online', key: 'online' },
-                                { label: 'In-person', value: 'inperson', key: 'inperson' },
-                            ]}
-                            value = {mode}
-                            placeholder = {{label: "Select", value: null}}
-                            style = {pickerSelectStyles}
-                            useNativeAndroidPickerStyle = {false}
-                            Icon = {() => <Ionicons name = "chevron-down" size = {18} color = {colors.containerText}/>}
-                        />
+
+                    <View style={{ zIndex: 2, marginBottom: 20 }}>
+                      <Text style={styles.dropdownLabel}>In-person / Online</Text>
+                      <DropDownPicker
+                        open={modePickerOpen}
+                        value={mode}
+                        items={modeOptions}
+                        setOpen={setModePickerOpen}
+                        setValue={setMode}
+                        setItems={() => {}}
+                        placeholder="Select"
+                        style={{ backgroundColor: colors.dropdownContainer, borderWidth: 0 }}
+                        textStyle={{ color: colors.containerText }}
+                        dropDownContainerStyle={{ backgroundColor: colors.container }}
+                        listMode="SCROLLVIEW"
+                      />
                     </View>
 
-                    <View style = {styles.dropdownSection}>
-                        <Text style = {styles.dropdownLabel}>Duration</Text>
-                        <RNPickerSelect
-                            onValueChange = {(value) => setDuration(value)}
-                            items = {[
-                                { label: '30 mins', value: '30', key: '30' },
-                                { label: '1 hr', value: '60', key: '60' },
-                                { label: '1 hr 30 mins', value: '90', key: '90'},
-                                { label: '2 hr', value: '120', key: '120'},
-                            ]}
-                            value = {duration}
-                            placeholder = {{label: "Select", value: null}}
-                            style = {pickerSelectStyles}
-                            useNativeAndroidPickerStyle = {false}
-                            Icon = {() => <Ionicons name = "chevron-down" size = {18} color = {colors.containerText}/>}
-                        />
+                    <Text style={styles.dropdownLabel}>Duration</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20, backgroundColor: colors.dropdownContainer, borderRadius: 10, paddingHorizontal: 5, paddingVertical: 2, height: 60, width: '100%' }}>
+                      <View style={{ width: '100%' }}>
+
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+                        <Picker
+                          selectedValue={durationHour}
+                          onValueChange={setDurationHour}
+                          style={{ color: colors.containerText, fontSize: 16, width: 100, height: 40 }}
+                          itemStyle={{ fontSize: 16, color: colors.containerText, height: 40 }}
+                          mode="dropdown"
+                        >
+                          {Array.from({ length: 12 }, (_, i) => (
+                            <Picker.Item key={i+1} label={`${i+1}`} value={i+1} style={{ fontSize: 16, height: 40 }} />
+                          ))}
+                        </Picker>
+                        <Text style={{ color: colors.containerText, fontSize: 18, marginHorizontal: 6 }}>:</Text>
+                        <Picker
+                          selectedValue={durationMinute}
+                          onValueChange={setDurationMinute}
+                          style={{ color: colors.containerText, fontSize: 16, width: 100, height: 40 }}
+                          itemStyle={{ fontSize: 16, color: colors.containerText, height: 40 }}
+                          mode="dropdown"
+                        >
+                          {[0, 15, 30, 45].map(m => (
+                            <Picker.Item key={m} label={m < 10 ? `0${m}` : `${m}`} value={m} style={{ fontSize: 16, height: 40 }} />
+                          ))}
+                        </Picker>
+                      </View>
                     </View>
+                  </View>
+
                 </View>
 
                 <Text style = {styles.sectionTitle}>Select Date Range</Text>
-                <View style={{marginBottom: 20}}>
-                  <HeatmapMonth isGoogleConnected={true} onDateSelect={handleDateSelect} selectedRange={selectedRange} />
-                </View>
                 <Text style={{fontSize:12, color:'gray', marginBottom:10}}>
                   {selectedRange.start && selectedRange.end ? `Selected: ${selectedRange.start} to ${selectedRange.end}` : 'Tap to select start and end dates'}
                 </Text>
+                <View style={{marginBottom: 20}}>
+                  <HeatmapMonth isGoogleConnected={true} onDateSelect={handleDateSelect} selectedRange={selectedRange} />
+                </View>
+
 
                 <Text style = {styles.sectionTitle}>Add Group</Text>
                 <View style={styles.input}>
-                  <RNPickerSelect
-                    onValueChange={setSelectedGroup}
-                    items={groupOptions}
-                    value={selectedGroup}
-                    placeholder={{ label: 'Select Group', value: null }}
-                    style={pickerSelectStyles}
-                    useNativeAndroidPickerStyle={false}
-                    Icon={() => <Ionicons name="chevron-down" size={18} color={colors.containerText} />}
-                  />
+                  {groupsLoading ? (
+                    <Text style={{ color: 'gray', fontSize: 14 }}>Loading groups...</Text>
+                  ) : groupOptions.length === 0 ? (
+                    <Text style={{ color: 'gray', fontSize: 14 }}>You are in no groups</Text>
+                  ) : (
+                    <DropDownPicker
+                      open={groupPickerOpen}
+                      value={selectedGroup}
+                      items={groupOptions}
+                      setOpen={setGroupPickerOpen}
+                      setValue={setSelectedGroup}
+                      setItems={setGroupOptions}
+                      placeholder="Select Group"
+                      style={{ backgroundColor: colors.dropdownContainer }}
+                      textStyle={{ color: colors.containerText }}
+                      dropDownContainerStyle={{ backgroundColor: colors.container }}
+                      listMode="SCROLLVIEW"
+                    />
+                  )}
                 </View>
 
             </ScrollView>
