@@ -15,7 +15,7 @@ class GroupMembershipListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GroupMembership
-        fields = ["id", "profile", "role", "joined_at", "is_accepted"]
+        fields = ["id", "profile", "role", "joined_at", "is_accepted", "invited_by_organizer"]
 
     def get_profile(self, obj):
         return ProfileSerializer(obj.profile, context=self.context).data
@@ -112,4 +112,4 @@ class GroupInvitationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GroupMembership
-        fields = ["id", "group", "profile", "role", "is_accepted", "joined_at"]
+        fields = ["id", "group", "profile", "role", "is_accepted", "joined_at", "invited_by_organizer"]

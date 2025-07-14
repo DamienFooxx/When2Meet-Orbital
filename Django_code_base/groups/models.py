@@ -71,6 +71,7 @@ class GroupMembership(models.Model):
         max_length=20, choices=ROLE_CHOICES, default="member"
     )  # Role in the group
     is_accepted = models.BooleanField(default=False)
+    invited_by_organizer = models.BooleanField(default=False, help_text="True if invitation sent by organizer, False if join request by participant.")
     joined_at = models.DateTimeField(
         auto_now_add=True
     )  # When the user joined the group

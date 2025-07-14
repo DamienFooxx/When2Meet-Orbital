@@ -147,7 +147,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         profile = Profile.objects.get(user=request.user)
 
         memberships = GroupMembership.objects.filter(
-            profile=profile, is_accepted=False
+            profile=profile, is_accepted=False, invited_by_organizer=True
         ).select_related("group", "group_creator")
 
         serializer = GroupInvitationSerializer(
@@ -204,7 +204,7 @@ class GroupViewSet(viewsets.ModelViewSet):
                 continue
 
             group.group_memberships.create(
-                profile=target_profile, role="member", is_accepted=False
+                profile=target_profile, role="member", is_accepted=False, invited_by_organizer=True
             )
             invited.append(email)
 
@@ -287,7 +287,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 
         # Create a pending group membership (requesting to join)
         GroupMembership.objects.create(
-            group=group, profile=profile, role="member", is_accepted=False
+            group=group, profile=profile, role="member", is_accepted=False, invited_by_organizer=False
         )
 
         return Response(
@@ -403,7 +403,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         try:
             profile = Profile.objects.get(user=request.user)
             memberships = GroupMembership.objects.filter(
-                profile=profile, is_accepted=False
+                profile=profile, is_accepted=False, invited_by_organizer=True
             ).select_related("group")
             serializer = GroupMembershipListSerializer(
                 memberships, many=True, context={"request": request}
@@ -452,53 +452,29 @@ class GroupViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="accept-invitation")
     def accept_invitation(self, request, pk=None):
-        group = self.get_object()
-
         try:
-            profile = Profile.objects.get(user=request.user)
-        except Profile.DoesNotExist:
-            return Response(
-                {"error": "Profile not found."}, status=status.HTTP_404_NOT_FOUND
-            )
-
-        membership = GroupMembership.objects.filter(
-            group=group, profile=profile, is_accepted=False
-        ).first()
-
-        if not membership:
-            return Response(
-                {"error": "No pending invitations."}, status=status.HTTP_400_BAD_REQUEST
-            )
-
+            membership = GroupMembership.objects.get(id=pk, is_accepted=False)
+        except GroupMembership.DoesNotExist:
+            return Response({"error": "No pending invitations."}, status=status.HTTP_404_NOT_FOUND)
+        # Ensure only the invited user can accept
+        if membership.profile.user != request.user:
+            return Response({"error": "You are not authorized to accept this invitation."}, status=status.HTTP_403_FORBIDDEN)
         membership.is_accepted = True
         membership.save()
-
-        return Response(
-            {"message": f'You have joined the group "{group.name}".'},
-            status=status.HTTP_200_OK,
-        )
+        return Response({"message": f'You have joined the group "{membership.group.name}".'}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="decline-invitation")
     def decline_invitation(self, request, pk=None):
-        group = self.get_object()
-        profile = Profile.objects.get(user=request.user)
-
-        membership = GroupMembership.objects.filter(
-            group=group, profile=profile, is_accepted=False
-        ).first()
-
-        if not membership:
-            return Response(
-                {"error": "No pending invitation to decline"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
+        try:
+            membership = GroupMembership.objects.get(id=pk, is_accepted=False)
+        except GroupMembership.DoesNotExist:
+            return Response({"error": "No pending invitation to decline"}, status=status.HTTP_404_NOT_FOUND)
+        # Ensure only the invited user can decline
+        if membership.profile.user != request.user:
+            return Response({"error": "You are not authorized to decline this invitation."}, status=status.HTTP_403_FORBIDDEN)
+        group_name = membership.group.name
         membership.delete()
-
-        return Response(
-            {"message": f'You have declined the invitation to join "{group.name}".'},
-            status=status.HTTP_200_OK,
-        )
+        return Response({"message": f'You have declined the invitation to join "{group_name}".'}, status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):
         profile = Profile.objects.get(user=request.user)
