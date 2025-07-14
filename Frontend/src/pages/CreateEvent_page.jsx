@@ -124,122 +124,109 @@ const CreateEvent_page = ({ visible, onClose, onCreate }) => {
 
 
   return (
-    <View style = {styles.container}>
-        <SafeAreaView style = {styles.container}>
-            <View style = {styles.headerContainer}>
-                <TouchableOpacity style = {styles.cancelContainer} onPress = {handleCancel}>
-                    <Text style = {styles.cancelText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <Text style = {styles.headerText}>Create New Event</Text>
-
-                <TouchableOpacity onPress = {handleCreate}>
-                    <Text style = {styles.newText}>New</Text>
-                </TouchableOpacity>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.headerContainer}>
+          <TouchableOpacity style={styles.cancelContainer} onPress={handleCancel}>
+            <Text style={styles.cancelText}>Cancel</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Create New Event</Text>
+          <TouchableOpacity onPress={handleCreate}>
+            <Text style={styles.newText}>New</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <TextInput
+            style={styles.input}
+            placeholder='Title'
+            value={title}
+            onChangeText={setTitle}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder='Description (Optional)'
+            value={description}
+            onChangeText={setDescription}
+          />
+          <View style={styles.detailsContainer}>
+            <View style={styles.modePickerWrapper}>
+              <Text style={styles.dropdownLabel}>In-person / Online</Text>
+              <DropDownPicker
+                open={modePickerOpen}
+                value={mode}
+                items={modeOptions}
+                setOpen={setModePickerOpen}
+                setValue={setMode}
+                setItems={() => {}}
+                placeholder="Select"
+                style={styles.dropdownPicker}
+                textStyle={styles.dropdownText}
+                dropDownContainerStyle={styles.dropdownContainer}
+                listMode="SCROLLVIEW"
+              />
             </View>
-
-            <ScrollView contentContainerStyle = {{ paddingBottom: 30 }}>
-                <TextInput
-                style = {styles.input}
-                placeholder = 'Title'
-                value = {title}
-                onChangeText = {setTitle}
-                />
-
-                <TextInput
-                    style = {styles.input}
-                    placeholder = 'Description (Optional)'
-                    value = {description}
-                    onChangeText = {setDescription}
-                />
-
-                <View style = {styles.detailsContainer}>
-
-                    <View style={{ zIndex: 2, marginBottom: 20 }}>
-                      <Text style={styles.dropdownLabel}>In-person / Online</Text>
-                      <DropDownPicker
-                        open={modePickerOpen}
-                        value={mode}
-                        items={modeOptions}
-                        setOpen={setModePickerOpen}
-                        setValue={setMode}
-                        setItems={() => {}}
-                        placeholder="Select"
-                        style={{ backgroundColor: colors.dropdownContainer, borderWidth: 0 }}
-                        textStyle={{ color: colors.containerText }}
-                        dropDownContainerStyle={{ backgroundColor: colors.container }}
-                        listMode="SCROLLVIEW"
-                      />
-                    </View>
-
-                    <Text style={styles.dropdownLabel}>Duration</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20, backgroundColor: colors.dropdownContainer, borderRadius: 10, paddingHorizontal: 5, paddingVertical: 2, height: 60, width: '100%' }}>
-                      <View style={{ width: '100%' }}>
-
-                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                        <Picker
-                          selectedValue={durationHour}
-                          onValueChange={setDurationHour}
-                          style={{ color: colors.containerText, fontSize: 16, width: 100, height: 40 }}
-                          itemStyle={{ fontSize: 16, color: colors.containerText, height: 40 }}
-                          mode="dropdown"
-                        >
-                          {Array.from({ length: 12 }, (_, i) => (
-                            <Picker.Item key={i+1} label={`${i+1}`} value={i+1} style={{ fontSize: 16, height: 40 }} />
-                          ))}
-                        </Picker>
-                        <Text style={{ color: colors.containerText, fontSize: 18, marginHorizontal: 6 }}>:</Text>
-                        <Picker
-                          selectedValue={durationMinute}
-                          onValueChange={setDurationMinute}
-                          style={{ color: colors.containerText, fontSize: 16, width: 100, height: 40 }}
-                          itemStyle={{ fontSize: 16, color: colors.containerText, height: 40 }}
-                          mode="dropdown"
-                        >
-                          {[0, 15, 30, 45].map(m => (
-                            <Picker.Item key={m} label={m < 10 ? `0${m}` : `${m}`} value={m} style={{ fontSize: 16, height: 40 }} />
-                          ))}
-                        </Picker>
-                      </View>
-                    </View>
-                  </View>
-
+            <Text style={styles.dropdownLabel}>Duration</Text>
+            <View style={styles.durationPickerWrapper}>
+              <View style={styles.durationInnerWrapper}>
+                <View style={styles.durationRow}>
+                  <Picker
+                    selectedValue={durationHour}
+                    onValueChange={setDurationHour}
+                    style={styles.picker}
+                    itemStyle={styles.pickerItem}
+                    mode="dropdown"
+                  >
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <Picker.Item key={i+1} label={`${i+1}`} value={i+1} style={styles.pickerItem} />
+                    ))}
+                  </Picker>
+                  <Text style={styles.durationColon}>:</Text>
+                  <Picker
+                    selectedValue={durationMinute}
+                    onValueChange={setDurationMinute}
+                    style={styles.picker}
+                    itemStyle={styles.pickerItem}
+                    mode="dropdown"
+                  >
+                    {[0, 15, 30, 45].map(m => (
+                      <Picker.Item key={m} label={m < 10 ? `0${m}` : `${m}`} value={m} style={styles.pickerItem} />
+                    ))}
+                  </Picker>
                 </View>
-
-                <Text style = {styles.sectionTitle}>Select Date Range</Text>
-                <Text style={{fontSize:12, color:'gray', marginBottom:10}}>
-                  {selectedRange.start && selectedRange.end ? `Selected: ${selectedRange.start} to ${selectedRange.end}` : 'Tap to select start and end dates'}
-                </Text>
-                <View style={{marginBottom: 20}}>
-                  <HeatmapMonth isGoogleConnected={true} onDateSelect={handleDateSelect} selectedRange={selectedRange} />
-                </View>
-
-
-                <Text style = {styles.sectionTitle}>Add Group</Text>
-                <View style={styles.input}>
-                  {groupsLoading ? (
-                    <Text style={{ color: 'gray', fontSize: 14 }}>Loading groups...</Text>
-                  ) : groupOptions.length === 0 ? (
-                    <Text style={{ color: 'gray', fontSize: 14 }}>You are in no groups</Text>
-                  ) : (
-                    <DropDownPicker
-                      open={groupPickerOpen}
-                      value={selectedGroup}
-                      items={groupOptions}
-                      setOpen={setGroupPickerOpen}
-                      setValue={setSelectedGroup}
-                      setItems={setGroupOptions}
-                      placeholder="Select Group"
-                      style={{ backgroundColor: colors.dropdownContainer }}
-                      textStyle={{ color: colors.containerText }}
-                      dropDownContainerStyle={{ backgroundColor: colors.container }}
-                      listMode="SCROLLVIEW"
-                    />
-                  )}
-                </View>
-
-            </ScrollView>
-        </SafeAreaView>
+              </View>
+            </View>
+          </View>
+          <Text style={styles.sectionTitle}>Select Date Range</Text>
+          <Text style={styles.dateRangeText}>
+            {selectedRange.start && selectedRange.end ? `Selected: ${selectedRange.start} to ${selectedRange.end}` : 'Tap to select start and end dates'}
+          </Text>
+          <View style={styles.heatmapWrapper}>
+            <HeatmapMonth isGoogleConnected={true} onDateSelect={handleDateSelect} selectedRange={selectedRange} />
+          </View>
+          <Text style={styles.sectionTitle}>Add Group</Text>
+          <View style={styles.input}>
+            {groupsLoading ? (
+              <Text style={styles.loadingText}>Loading groups...</Text>
+            ) : groupOptions.length === 0 ? (
+              <Text style={styles.loadingText}>You are in no groups</Text>
+            ) : (
+              <DropDownPicker
+                open={groupPickerOpen}
+                value={selectedGroup}
+                items={groupOptions}
+                setOpen={setGroupPickerOpen}
+                setValue={setSelectedGroup}
+                setItems={setGroupOptions}
+                placeholder="Select Group"
+                style={styles.dropdownPicker}
+                textStyle={styles.dropdownText}
+                dropDownContainerStyle={styles.dropdownContainer}
+                listMode="SCROLLVIEW"
+              />
+            )}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
     </View>
   )
 }
@@ -247,94 +234,126 @@ const CreateEvent_page = ({ visible, onClose, onCreate }) => {
 export default CreateEvent_page
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 15,
-        paddingTop: 20,
-        backgroundColor: colors.white,
-    },
-
-    headerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    cancelText: {
-        color: 'red',
-        fontFamily: fonts.Regular,
-    },
-    headerText: {
-        fontSize: 20,
-        fontFamily: fonts.SemiBold,
-        color: colors.primary,
-    },
-    newText: {
-        color: colors.primary,
-        fontFamily: fonts.SemiBold,
-    },
-
-    input: {
-        backgroundColor: colors.container,
-        borderRadius: 10,
-        padding: 15,
-        marginBottom: 10,
-    },
-
-    detailsContainer: {
-        marginTop: 30,
-    },
-
-    dropdownSection: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        overflow: 'visible',
-        backgroundColor: colors.container,
-        borderRadius: 10,
-        padding: 15,
-        marginBottom: 15,
-    },    
-    dropdownLabel: {
-        fontFamily: fonts.SemiBold,
-        fontSize: 14,
-        color: colors.primary,
-        marginBottom: 5,
-        flex: 2,
-    },
-
-    pickerWrapper: {
-        marginBottom: 10,
-        backgroundColor: colors.dropdownContainer,
-        flex: 1,
-        borderRadius: 5,
-        height: 45,
-        justifyContent: 'center',
-    },
-
-    picker: {
-        color: colors.containerText,
-        fontFamily: fonts.Regular,
-        height: 40,
-        fontSize: 10,
-    },
-
-    sectionTitle: {
-        fontFamily: fonts.SemiBold,
-        marginBottom: 10,
-        fontSize: 16,
-        color: colors.primary,
-    },
-
-    calendarBox: {
-        height: 200,
-        backgroundColor: colors.white,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    username: {
-        color: colors.containerText,
-        fontFamily: fonts.Regular,
-    },
+  container: {
+    flex: 1,
+    padding: 15,
+    paddingTop: 20,
+    backgroundColor: colors.white,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  cancelContainer: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  cancelText: {
+    color: 'red',
+    fontFamily: fonts.Regular,
+  },
+  headerText: {
+    fontSize: 20,
+    fontFamily: fonts.SemiBold,
+    color: colors.primary,
+  },
+  newText: {
+    color: colors.primary,
+    fontFamily: fonts.SemiBold,
+  },
+  input: {
+    backgroundColor: colors.container,
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
+  },
+  detailsContainer: {
+    marginTop: 30,
+  },
+  modePickerWrapper: {
+    zIndex: 2,
+    marginBottom: 20,
+  },
+  dropdownLabel: {
+    fontFamily: fonts.SemiBold,
+    fontSize: 14,
+    color: colors.primary,
+    marginBottom: 5,
+    flex: 2,
+  },
+  dropdownPicker: {
+    backgroundColor: colors.dropdownContainer,
+    borderWidth: 0,
+  },
+  dropdownText: {
+    color: colors.containerText,
+  },
+  dropdownContainer: {
+    backgroundColor: colors.container,
+  },
+  durationPickerWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    backgroundColor: colors.dropdownContainer,
+    borderRadius: 10,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    height: 60,
+    width: '100%',
+  },
+  durationInnerWrapper: {
+    width: '100%',
+  },
+  durationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  picker: {
+    color: colors.containerText,
+    fontFamily: fonts.Regular,
+    height: 40,
+    fontSize: 16,
+    width: 100,
+  },
+  pickerItem: {
+    fontSize: 16,
+    color: colors.containerText,
+    height: 40,
+  },
+  durationColon: {
+    color: colors.containerText,
+    fontSize: 18,
+    marginHorizontal: 6,
+  },
+  sectionTitle: {
+    fontFamily: fonts.SemiBold,
+    marginBottom: 10,
+    fontSize: 16,
+    color: colors.primary,
+  },
+  dateRangeText: {
+    fontSize: 12,
+    color: 'gray',
+    marginBottom: 10,
+  },
+  heatmapWrapper: {
+    marginBottom: 20,
+  },
+  loadingText: {
+    color: 'gray',
+    fontSize: 14,
+  },
+  username: {
+    color: colors.containerText,
+    fontFamily: fonts.Regular,
+  },
+  scrollContent: {
+    paddingBottom: 30,
+  },
 })
