@@ -83,7 +83,6 @@ class GroupViewSet(viewsets.ModelViewSet):
         if not membership:
             return Response({"error": "Not a member of the group."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Checks if they are the last organiser
         if membership.role == "organiser":
             organiser_count = GroupMembership.objects.filter(group=group, role="organiser").count()
             # Checks if person leaving is the last organiser left in the group
@@ -92,13 +91,11 @@ class GroupViewSet(viewsets.ModelViewSet):
 
         member_count = GroupMembership.objects.filter(group=group).count()
 
-        # Automatically delete Group if there are no members left
         if member_count == 1:
             # If confirmed
             group.delete()
             return Response({"message": f'Group "{group.name}" deleted as you were the last member.'}, status=status.HTTP_200_OK)
 
-        # Let the user leave the group
         membership.delete()
         return Response({"message": f'You have left the group "{group.name}".'}, status=status.HTTP_200_OK)
 
@@ -154,15 +151,11 @@ class GroupViewSet(viewsets.ModelViewSet):
         """
         code = request.data.get("invite_code")
 
-        # If user does not enter a code
         if not code:
             return Response({"error": "Invite code is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Attemps to find the group using the invite code
             group = Group.objects.get(invite_code=code)
-
-        # Checks if the Group with that invite code exists
         except Group.DoesNotExist:
             return Response({"error": "Invalid invite code or Group does not exist."}, status=status.HTTP_404_NOT_FOUND)
 
