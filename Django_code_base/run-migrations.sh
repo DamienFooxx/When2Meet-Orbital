@@ -1,7 +1,6 @@
-#!/bin/bash
-
 # Script to run Django migrations for Orbital When2Meet
 # Project: orbitalwhen2meet-test
+# This is only for google cloud run deployment
 
 set -e  # Exit on any error
 

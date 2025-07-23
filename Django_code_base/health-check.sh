@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Health check script for Orbital When2Meet Cloud Run service
 # Project: orbitalwhen2meet-test
 
