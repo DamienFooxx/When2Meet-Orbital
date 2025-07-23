@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
-import { BASE_URL } from '../utils/config';
+import { API_BASE } from '../utils/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CreateGroup_page = () => {
@@ -19,9 +19,13 @@ const CreateGroup_page = () => {
 
         try {
             const token = await AsyncStorage.getItem('authToken');
+            console.log('[addMember] Token:', token);
+            console.log('[addMember] Email to check:', trimmed);
             axios.defaults.headers.common['Authorization'] = `Token ${token}`;
-
-            const res = await axios.get(`${BASE_URL}/api/users/check/?email=${trimmed}`);
+            const url = `${API_BASE}/users/check/?email=${trimmed}`;
+            console.log('[addMember] Request URL:', url);
+            const res = await axios.get(url); // fixed: removed duplicate /api
+            console.log('[addMember] Response:', res.data);
             if (res.data.exists) {
                 setMembers([...members, trimmed]);
                 setNewMember('');
@@ -29,7 +33,7 @@ const CreateGroup_page = () => {
                 Alert.alert("User not found", "The entered email does not match any registered user.");
             }
         } catch (err) {
-            console.error(err);
+            console.error('[addMember] Error:', err);
             Alert.alert("Error", "Failed to check user existence")
         }
     };
@@ -54,7 +58,7 @@ const CreateGroup_page = () => {
             axios.defaults.headers.common['Authorization'] = `Token ${token}`;
 
             const response = await axios.post(
-                `${BASE_URL}/api/groups/`,
+                `${API_BASE}/groups/`,
                 {
                     name: groupName,
                     members: members,

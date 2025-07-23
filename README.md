@@ -320,141 +320,87 @@ Joanne Koe: e1355447@u.nus.edu
 Once added, you will be able to clone the private repository and test the app according to the setup instructions above.
 
 ## How to Setup
-### Step 1. Clone the Repository
-```bash
-git clone https://github.com/DamienFooxx/When2Meet-Orbital.git
-# Navigate to the When2Meet-Orbital directory
-cd When2Meet-Orbital
-```
 
-### Step 2. Create and Activate Virtual Environment
-```bash
-# For macOS/Linux
-python -m venv w2m
-source w2m/bin/activate
+### Backend Setup
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/DamienFooxx/When2Meet-Orbital.git
+   cd When2Meet-Orbital
+   ```
+2. **Create and Activate Virtual Environment**
+   ```bash
+   # For macOS/Linux
+   python -m venv w2m
+   source w2m/bin/activate
+   # For Windows
+   python -m venv w2m
+   .\w2m\Scripts\activate
+   ```
+3. **Install Backend Dependencies**
+   ```bash
+   cd "Django Code Base"
+   pip install -r requirements.txt
+   cd ..
+   ```
+4. **Set Up Environment Variables**
+   - Copy `.env.example` to `.env` in the Django Code Base directory and update as needed.
+5. **Set Up PostgreSQL Database**
+   - Install PostgreSQL and follow the provided SQL setup script.
+6. **Apply Migrations**
+   ```bash
+   cd "Django Code Base"
+   python manage.py makemigrations
+   python manage.py migrate
+   cd ..
+   ```
+7. **Run the Backend Server**
+   ```bash
+   cd "Django Code Base"
+   python manage.py runserver 0.0.0.0:8000
+   cd ..
+   ```
 
-# For Windows
-python -m venv w2m
-.\w2m\Scripts\activate
-```
+### Frontend Setup
+1. **Install Node.js and npm**
+   - Make sure you have Node.js (v14 or higher) and npm installed. Check with `node -v` and `npm -v`.
+2. **Install Frontend Dependencies**
+   ```bash
+   cd Frontend
+   npm install
+   ```
+3. **Set Up iOS Environment (for Mac/iOS only)**
+   - Install Ruby and rbenv if not already installed:
+     ```bash
+     brew install rbenv
+     rbenv init
+     rbenv install 3.4.4
+     gem install bundler -v 2.6.9
+     gem install cocoapods
+     ```
+   - Install CocoaPods dependencies:
+     ```bash
+     cd ios
+     pod install
+     cd ..
+     ```
+4. **Configure API Base URL**
+   - Edit `Frontend/src/utils/config.js` and set `API_BASE` to your backend server's IP address, e.g.:
+     ```js
+     export const API_BASE = "http://<your-ip>:8000/api";
+     ```
+5. **Start Metro Bundler**
+   ```bash
+   npx react-native start
+   ```
+6. **Run the App on iOS Simulator**
+   ```bash
+   cd ios
+   pod install
+   cd ..
+   npx react-native run-ios
+   ```
 
-### Step 3. Install Dependencies
-```bash
-# Install dependencies for backend
-cd ./Django\ Code\ Base/
-pip install -r requirements.txt
-# Move to frontend directory
-cd ..
-cd Frontend
-# Install dependencies for frontend
-npm install 
-```
-
-### Step 4. Set Up Environment Variables
-**Find Your Computer Local IP Address**
-- **Windows:**  
-  - Open Command Prompt.
-  - Run:
-    ```cmd
-    ipconfig | findstr /i "IPv4"
-    ```
-  - Look for the `IPv4 Address` under your WiFi adapter (e.g., `192.168.x.x`).
-
-- **MacOS:**  
-  - Open Terminal.
-  - Run:
-    ```bash
-    ipconfig getifaddr en0
-    ```
-
-**Update Your Config to Use Your Local IP**
-Type into the command line
-```js
-// config.js example
-export BASE_URL='http://192.168.x.x:8000/'
-```
-
-**Navigate to Django Code Base Directory**
-Rename ".env.example" file to just ".env"
-**Navigate to the .env file and replace the CORS_ALLOWED_ORIGIN variable with your IP Address**
-
-### Step 5. Install Database
-Set up a local postgreSQL database.
-**for macOS**
-```bash
-# If not already installed
-brew install postgresql
-# After installation
-brew services start postgresql
-```
-**for Windows**
-
-download and run the PostgreSQL installer
-
-The pyscopg2-binary shouldve been downloaded already in step 3 when installing dependencies
-
-### Step 6. Setting up DB
-Open the postgresql interactive shell using
-```bash
-psql postgres
-```
-Then follow the postgreSQL_setupDB.sql script, inserting line by line
-```bash
-CREATE DATABASE when2meet;
-\c when2meet
-CREATE USER admin WITH PASSWORD 'orbital2425';
-ALTER ROLE admin SET client_encoding TO 'utf8';
-ALTER ROLE admin SET default_transaction_isolation TO 'read committed';
-ALTER ROLE admin SET timezone TO 'ASIA/SINGAPORE';
-GRANT ALL PRIVILEGES ON DATABASE when2meet TO admin;
-\
--- type \l to check if the database is setup correctly
-```
-
-### Step 7. Apply Database Migrations
-In the Django Code Base directory, input this into the terminal
-```bash
-cd ./Django\ Code\ Base/
-python manage.py makemigrations
-python manage.py migrate
-```
-
-### Step 8. Run the Development Server
-```bash
-python manage.py runserver
-```
-The server will start at the url shown after the line "Starting development server at "url".
-Navigate to the website using the url.
-It should say "When2Meet Backend is running!.
-
-### Step 9. Install necessary packages
-```bash
-cd ./Frontend/
-brew install rbenv
-rbenv init
-rbenv install 3.4.4.
-gem install bundler -v 2.6.9
-gem install cocoapods
-```
-### Step 10. Start the Metro Bundler
-```bash
-# Navigate to frontend directory
-cd ./Frontend/
-npx react-native start
-# Enter control-C
-```
-
-### Step 11. **Run on iOS**
-```bash
-cd ios
-pod install
-npx react-native run-ios
-```
-
-### Step 12. **Test**
-You should see
-Welcome to REACT NATIVE v0.xx
-type "r" into the terminal
+---
 
 ## Troubleshooting Common Issues
 
@@ -482,16 +428,64 @@ type "r" into the terminal
 - **Error**: Unable to authenticate with Google OAuth.
     - **Solution**: Ensure your Google OAuth credentials are correctly set up in the Google Cloud Console and that the redirect URIs are properly configured.
 
-### General Issues
-- **Error**: Any other unexpected errors.
-    - **Solution**: Check the console output for error messages, ensure all dependencies are up to date, and consult the documentation for the specific libraries you are using.
+### Node.js Not Found or Wrong Version
+- **Error:** `/Users/Joanne/.nvm/versions/node/v18.20.8/bin/node: No such file or directory`
+- **Cause:** The iOS build is trying to use a Node.js path from another developer's machine.
+- **Solution:**
+  1. On your own machine, run:
+     ```sh
+     which node
+     ```
+  2. Create or edit the file `Frontend/ios/.xcode.env.local` and add:
+     ```sh
+     export NODE_BINARY=/path/to/your/node
+     ```
+     (Replace with the output from `which node`.)
+  3. Clean and rebuild:
+     ```sh
+     cd ios
+     xcodebuild clean
+     cd ..
+     npx react-native run-ios
+     ```
+- **Note:** Each developer must set their own Node path in `.xcode.env.local` to match their system. Do not use a hardcoded path from another machine.
 
+### iOS Build: CLEAN FAILED
+- **Error:** `Could not delete .../ios/build because it was not created by the build system.`
+- **Solution:**
+  - Manually delete the build directory:
+    ```sh
+    rm -rf ./Frontend/ios/build
+    ```
+  - Then try cleaning and rebuilding again.
+
+### CocoaPods or Ruby/Bundler Issues
+- **Error:** `cannot load such file -- cocoapods (LoadError)` or `Could not find cocoapods-1.15.2 ... in locally installed gems (Bundler::GemNotFound)`
+- **Solution:**
+  - Make sure you are using the correct Ruby version (check with `rbenv versions` and `rbenv global 3.4.4`).
+  - Install CocoaPods and Bundler:
+    ```sh
+    gem install bundler -v 2.6.9
+    gem install cocoapods
+    ```
+  - If you have a `Gemfile`, run `bundle install` in the `ios` directory.
+  - Then run `pod install` in the `ios` directory.
+
+### Metro Bundler Fails to Start
+- **Solution:**
+  - Make sure you are in the `Frontend` directory and all dependencies are installed (`npm install`).
+  - Try restarting Metro with `npx react-native start --reset-cache`.
+
+### API/Network Issues
+- **Error:** `Network error` or `Request failed with status code 500/404`
+- **Solution:**
+  - Make sure your backend server is running and accessible from your device/simulator.
+  - Double-check the `API_BASE` in `config.js` matches your backend IP and port.
+  - Ensure your device/simulator is on the same network as your backend.
+---
 ## Notes
 - Ensure you handle errors gracefully and store the authentication token securely.
 - Replace `http://127.0.0.1:8000` with your actual API base URL in production.
 
 ## License
-This project is licensed under the GNU General Public License - see the LICENSE file for details 
-
-
-This project is licensed under the GNUn General Public License v3.0 License - see the LICENSE file for details 
+This project is licensed under the GNUn General Public License v3.0 License - see the LICENSE file for details

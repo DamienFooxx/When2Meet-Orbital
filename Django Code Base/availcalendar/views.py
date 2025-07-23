@@ -2,18 +2,11 @@ from django.db.models import Q
 from rest_framework import viewsets, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from availcalendar.tasks import (
-    sync_google_calendar_task,
-    get_google_token,
-    fetch_google_busy_slots,
-)
-from availcalendar.models import (
-    TimeSlot,
-    CalendarEntry,
-    CalendarIntegration,
-    ManualAvailability,
-    Reminder,
-)
+from rest_framework.decorators import api_view, permission_classes
+from calendar import monthrange
+from datetime import date, timedelta
+from availcalendar.tasks import sync_google_calendar_task, get_google_token, fetch_google_busy_slots
+from availcalendar.models import TimeSlot, CalendarEntry, CalendarIntegration, ManualAvailability, Reminder
 from events.models import Event
 from availcalendar.serializers import (
     TimeSlotSerializer,
@@ -56,7 +49,7 @@ class CalendarEntryViewSet(viewsets.ModelViewSet):
         return CalendarEntry.objects.filter(user_id=self.request.user.profile)
 
     def perform_create(self, serializer):
-        serializer.save(user_id=self.request.user.profile)
+        serializer.save(user=self.request.user.profile)
 
 
 class CalendarIntegrationViewSet(viewsets.ModelViewSet):
@@ -157,3 +150,43 @@ class GoogleCalendarSyncView(APIView):
             {"message": "Calendar synchronization initiated."},
             status=status.HTTP_202_ACCEPTED,
         )
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def month_availability(request):
+    """
+    Returns a list of days in the given month with available hours and max hours for the user.
+    Query params: year, month (1-based)
+    """
+    profile = request.user.profile
+    year = int(request.query_params.get('year', date.today().year))
+    month = int(request.query_params.get('month', date.today().month))
+    days_in_month = monthrange(year, month)[1]
+    start = date(year, month, 1)
+    end = date(year, month, days_in_month)
+
+    # Get all timeslots for this user in the month
+    timeslots = TimeSlot.objects.filter(
+        user=profile,
+        start_date__gte=start,
+        start_date__lte=end
+    )
+
+    # Aggregate available hours per day
+    daily = {}
+    for ts in timeslots:
+        d = ts.start_date.isoformat()
+        daily.setdefault(d, 0)
+        daily[d] += ts.duration / 60  # duration is in minutes
+
+    # Assume max available hours per day is 8 (customize as needed)
+    max_hours = 8
+    result = []
+    for day in range(1, days_in_month + 1):
+        d = date(year, month, day).isoformat()
+        result.append({
+            'date': d,
+            'availableHours': round(daily.get(d, 0), 2),
+            'maxHours': max_hours
+        })
+    return Response(result)

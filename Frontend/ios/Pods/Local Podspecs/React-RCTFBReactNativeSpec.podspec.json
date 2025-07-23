@@ -30,8 +30,7 @@
     "React-Core": [],
     "React-NativeModulesApple": [],
     "ReactCommon": [],
-    "hermes-engine": [],
-    "React-hermes": []
+    "React-jsc": []
   },
   "script_phases": [
     {

@@ -47,8 +47,7 @@
     "React-rendererdebug": [],
     "React-graphics": [],
     "React-Fabric": [],
-    "hermes-engine": [],
-    "React-hermes": []
+    "React-jsc": []
   },
   "script_phases": [
     {
