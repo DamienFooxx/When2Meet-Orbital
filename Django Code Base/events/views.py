@@ -1,8 +1,8 @@
 from django.db.models import Q
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
-from events.models import Event
-from events.serializers import EventSerializer
+from events.models import Event, EventParticipant
+from events.serializers import EventSerializer, EventParticipantSerializer
 from groups.models import GroupMembership
 
 # Create your views here.
@@ -49,3 +49,18 @@ class EventViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_403_FORBIDDEN,
                 )
         return super().destroy(request, *args, **kwargs)
+
+class EventParticipantViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Read-only viewset to list participants and their status for a given event.
+    Filter by ?event=<event_id>
+    """
+    serializer_class = EventParticipantSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = EventParticipant.objects.all()
+        event_id = self.request.query_params.get('event')
+        if event_id:
+            queryset = queryset.filter(event__id=event_id)
+        return queryset
