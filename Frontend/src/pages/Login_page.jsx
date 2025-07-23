@@ -6,12 +6,14 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
-import { BASE_URL } from '../utils/config';
+import { API_BASE } from '../utils/config';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '../context/UserContext';
+
+const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
 
 const Login_page = () => {
     // state hooks
@@ -36,7 +38,7 @@ const Login_page = () => {
             console.log('Google ID Token:', accessToken);
 
             // send idToken to Django backend
-            const response = await axios.post(`${BASE_URL}/api/auth/google/`, {
+            const response = await axios.post(`${API_BASE}/auth/google/`, {
                 access_token: accessToken,
             });
             console.log("login response:", response.data)
@@ -51,7 +53,7 @@ const Login_page = () => {
             axios.defaults.headers.common['Authorization'] = `Token ${token}`;
             
             // fetch user profile from backend
-            const profileRes = await axios.get(`${BASE_URL}/api/profile/`);
+            const profileRes = await axios.get(`${API_BASE}/profile/`);
             const userData = {
                 token,
                 username: profileRes.data.username,
@@ -96,7 +98,7 @@ const Login_page = () => {
         }
 
         try {
-            const response = await axios.post(`${BASE_URL}/api/auth/login/`, {
+            const response = await axios.post(`${API_BASE}/auth/login/`, {
                 email: email,
                 password: password,
             });
@@ -109,7 +111,7 @@ const Login_page = () => {
                 axios.defaults.headers.common['Authorization'] = `Token ${token}`;
                 
                 // fetch user profile using email
-                const profileRes = await axios.get(`${BASE_URL}/api/profile/`);
+                const profileRes = await axios.get(`${API_BASE}/profile/`);
                 const userData = {
                     username: profileRes.data.username,
                     email: profileRes.data.email,

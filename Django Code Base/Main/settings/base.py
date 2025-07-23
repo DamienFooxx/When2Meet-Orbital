@@ -19,12 +19,40 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config("SECRET_KEY")
+def get_secret(secret_name):
+    try:
+        with open(f'/etc/secrets/{secret_name}', 'r') as secret_file:
+            return secret_file.read().strip()
+    except IOError:
+        return os.environ.get(secret_name)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+SECRET_KEY = get_secret("SECRET_KEY")
 
 ALLOWED_HOSTS = ["*"]
+
+# CORS Configuration
+CORS_ALLOW_ALL_ORIGINS = True  # For development - restrict in production
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:8081",
+    "http://localhost:8080",
+    "http://localhost:8000",
+    "http://localhost:19006",
+    "exp://localhost:19000",
+]
+
+CORS_ALLOWED_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 
 # =====================
@@ -95,7 +123,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": config("DB_NAME"),
         "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
         "HOST": config("DB_HOST"),
         "PORT": config("DB_PORT"),
     }
@@ -179,7 +207,7 @@ SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "APP": {
             "client_id": os.getenv("GOOGLE_CLIENT_ID"),
-            "secret": os.getenv("YOUR_GOOGLE_CLIENT_SECRET"),
+            "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
             "key": "",
         },
         "SCOPE": [

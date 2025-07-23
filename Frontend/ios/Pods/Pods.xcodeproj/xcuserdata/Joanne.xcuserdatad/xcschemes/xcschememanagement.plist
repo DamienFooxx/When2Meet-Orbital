@@ -249,11 +249,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>React-RuntimeHermes.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>React-callinvoker.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -299,12 +294,12 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>React-hermes.xcscheme</key>
+		<key>React-idlecallbacksnativemodule.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>React-idlecallbacksnativemodule.xcscheme</key>
+		<key>React-jsc.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -465,11 +460,6 @@
 			<false/>
 		</dict>
 		<key>glog.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
-		<key>hermes-engine.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
