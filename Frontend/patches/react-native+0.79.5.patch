@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native/Libraries/Core/Devtools/loadBundleFromServer.js b/node_modules/react-native/Libraries/Core/Devtools/loadBundleFromServer.js
+index 96d9a97..2155d1d 100644
+--- a/node_modules/react-native/Libraries/Core/Devtools/loadBundleFromServer.js
++++ b/node_modules/react-native/Libraries/Core/Devtools/loadBundleFromServer.js
+@@ -135,6 +135,7 @@ export default function loadBundleFromServer(
+       if (global.globalEvalWithSourceUrl) {
+         global.globalEvalWithSourceUrl(body, requestUrl);
+       } else {
++        var require = global.require || require;
+         // eslint-disable-next-line no-eval
+         eval(body);
+       }
