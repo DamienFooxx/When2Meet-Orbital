@@ -4,9 +4,10 @@ Settings specific to this application only (no Django or 3rd party settings)
 
 IN_DOCKER = True
 ALLOWED_HOSTS = [
-    "https://when2meet-backend-686579494898.asia-southeast1.run.app",
-    "loclahost",
-    "127.0.0.1",
+    'when2meet-test-686579494898.asia-southeast1.run.app',
+    'when2meet-backend-686579494898.asia-southeast1.run.app',  # if you use this too
+    'localhost',
+    '127.0.0.1'
 ]
 
 # CORS Configuration
@@ -19,6 +20,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:19006",
     "exp://localhost:19000",
     "https://when2meet-test-686579494898.asia-southeast1.run.app",
+    'https://when2meet-backend-686579494898.asia-southeast1.run.app',
 ]
 
 CORS_ALLOWED_HEADERS = [
@@ -34,5 +36,6 @@ CORS_ALLOWED_HEADERS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://when2meet-test-686579494898.asia-southeast1.run.app"
+    "https://when2meet-test-686579494898.asia-southeast1.run.app",
+    'https://when2meet-backend-686579494898.asia-southeast1.run.app',
 ]

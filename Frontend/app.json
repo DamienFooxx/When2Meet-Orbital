@@ -1,15 +1,4 @@
 {
   "name": "when2meet",
-  "displayName": "when2meet",
-  "extra": {
-    "eas": {
-      "projectId": "601ffe30-d50a-4b5c-8137-77819f816df2"
-    }
-  },
-  "android": {
-    "package": "com.when2meetorbital.when2meet"
-  },
-  "ios": {
-    "bundleIdentifier": "com.when2meetorbital.when2meet"
-  }
+  "displayName": "when2meet"
 }
