@@ -1273,7 +1273,7 @@ PODS:
     - React-jsiexecutor
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
-  - react-native-safe-area-context (5.4.1):
+  - react-native-safe-area-context (5.5.2):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1287,8 +1287,8 @@ PODS:
     - React-ImageManager
     - React-jsc
     - React-jsi
-    - react-native-safe-area-context/common (= 5.4.1)
-    - react-native-safe-area-context/fabric (= 5.4.1)
+    - react-native-safe-area-context/common (= 5.5.2)
+    - react-native-safe-area-context/fabric (= 5.5.2)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1298,7 +1298,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context/common (5.4.1):
+  - react-native-safe-area-context/common (5.5.2):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1321,7 +1321,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context/fabric (5.4.1):
+  - react-native-safe-area-context/fabric (5.5.2):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1640,6 +1640,8 @@ PODS:
     - React-logger (= 0.79.2)
     - React-perflogger (= 0.79.2)
     - React-utils (= 0.79.2)
+  - RNCalendarEvents (2.2.0):
+    - React
   - RNCAsyncStorage (2.2.0):
     - DoubleConversion
     - glog
@@ -1663,7 +1665,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNCClipboard (1.16.2):
+  - RNCClipboard (1.16.3):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1686,7 +1688,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNCPicker (2.11.0):
+  - RNCPicker (2.11.1):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1709,7 +1711,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNGestureHandler (2.25.0):
+  - RNDateTimePicker (8.4.2):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1732,7 +1734,30 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNGoogleSignin (14.0.1):
+  - RNGestureHandler (2.27.2):
+    - DoubleConversion
+    - glog
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsc
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - RNGoogleSignin (14.0.2):
     - DoubleConversion
     - glog
     - GoogleSignIn (~> 7.1)
@@ -1756,7 +1781,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated (3.18.0):
+  - RNReanimated (3.19.0):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1778,10 +1803,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated (= 3.18.0)
-    - RNReanimated/worklets (= 3.18.0)
+    - RNReanimated/reanimated (= 3.19.0)
+    - RNReanimated/worklets (= 3.19.0)
     - Yoga
-  - RNReanimated/reanimated (3.18.0):
+  - RNReanimated/reanimated (3.19.0):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1803,56 +1828,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated/apple (= 3.18.0)
+    - RNReanimated/reanimated/apple (= 3.19.0)
     - Yoga
-  - RNReanimated/reanimated/apple (3.18.0):
-    - DoubleConversion
-    - glog
-    - RCT-Folly (= 2024.11.18.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsc
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
-  - RNReanimated/worklets (3.18.0):
-    - DoubleConversion
-    - glog
-    - RCT-Folly (= 2024.11.18.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsc
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - RNReanimated/worklets/apple (= 3.18.0)
-    - Yoga
-  - RNReanimated/worklets/apple (3.18.0):
+  - RNReanimated/reanimated/apple (3.19.0):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1875,7 +1853,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.11.1):
+  - RNReanimated/worklets (3.19.0):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1891,16 +1869,38 @@ PODS:
     - React-jsi
     - React-NativeModulesApple
     - React-RCTFabric
-    - React-RCTImage
     - React-renderercss
     - React-rendererdebug
     - React-utils
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNScreens/common (= 4.11.1)
+    - RNReanimated/worklets/apple (= 3.19.0)
     - Yoga
-  - RNScreens/common (4.11.1):
+  - RNReanimated/worklets/apple (3.19.0):
+    - DoubleConversion
+    - glog
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsc
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - RNScreens (4.13.1):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -1923,8 +1923,33 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
+    - RNScreens/common (= 4.13.1)
     - Yoga
-  - RNVectorIcons (10.2.0):
+  - RNScreens/common (4.13.1):
+    - DoubleConversion
+    - glog
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsc
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-RCTImage
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - RNVectorIcons (10.3.0):
     - DoubleConversion
     - glog
     - RCT-Folly (= 2024.11.18.00)
@@ -2022,9 +2047,11 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - RNCalendarEvents (from `../node_modules/react-native-calendar-events`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
+  - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -2177,12 +2204,16 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNCalendarEvents:
+    :path: "../node_modules/react-native-calendar-events"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
     :path: "../node_modules/@react-native-clipboard/clipboard"
   RNCPicker:
     :path: "../node_modules/@react-native-picker/picker"
+  RNDateTimePicker:
+    :path: "../node_modules/@react-native-community/datetimepicker"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleSignin:
@@ -2238,7 +2269,7 @@ SPEC CHECKSUMS:
   React-logger: 8edfcedc100544791cd82692ca5a574240a16219
   React-Mapbuffer: c3f4b608e4a59dd2f6a416ef4d47a14400194468
   React-microtasksnativemodule: 5c70006073e9a37215d789a7838a5163aacde1cb
-  react-native-safe-area-context: 244a897d4614a76e69bca6c45c63f49275486134
+  react-native-safe-area-context: 84e47900b7a67691c3224b1529e43be3424203e7
   React-NativeModulesApple: d3eb18811640d9889dd157c367b964ca7efb1743
   React-oscompat: ef5df1c734f19b8003e149317d041b8ce1f7d29c
   React-perflogger: 9a151e0b4c933c9205fd648c246506a83f31395d
@@ -2269,17 +2300,19 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 04d5eb15eb46be6720e17a4a7fa92940a776e584
   ReactCodegen: d626183718fa3f625325ef451b8b03b640a89d42
   ReactCommon: 10aa03e315dae449ec6345233fff8b3a1e004fb8
+  RNCalendarEvents: f90f73666b6bcbb3cc8a491ffbb5e48c0db3de37
   RNCAsyncStorage: f4b48b7eb2ae9296be4df608ff60c1b12a469b7a
-  RNCClipboard: 474795710683e3d48a963adb71f0743f1a28dbd0
-  RNCPicker: 3d28274a0456c14f11833a9c10e8e310faf805d3
-  RNGestureHandler: 6037c54ce24ffad49b9a5945bd145c9b82cd7b9b
-  RNGoogleSignin: d51de624a876bd52b59662e59ac3370c2345739f
-  RNReanimated: f9bf5228e592f5966eaede70a5ce0a0d42a68bb8
-  RNScreens: dd9a329b21412c5322a5447fc2c3ae6471cf6e5a
-  RNVectorIcons: a6b0ef90022e1383800ece67d832535d57625aa5
+  RNCClipboard: 95964d5a298dc5d01092fece3827004e7c055f98
+  RNCPicker: dc7d4f0611e19f545fb179855ec48ddfe4c5482d
+  RNDateTimePicker: 868cb198c9e82cf7873aa6d922f38eae9beb8355
+  RNGestureHandler: 01534317b2744cf6abb949ab4e425b052362d07a
+  RNGoogleSignin: eb606e3241929a3d2ff4da9848cc7b6a1f714736
+  RNReanimated: c9d1b9c4446171a69a3f2a41f038e4f2c828560c
+  RNScreens: fe0675cd54e4fb81b053a6fbdf7e0007b148a193
+  RNVectorIcons: e8b1657fe26c7d7338c7ac827395dc3af8dd0870
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
 
 PODFILE CHECKSUM: ae2f22af60c342b8af04f1c30213435c894a630d
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

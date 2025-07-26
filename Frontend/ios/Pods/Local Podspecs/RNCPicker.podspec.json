@@ -1,6 +1,6 @@
 {
   "name": "RNCPicker",
-  "version": "2.11.0",
+  "version": "2.11.1",
   "summary": "React Native Picker for iOS, Android, macOS, and Windows",
   "license": "MIT",
   "authors": "",
@@ -11,7 +11,7 @@
   },
   "source": {
     "git": "https://github.com/react-native-picker/picker.git",
-    "tag": "v2.11.0"
+    "tag": "v2.11.1"
   },
   "source_files": "ios/**/*.{h,m,mm,cpp}",
   "requires_arc": true,

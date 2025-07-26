@@ -5,10 +5,42 @@ import { useNavigation } from '@react-navigation/native';
 import { colors } from '../utils/colors';
 import { fonts } from '../utils/fonts';
 import HeatmapMonth from '../components/HeatmapMonth';
+import axios from 'axios';
+import { API_BASE } from '../utils/config';
+import { useUser } from '../context/UserContext';
 
 const Calendar_page = () => {
     const [view, setView]  = useState("month");
+    const [syncing, setSyncing] = useState(false);
     const navigation = useNavigation();
+    const { user } = useUser();
+
+    const handleSync = async () => {
+        if (!user?.token) {
+            alert('You must be logged in to sync.');
+            return;
+        }
+        setSyncing(true);
+        try {
+            // Sync for the current month
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const start = `${year}-${month.toString().padStart(2, '0')}-01`;
+            const end = `${year}-${month.toString().padStart(2, '0')}-31`;
+            await axios.put(
+                `${API_BASE}/sync/google/`,
+                { start, end },
+                { headers: { Authorization: `Token ${user.token}` } }
+            );
+            alert('Google Calendar sync started! Refresh in a few seconds.');
+        } catch (e) {
+            alert('Failed to sync Google Calendar.');
+        } finally {
+            setSyncing(false);
+        }
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.topBar}>
@@ -16,6 +48,9 @@ const Calendar_page = () => {
                     <AntDesign name="left" size={24} color={colors.primary} />
                 </TouchableOpacity>
                 <Text style={styles.header}>Calendar</Text>
+                <TouchableOpacity onPress={handleSync} style={{marginLeft: 'auto', padding: 8, opacity: syncing ? 0.5 : 1}} disabled={syncing}>
+                  <Text style={{color: colors.primary, fontFamily: fonts.Medium}}>{syncing ? 'Syncing...' : 'Sync'}</Text>
+                </TouchableOpacity>
             </View>
             <View style={styles.toggleBar}>
                 <TouchableOpacity
