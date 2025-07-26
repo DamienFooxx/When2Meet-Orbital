@@ -8,8 +8,8 @@ set -e  # Exit on any error
 PROJECT_ID="orbitalwhen2meet-test"
 REGION="asia-southeast1"
 ARTIFACT_REGISTRY="asia-southeast1-docker.pkg.dev/orbitalwhen2meet-test/when2meet-repo"
-SERVICE_NAME="orbital-when2meet-api"
-IMAGE_NAME="orbital-when2meet-api"
+SERVICE_NAME="when2meet-backend"
+IMAGE_NAME="when2meet-backend"
 INSTANCE_CONNECTION_NAME="orbitalwhen2meet-test:asia-southeast1:orbitalwhen2meet"
 
 # Colors for output
