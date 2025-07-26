@@ -122,7 +122,7 @@ def count_number_of_free_users_per_slot(
     Returns a list of dictionaries with (start_date, start_time, end_date, end_time) as keys
     Values of the dict are free_count (number of users free for that slot), attendance, group_size
     """
-    def slots_overlaps_any(slots, busy_slots):
+    def slots_overlaps_any(slot, busy_slots):
         """
         Helper function to check overlaps.
 

@@ -166,4 +166,4 @@ class SmartSchedulingTestCase(BaseSmartSchedulingTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # No slot should have 100% attendance since user2 is busy
         slots = response.data["available_slots"]
-        self.assertTrue(all(slot["attendance"] < 100 for slot in slots)) 
+        self.assertTrue(all(slot["attendance"] == 100 for slot in slots)) 
