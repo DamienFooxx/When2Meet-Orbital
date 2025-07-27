@@ -44,14 +44,18 @@
         "React-logger": [
           "0.79.2"
         ],
-        "DoubleConversion": [],
+        "DoubleConversion": [
+
+        ],
         "fast_float": [
           "6.1.4"
         ],
         "fmt": [
           "11.0.2"
         ],
-        "glog": []
+        "glog": [
+
+        ]
       },
       "subspecs": [
         {

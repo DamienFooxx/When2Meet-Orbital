@@ -5,6 +5,38 @@ from django.utils import timezone
 from datetime import timedelta
 from django.core.exceptions import ValidationError
 
+class ParticipantAvailability(models.Model):
+    """
+    Track participant availability for specific events within the host's specified time range
+    """
+    participant = models.ForeignKey(
+        'accounts.Profile',
+        on_delete=models.CASCADE,
+        related_name='event_availabilities'
+    )
+    event = models.ForeignKey(
+        'events.Event',
+        on_delete=models.CASCADE,
+        related_name='participant_availabilities'
+    )
+    start_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField()
+    
+    AVAILABILITY_CHOICES = [
+        ('available', 'Available'),
+        ('maybe', 'Maybe'),
+        ('unavailable', 'Unavailable'),
+    ]
+    availability = models.CharField(max_length=12, choices=AVAILABILITY_CHOICES, default='available')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('participant', 'event', 'start_datetime', 'end_datetime')
+        ordering = ['start_datetime']
+    
+    def __str__(self):
+        return f"{self.participant.user.username} - {self.start_datetime} ({self.availability})"
+
 class TimeSlot(models.Model):
     """
     A model to store potential timeslots for events in the database

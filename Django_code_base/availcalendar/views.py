@@ -265,3 +265,118 @@ def month_availability(request):
         })
     
     return Response(result)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def submit_availability(request):
+    """
+    Submit participant availability for an event within the host's specified time range
+    
+    Expected payload:
+    {
+        "event_id": <event_id>,
+        "availability_slots": [
+            {
+                "start_datetime": "2025-07-30T09:00:00Z",
+                "end_datetime": "2025-07-30T10:00:00Z",
+                "availability": "available"
+            }
+        ]
+    }
+    """
+    from .models import ParticipantAvailability
+    from .serializers import ParticipantAvailabilitySerializer
+    
+    try:
+        event_id = request.data.get('event_id')
+        availability_slots = request.data.get('availability_slots', [])
+        
+        event = Event.objects.get(id=event_id)
+        participant = request.user.profile
+        
+        # Check if user is a participant
+        if not event.participants.filter(id=participant.id).exists():
+            return Response(
+                {"error": "You are not a participant of this event."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Check if event is in availability collection phase
+        if event.status != 'collecting_availability':
+            return Response(
+                {"error": "Event is not currently collecting availability."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Clear existing availability for this participant and event
+        ParticipantAvailability.objects.filter(
+            participant=participant,
+            event=event
+        ).delete()
+        
+        # Create new availability entries
+        for slot in availability_slots:
+            ParticipantAvailability.objects.create(
+                participant=participant,
+                event=event,
+                start_datetime=slot['start_datetime'],
+                end_datetime=slot['end_datetime'],
+                availability=slot.get('availability', 'available')
+            )
+        
+        return Response({
+            "message": "Availability submitted successfully",
+            "slots_submitted": len(availability_slots)
+        }, status=status.HTTP_201_CREATED)
+        
+    except Event.DoesNotExist:
+        return Response(
+            {"error": "Event not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_availability_for_event(request, event_id):
+    """
+    Get availability submitted by the current user for a specific event
+    """
+    from .models import ParticipantAvailability
+    from .serializers import ParticipantAvailabilitySerializer
+    
+    try:
+        event = Event.objects.get(id=event_id)
+        participant = request.user.profile
+        
+        # Check if user is a participant
+        if not event.participants.filter(id=participant.id).exists():
+            return Response(
+                {"error": "You are not a participant of this event."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        availabilities = ParticipantAvailability.objects.filter(
+            participant=participant,
+            event=event
+        ).order_by('start_datetime')
+        
+        serializer = ParticipantAvailabilitySerializer(availabilities, many=True)
+        
+        return Response({
+            "event_id": event_id,
+            "participant": participant.user.username,
+            "availability_slots": serializer.data
+        }, status=status.HTTP_200_OK)
+        
+    except Event.DoesNotExist:
+        return Response(
+            {"error": "Event not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )

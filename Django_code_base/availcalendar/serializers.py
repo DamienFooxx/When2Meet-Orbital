@@ -254,3 +254,26 @@ class ReminderSerializer(serializers.ModelSerializer):
             "user",
         ]
         read_only_fields = ["id"]
+
+
+class ParticipantAvailabilitySerializer(serializers.ModelSerializer):
+    """
+    Serializer for participant availability within event time ranges
+    """
+    participant_name = serializers.CharField(source='participant.user.username', read_only=True)
+    event_title = serializers.CharField(source='event.title', read_only=True)
+    
+    class Meta:
+        model = None  # We'll import this in the views where it's used
+        fields = [
+            'id',
+            'participant',
+            'participant_name',
+            'event',
+            'event_title',
+            'start_datetime',
+            'end_datetime',
+            'availability',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'participant_name', 'event_title', 'created_at']

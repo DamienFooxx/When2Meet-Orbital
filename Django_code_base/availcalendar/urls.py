@@ -8,6 +8,8 @@ from availcalendar.views import (
     ManualAvailabilityViewSet,
     ReminderViewSet,
     month_availability,
+    submit_availability,
+    get_availability_for_event,
 )
 
 router = DefaultRouter()
@@ -26,5 +28,7 @@ urlpatterns = [
         name='calendar-google-sync'
     ),
     path('month/', month_availability, name='month-availability'),
+    path('submit-availability/', submit_availability, name='submit-availability'),
+    path('event/<int:event_id>/availability/', get_availability_for_event, name='get-availability'),
     path('', include(router.urls)),
 ]

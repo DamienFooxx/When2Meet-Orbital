@@ -1,7 +1,9 @@
 {
   "name": "RNCalendarEvents",
   "dependencies": {
-    "React": []
+    "React": [
+
+    ]
   },
   "version": "2.2.0",
   "license": "MIT",

@@ -23,29 +23,63 @@
     "RCT-Folly/Fabric": [
       "2024.11.18.00"
     ],
-    "React-jsiexecutor": [],
-    "RCTRequired": [],
-    "RCTTypeSafety": [],
-    "ReactCommon/turbomodule/core": [],
-    "React-jsi": [],
-    "React-logger": [],
-    "glog": [],
-    "DoubleConversion": [],
+    "React-jsiexecutor": [
+
+    ],
+    "RCTRequired": [
+
+    ],
+    "RCTTypeSafety": [
+
+    ],
+    "ReactCommon/turbomodule/core": [
+
+    ],
+    "React-jsi": [
+
+    ],
+    "React-logger": [
+
+    ],
+    "glog": [
+
+    ],
+    "DoubleConversion": [
+
+    ],
     "fast_float": [
       "6.1.4"
     ],
     "fmt": [
       "11.0.2"
     ],
-    "React-Core": [],
-    "React-debug": [],
-    "React-featureflags": [],
-    "React-utils": [],
-    "React-runtimescheduler": [],
-    "React-cxxreact": [],
-    "React-rendererdebug": [],
-    "React-graphics": [],
-    "React-jsc": []
+    "React-Core": [
+
+    ],
+    "React-debug": [
+
+    ],
+    "React-featureflags": [
+
+    ],
+    "React-utils": [
+
+    ],
+    "React-runtimescheduler": [
+
+    ],
+    "React-cxxreact": [
+
+    ],
+    "React-rendererdebug": [
+
+    ],
+    "React-graphics": [
+
+    ],
+    "React-jsc": [
+
+    ]
   },
   "script_phases": [
     {
@@ -139,8 +173,12 @@
             "RCT-Folly/Fabric": [
               "2024.11.18.00"
             ],
-            "React-renderercss": [],
-            "Yoga": []
+            "React-renderercss": [
+
+            ],
+            "Yoga": [
+
+            ]
           },
           "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32",
           "source_files": "react/renderer/components/view/**/*.{m,mm,cpp,h}",
@@ -188,7 +226,9 @@
         "RCT-Folly/Fabric": [
           "2024.11.18.00"
         ],
-        "React-graphics": []
+        "React-graphics": [
+
+        ]
       },
       "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32",
       "source_files": "react/renderer/dom/**/*.{m,mm,cpp,h}",
@@ -201,8 +241,12 @@
         "RCT-Folly/Fabric": [
           "2024.11.18.00"
         ],
-        "React-performancetimeline": [],
-        "React-Fabric/observers/events": []
+        "React-performancetimeline": [
+
+        ],
+        "React-Fabric/observers/events": [
+
+        ]
       },
       "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32",
       "source_files": "react/renderer/scheduler/**/*.{m,mm,cpp,h}",
@@ -289,7 +333,9 @@
         "RCT-Folly/Fabric": [
           "2024.11.18.00"
         ],
-        "React-rendererconsistency": []
+        "React-rendererconsistency": [
+
+        ]
       },
       "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_CFG_NO_COROUTINES=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -Wno-comma -Wno-shorten-64-to-32",
       "source_files": "react/renderer/uimanager/*.{m,mm,cpp,h}",

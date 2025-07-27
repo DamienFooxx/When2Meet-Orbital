@@ -7,6 +7,13 @@ class Event(models.Model):
     """
     A table to hold event details
     """
+    
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('collecting_availability', 'Collecting Availability'),
+        ('polling', 'Polling'),
+        ('confirmed', 'Confirmed'),
+    ]
 
     title = models.CharField(max_length=50)
     description = models.CharField(max_length=500, blank=True)
@@ -41,6 +48,14 @@ class Event(models.Model):
         null=True,
         blank=True,
     )
+    
+    # Workflow fields
+    status = models.CharField(max_length=25, choices=STATUS_CHOICES, default='draft')
+    availability_start_date = models.DateField(null=True, blank=True)
+    availability_end_date = models.DateField(null=True, blank=True)
+    availability_start_time = models.TimeField(null=True, blank=True)
+    availability_end_time = models.TimeField(null=True, blank=True)
+    duration_minutes = models.IntegerField(null=True, blank=True, help_text="Event duration in minutes")
 
     class Meta:
         db_table = "availcalendar_event"
