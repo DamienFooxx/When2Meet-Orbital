@@ -51,7 +51,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        cd "Django Code Base"
+        cd Django_code_base
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Debug env
@@ -63,11 +63,11 @@ jobs:
 
     - name: Apply Migrations
       run: |
-        cd "Django Code Base"
+        cd Django_code_base
         python manage.py makemigrations
         python manage.py migrate
 
     - name: Run Tests
       run: |
-        cd "Django Code Base"
+        cd Django_code_base
         python manage.py test

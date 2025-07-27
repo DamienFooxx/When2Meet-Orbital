@@ -8,6 +8,7 @@ ENVVAR_SETTINGS_PREFIX = "BASESETTINGS_"
 
 include(
     "base.py",
-    "custom.py",
+    "connections.py",
+    "applications.py",
     "envvars.py",
 )
