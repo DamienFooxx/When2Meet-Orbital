@@ -30,7 +30,7 @@ class TimeSlotViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         profile = self.request.user.profile
         return TimeSlot.objects.filter(
-            Q(event__participants=profile) | Q(event__creator=profile)
+            Q(event_id__participants=profile) | Q(event_id__creator=profile)
         ).distinct()
 
     def perform_create(self, serializer):
@@ -54,22 +54,24 @@ class CalendarEntryViewSet(viewsets.ModelViewSet):
 
 class CalendarIntegrationViewSet(viewsets.ModelViewSet):
     """
-    CRUD for CalendarIntegration to check if Google Calendar is sucessfully connected
+    CRUD for CalendarIntegration to check if Google Calendar is successfully connected
     """
 
+    serializer_class = CalendarIntegrationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request):
-        exists = CalendarIntegration.objects.filter(
-            provider="google", user=request.user.profile
-        ).exits()
-        return Response({"connected": exists})
-
     def get_queryset(self):
-        return Reminder.objects.filter(user_id=self.request.user.profile)
+        return CalendarIntegration.objects.filter(user=self.request.user.profile)
 
     def perform_create(self, serializer):
-        serializer.save(user_id=self.request.user.profile)
+        serializer.save(user=self.request.user.profile)
+
+    def list(self, request, *args, **kwargs):
+        """Override list to return connection status"""
+        exists = CalendarIntegration.objects.filter(
+            provider="google", user=request.user.profile
+        ).exists()
+        return Response({"connected": exists})
 
 
 class ManualAvailabilityViewSet(viewsets.ModelViewSet):
@@ -159,8 +161,30 @@ def month_availability(request):
     Query params: year, month (1-based)
     """
     profile = request.user.profile
-    year = int(request.query_params.get('year', date.today().year))
-    month = int(request.query_params.get('month', date.today().month))
+    
+    try:
+        year = int(request.query_params.get('year', date.today().year))
+        month = int(request.query_params.get('month', date.today().month))
+    except (ValueError, TypeError):
+        return Response(
+            {"error": "Invalid year or month parameter. Must be integers."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Validate month range
+    if month < 1 or month > 12:
+        return Response(
+            {"error": "Month must be between 1 and 12."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Validate year range (reasonable bounds)
+    if year < 1900 or year > 2100:
+        return Response(
+            {"error": "Year must be between 1900 and 2100."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
     days_in_month = monthrange(year, month)[1]
     start = date(year, month, 1)
     end = date(year, month, days_in_month)

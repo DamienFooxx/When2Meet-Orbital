@@ -4,6 +4,7 @@ from availcalendar.views import (
     GoogleCalendarSyncView,
     TimeSlotViewSet,
     CalendarEntryViewSet,
+    CalendarIntegrationViewSet,
     ManualAvailabilityViewSet,
     ReminderViewSet,
     month_availability,
@@ -12,6 +13,7 @@ from availcalendar.views import (
 router = DefaultRouter()
 router.register(r"timeslots", TimeSlotViewSet, basename="timeslot")
 router.register(r"calendar-entries", CalendarEntryViewSet, basename="calendar-entry")
+router.register(r"calendar-integrations", CalendarIntegrationViewSet, basename="calendar-integration")
 router.register(
     r"manual-availability", ManualAvailabilityViewSet, basename="manual-availability"
 )

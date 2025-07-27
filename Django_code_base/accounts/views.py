@@ -140,49 +140,56 @@ class ProfileView(APIView):
         """
         try:
             profile = Profile.objects.get(user=request.user)
-        except Profile.DoesNotExist:
             return Response(
-                {"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND
+                {
+                    "unique_id": profile.unique_id,
+                    "username": request.user.username,
+                    "email": request.user.email,
+                    "name": profile.name,
+                    "location": profile.location,
+                }
             )
-        return Response(
-            {
-                "unique_id": profile.unique_id,
-                "username": request.user.username,
-                "email": request.user.email,
-                "name": profile.name,
-                "location": profile.location,
-            }
-        )
+        except Exception as e:
+            return Response(
+                {"error": "Database error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def put(self, request):
         """
         Update the authenticated user's profile information.
         """
-        profile = Profile.objects.get(user=request.user)
-        profile.name = request.data.get("name", profile.name)
+        try:
+            profile = Profile.objects.get(user=request.user)
+            profile.name = request.data.get("name", profile.name)
 
-        if "location" in request.data:
-            location_id = request.data.get("location")
-            if location_id is None:
-                profile.location = None
-            else:
-                try:
-                    location = Location.objects.get(id=location_id)
-                    profile.location = location
-                except (Location.DoesNotExist, ValueError):
-                    return Response(
-                        {"error": "Invalid location ID"},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
+            if "location" in request.data:
+                location_id = request.data.get("location")
+                if location_id is None:
+                    profile.location = None
+                else:
+                    try:
+                        location = Location.objects.get(id=location_id)
+                        profile.location = location
+                    except (Location.DoesNotExist, ValueError):
+                        return Response(
+                            {"error": "Invalid location ID"},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
 
-        profile.save()
-        return Response(
-            {
-                "unique_id": profile.unique_id,
-                "name": profile.name,
-                "location": profile.location.id if profile.location else None,
-            }
-        )
+            profile.save()
+            return Response(
+                {
+                    "unique_id": profile.unique_id,
+                    "name": profile.name,
+                    "location": profile.location.id if profile.location else None,
+                }
+            )
+        except Exception as e:
+            return Response(
+                {"error": "Database error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class GoogleCalendarFreeBusyView(APIView):

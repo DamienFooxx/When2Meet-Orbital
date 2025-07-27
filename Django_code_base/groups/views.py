@@ -103,7 +103,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path="invitations")
     def invitations(self, request):
         profile = Profile.objects.get(user=request.user)
-        memberships = GroupMembership.objects.filter(profile=profile, is_accepted=False, invited_by_organizer=True).select_related("group", "group_creator")
+        memberships = GroupMembership.objects.filter(profile=profile, is_accepted=False, invited_by_organizer=True).select_related("group")
         serializer = GroupInvitationSerializer(memberships, many=True, context={"request": request})
         return Response(serializer.data)
 
