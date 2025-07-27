@@ -77,6 +77,11 @@ class PollSerializer(serializers.ModelSerializer):
     def get_total_votes(self, obj):
         return PollVote.objects.filter(poll_option__poll=obj).count()
 
+    def validate(self, attrs):
+        if 'option_ids' not in attrs or not attrs['option_ids']:
+            raise serializers.ValidationError("option_ids is required and cannot be empty.")
+        return attrs
+
     def create(self, validated_data):
         """
         Atomically create the Poll and its PollOption rows.
@@ -87,7 +92,7 @@ class PollSerializer(serializers.ModelSerializer):
             poll = Poll.objects.create(**validated_data)
 
             for ts in option_timeslots:
-                if ts.event != poll.event:
+                if ts.event_id != poll.event:
                     raise serializers.ValidationError(
                         f"Timeslot {ts.id} does not belong to Event {poll.event.id}"
                     )

@@ -1,6 +1,7 @@
 from django.db import models, transaction
 from django.utils import timezone
 from rest_framework import viewsets, permissions, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -41,7 +42,7 @@ class PollViewSet(viewsets.ModelViewSet):
         event: Event = serializer.validated_data["event"]
 
         if not _is_event_organiser(profile, event):
-            raise permissions.PermissionDenied(
+            raise PermissionDenied(
                 "Only event organisers can create a poll."
             )
         serializer.save()
@@ -95,11 +96,11 @@ class PollViewSet(viewsets.ModelViewSet):
             )
 
         participants = list(
-            event.participants.select_related("profile").values_list(
-                "profile", flat=True
+            event.participants.values_list(
+                "unique_id", flat=True
             )
         )
-        users = Profile.objects.filter(id__in=participants)
+        users = Profile.objects.filter(unique_id__in=participants)
 
         suggested = schedule_best_timeslots(
             users = users,
@@ -121,38 +122,38 @@ class PollViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_204_NO_CONTENT,
             )
 
-    with transaction.atomic():
-        poll = Poll.objects.create(event=event)
+        with transaction.atomic():
+            poll = Poll.objects.create(event=event)
 
-        option_objs = []
-        for slot in suggested:
-            start_d = slot['start_date']
-            start_t = slot['start_time']
-            end_d   = slot['end_date']
-            end_t   = slot['end_time']
-            dur     = slot['duration']
+            option_objs = []
+            for slot in suggested:
+                start_d = slot['start_date']
+                start_t = slot['start_time']
+                end_d   = slot['end_date']
+                end_t   = slot['end_time']
+                dur     = slot['duration']
 
-            ts, _ = TimeSlot.objects.get_or_create(
-                event=event_id,
-                start_date=start_d,
-                start_time=start_t,
-                end_date=end_d,
-                end_time=end_t,
-                defaults={
-                    'duration': dur,
-                    'status':   'not confirmed',
-                    'user':     None,
-                    'created_at': timezone.now(),
-                },
+                ts, _ = TimeSlot.objects.get_or_create(
+                    event_id=event.id,
+                    start_date=start_d,
+                    start_time=start_t,
+                    end_date=end_d,
+                    end_time=end_t,
+                    defaults={
+                        'duration': dur,
+                        'status':   'not confirmed',
+                        'user':     None,
+                        'created_at': timezone.now(),
+                    },
+                )
+                option_objs.append(PollOption(poll=poll, timeslot=ts))
+
+            PollOption.objects.bulk_create(option_objs)
+
+            return Response(
+                PollSerializer(poll, context={"request": request}).data,
+                status=status.HTTP_201_CREATED,
             )
-            option_objs.append(PollOption(poll=poll, timeslot=ts))
-
-        PollOption.objects.bulk_create(option_objs)
-
-        return Response(
-            PollSerializer(poll, context={"request": request}).data,
-            status=status.HTTP_201_CREATED,
-        )
 
     @action(detail=True, methods=["get"], url_path="options")
     def list_options(self, request, pk=None):
@@ -210,10 +211,10 @@ class PollVoteViewSet(viewsets.ModelViewSet):
         option = serializer.validated_data["poll_option"]
 
         event = option.poll.event
-        if not event.participants.filter(profile=voter).exists():
-            raise permissions.PermissionDenied("You are not a participant of this event.")
+        if not event.participants.filter(unique_id=voter.unique_id).exists():
+            raise PermissionDenied("You are not a participant of this event.")
 
-        serializer.save(voter=voter)
+        serializer.save()
 
     def destroy(self, request, *args, **kwargs):
         vote = self.get_object()
