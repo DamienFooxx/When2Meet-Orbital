@@ -24,7 +24,10 @@ class Event(models.Model):
         related_name="events",
     )
     group = models.ForeignKey(
-        "groups.Group", on_delete=models.CASCADE, related_name="events", null=True
+        "groups.Group",
+        on_delete=models.CASCADE,
+        related_name="events",
+        null=True
     )
     participants = models.ManyToManyField(
         "accounts.Profile",

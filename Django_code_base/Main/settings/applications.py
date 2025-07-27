@@ -21,9 +21,10 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "accounts",
-    "groups",
     "availcalendar",
     "events",
+    "groups",
+    "polls",
 ]
 
 MIDDLEWARE = [
