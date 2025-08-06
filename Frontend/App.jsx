@@ -19,6 +19,9 @@ import GroupDetail_page from './src/pages/GroupDetail_page';
 import InviteUser_page from './src/pages/InviteUser_page';
 import JoinExistingGroup_page from './src/pages/JoinExistingGroup_page';
 import Calendar_page from './src/pages/Calendar_page';
+import EventDetail_page from './src/pages/EventDetail_page';
+import AvailabilitySelection_page from './src/pages/AvailabilitySelection_page';
+import PollVoting_page from './src/pages/PollVoting_page';
 
 // context
 import { UserProvider } from './src/context/UserContext';
@@ -61,6 +64,9 @@ const App = () => {
             <Stack.Screen name={"Invite"} component={InviteUser_page}/>
             <Stack.Screen name={"JoinExistingGroup"} component={JoinExistingGroup_page}/>
             <Stack.Screen name={"Calendar"} component={Calendar_page}/>
+            <Stack.Screen name={"EventDetail"} component={EventDetail_page}/>
+            <Stack.Screen name={"AvailabilitySelection"} component={AvailabilitySelection_page}/>
+            <Stack.Screen name={"PollVoting"} component={PollVoting_page}/>
         </Stack.Navigator>
         </NavigationContainer>
     </UserProvider>

@@ -25,25 +25,63 @@
     "RCT-Folly/Fabric": [
       "2024.11.18.00"
     ],
-    "React-jsiexecutor": [],
-    "React-cxxreact": [],
-    "React-callinvoker": [],
-    "React-runtimeexecutor": [],
-    "React-runtimescheduler": [],
-    "React-utils": [],
-    "React-jsi": [],
-    "React-Core/Default": [],
-    "React-CoreModules": [],
-    "React-NativeModulesApple": [],
-    "React-RCTFabric": [],
-    "React-RuntimeCore": [],
-    "React-Mapbuffer": [],
-    "React-jserrorhandler": [],
-    "React-jsinspector": [],
-    "React-featureflags": [],
-    "React-jsitooling": [],
-    "React-RCTFBReactNativeSpec": [],
-    "React-jsc": []
+    "React-jsiexecutor": [
+
+    ],
+    "React-cxxreact": [
+
+    ],
+    "React-callinvoker": [
+
+    ],
+    "React-runtimeexecutor": [
+
+    ],
+    "React-runtimescheduler": [
+
+    ],
+    "React-utils": [
+
+    ],
+    "React-jsi": [
+
+    ],
+    "React-Core/Default": [
+
+    ],
+    "React-CoreModules": [
+
+    ],
+    "React-NativeModulesApple": [
+
+    ],
+    "React-RCTFabric": [
+
+    ],
+    "React-RuntimeCore": [
+
+    ],
+    "React-Mapbuffer": [
+
+    ],
+    "React-jserrorhandler": [
+
+    ],
+    "React-jsinspector": [
+
+    ],
+    "React-featureflags": [
+
+    ],
+    "React-jsitooling": [
+
+    ],
+    "React-RCTFBReactNativeSpec": [
+
+    ],
+    "React-jsc": [
+
+    ]
   },
   "exclude_files": "ReactCommon/RCTHermesInstance.{mm,h}"
 }

@@ -1,20 +1,23 @@
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { colors } from '../utils/colors';
-import { BASE_URL, API_PREFIX } from '../utils/config';
+import { API_BASE } from '../utils/config';
 import axios from 'axios';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { useUser } from '../context/UserContext';
 
 const getColor = (ratio) => {
-    if (ratio >= 0.75) return '#0f62fe';
-    if (ratio >= 0.5) return '#5aa9f9';
-    if (ratio >= 0.25) return '#a5cffa';
-    if (ratio > 0) return '#ddeeff';
-   return '#f0f0f0';
+    // Higher ratio = more free time, lower ratio = busier (less free time)
+    // We want: completely free (ratio = 1.0) = gray, busier = darker blue
+    if (ratio === 1.0) return '#e0e0e0';      // Gray (completely free/no events)
+    if (ratio >= 0.75) return '#90caf9';      // Light blue (mostly free)
+    if (ratio >= 0.5) return '#42a5f5';       // Medium blue (moderately busy)
+    if (ratio >= 0.25) return '#1976d2';      // Dark blue (quite busy)
+    if (ratio > 0) return '#0d47a1';          // Very dark blue (very busy)
+    return '#000051';                         // Darkest blue (completely busy)
 };
 
-const HeatmapMonth = ({ isGoogleConnected }) => {
+const HeatmapMonth = ({ isGoogleConnected, onDateSelect, selectedRange }) => {
     const { user } = useUser();
     const [monthOffset, setMonthOffset] = useState(0); // 0  = current month
     const [data, setData] = useState([]);
@@ -34,29 +37,49 @@ const HeatmapMonth = ({ isGoogleConnected }) => {
             setLoading(false);
             return;
         }
-        axios.get(`${API_PREFIX}${BASE_URL}/availcalendar/month/`, {
-            params: {
-                year,
-                month: month + 1 // API expects 1-based month
-            },
-            headers: { Authorization: `Token ${user.token}` }
-        })
-            .then(res => {
-                console.log('API data:', res.data);
-                setData(res.data)
+        
+        const fetchData = () => {
+            axios.get(`${API_BASE}/month/`, {
+                params: {
+                    year,
+                    month: month + 1 // API expects 1-based month
+                },
+                headers: { Authorization: `Token ${user.token}` }
             })
-            .catch((err) => {
-                console.error('HeatmapMonth API error:', err);
-                setData([])
-            })
-            .finally(() => setLoading(false));
+                .then(res => {
+                    console.log(`API call for ${year}-${month + 1}:`, res.data);
+                    setData(res.data);
+                    
+                    // If all days show 8/8 available hours, it might mean sync is in progress
+                    const allFullyAvailable = res.data.every(day => day.availableHours === 8 && day.maxHours === 8);
+                    if (allFullyAvailable && res.data.length > 0) {
+                        console.log('All days showing 8/8 - sync might be in progress, retrying in 3 seconds...');
+                        setTimeout(() => {
+                            fetchData();
+                        }, 3000);
+                    }
+                })
+                .catch((err) => {
+                    console.error('HeatmapMonth API error:', err);
+                    setData([])
+                })
+                .finally(() => setLoading(false));
+        };
+        
+        fetchData();
     }, [isGoogleConnected, year, month, user]);
 
     const grouped = {};
     data.forEach(({ date, availableHours, maxHours }) => {
         grouped[date] = maxHours > 0 ? availableHours / maxHours : 0;
     });
-    console.log('Grouped ratios:', grouped);
+    console.log(`Grouped ratios for ${year}-${month + 1}:`, grouped);
+    
+    // Log some specific examples
+    const sampleEntries = data.slice(0, 5);
+    console.log(`Sample entries for ${year}-${month + 1}:`, sampleEntries.map(entry => 
+        `${entry.date}: ${entry.availableHours}/${entry.maxHours} = ${entry.availableHours/entry.maxHours}`
+    ));
 
     const firstDay = new Date(year, month, 1);
     const startDay = firstDay.getDay();
@@ -71,6 +94,16 @@ const HeatmapMonth = ({ isGoogleConnected }) => {
 
     const handlePrev = () => setMonthOffset(offset => offset - 1);
     const handleNext = () => setMonthOffset(offset => offset + 1);
+
+    // Helper to check if a date is in the selected range
+    const isInRange = (dateStr) => {
+        if (!selectedRange?.start || !selectedRange?.end) return false;
+        return dateStr >= selectedRange.start && dateStr <= selectedRange.end;
+    };
+    // Helper to check if a date is the start or end
+    const isEdge = (dateStr) => {
+        return dateStr === selectedRange?.start || dateStr === selectedRange?.end;
+    };
 
     if (loading) return <ActivityIndicator style = {{ marginTop: 20 }} color = {colors.primary}/>;
 
@@ -95,11 +128,27 @@ const HeatmapMonth = ({ isGoogleConnected }) => {
       </View>
 
       <View style = {styles.grid}>
-        {grid.map((cell, i) => (
-            <View key = {i} style = {[styles.cell, { backgroundColor: getColor(cell?.ratio) }]}>
-                {cell && <Text style = {styles.cellText}>{cell.day}</Text>}
-            </View>
-        ))}
+        {grid.map((cell, i) => {
+            if (!cell) return <View key={i} style={styles.cell} />;
+            const dateStr = `${year}-${(month + 1).toString().padStart(2, '0')}-${cell.day.toString().padStart(2, '0')}`;
+            const isSelected = isInRange(dateStr);
+            const isEdgeDay = isEdge(dateStr);
+            return (
+                <TouchableOpacity
+                  key={i}
+                  style={[
+                    styles.cell,
+                    { backgroundColor: isSelected ? (isEdgeDay ? '#7ecbff' : '#cbeafe') : getColor(cell.ratio),
+                      borderWidth: isEdgeDay ? 2 : 0,
+                      borderColor: isEdgeDay ? '#4fc3f7' : 'transparent',
+                    }
+                  ]}
+                  onPress={() => onDateSelect && onDateSelect(dateStr)}
+                >
+                  <Text style={styles.cellText}>{cell.day}</Text>
+                </TouchableOpacity>
+            );
+        })}
       </View>
 
       {!isGoogleConnected && (

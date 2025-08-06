@@ -10,8 +10,6 @@ import { fonts } from '../utils/fonts';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const API_PREFIX = 'https://when2meetimage-686579494898.asia-southeast1.run.app';
-
 const Invitation_page = () => {
     const navigation = useNavigation();
     const { user, isLoadingUser } = useUser();
@@ -36,8 +34,8 @@ const Invitation_page = () => {
             const res = await axios.get(`${API_BASE}/groups/invitations/`, {
                 headers: { Authorization: `Token ${user.token}` }
             });
-            setInvitations(res.data);
-
+            // Only show invitations where invited_by_organizer is true
+            setInvitations(res.data.filter(item => item.invited_by_organizer));
         } catch (err) {
             Alert.alert("Error", "Could not load invitations");
         } finally {
@@ -52,7 +50,8 @@ const Invitation_page = () => {
             const res = await axios.get(`${API_BASE}/groups/requests/`, {
                 headers: { Authorization: `Token ${user.token}` }
             });
-            setRequests(res.data);
+            // Only show requests where invited_by_organizer is false
+            setRequests(res.data.filter(item => !item.invited_by_organizer));
         } finally {
             setLoading(false);
         }
@@ -86,37 +85,35 @@ const Invitation_page = () => {
     }
 
     // accept a pending invitation
-    const acceptInvitation = async (groupId) => {
+    const acceptInvitation = async (membershipId) => {
         try {
-            await axios.post(`${API_BASE}/groups/${groupId}/accept-invitation/`, {}, {
+            await axios.post(`${API_BASE}/groups/${membershipId}/accept-invitation/`, {}, {
                 headers: { Authorization: `Token ${user.token}` }
             });
-
             fetchInvitations(); // refresh list
-
             Alert.alert("Success", "You have joined the group")
         } catch (err) {
             console.error("Accept failed", err);
             Alert.alert("Error", "Could not accept invitation.");
         }
-        };
+    };
 
-    const declineInvitation = async (groupId) => {
+    const declineInvitation = async (membershipId) => {
         try {
-            await axios.post(`${API_BASE}/groups/${groupId}/decline-invitation/`, {}, {
-            headers: { Authorization: `Token ${user.token}` }
+            await axios.post(`${API_BASE}/groups/${membershipId}/decline-invitation/`, {}, {
+                headers: { Authorization: `Token ${user.token}` }
             });
             fetchInvitations(); // Refresh list
         } catch (err) {
             console.error("Decline failed", err);
             Alert.alert("Error", "Could not decline invitation.");
         }
-        };
+    };
 
     const renderInviteItem = ({ item }) => (
         <View style = {styles.card}>
-            <Text style = {styles.groupName}>{item.name}</Text>
-            <Text style = {styles.inviter}>Group Code: {item.invite_code}</Text>
+            <Text style = {styles.groupName}>{item.group?.name}</Text>
+            <Text style = {styles.inviter}>Group Code: {item.group?.invite_code}</Text>
             <View style={{ flexDirection: 'row', gap: 20 }}>
                 <TouchableOpacity onPress={() => acceptInvitation(item.id)}>
                     <Text style={styles.actions}>Accept</Text>
@@ -140,9 +137,9 @@ const Invitation_page = () => {
     // Render the requests list (only for the organizer)
     const renderRequestItem = ({ item }) => (
         <View style={styles.card}>
-            <Text style={styles.groupName}>User: {item.user.name}</Text>
-            <Text style={styles.inviter}>Email: {item.user.email}</Text>
-            <Text style={styles.inviter}>Group: {item.group.name}</Text>
+            <Text style={styles.groupName}>User: {item.profile?.name}</Text>
+            <Text style={styles.inviter}>Email: {item.profile?.email}</Text>
+            <Text style={styles.inviter}>Group: {item.group?.name}</Text>
             <View style={{ flexDirection: 'row', gap: 20 }}>
                 <TouchableOpacity onPress={() => acceptRequest(item.id)}>
                     <Text style={styles.actions}>Accept</Text>

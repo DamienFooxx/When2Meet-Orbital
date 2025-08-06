@@ -22,15 +22,35 @@
     "DEFINES_MODULE": "YES"
   },
   "dependencies": {
-    "RCT-Folly": [],
-    "React-jsi": [],
-    "React-jsiexecutor": [],
-    "React-jsc": [],
-    "Yoga": [],
-    "ReactCommon/turbomodule/core": [],
-    "React-Fabric": [],
-    "React-FabricComponents": [],
-    "React-graphics": [],
-    "React-RCTFBReactNativeSpec": []
+    "RCT-Folly": [
+
+    ],
+    "React-jsi": [
+
+    ],
+    "React-jsiexecutor": [
+
+    ],
+    "React-jsc": [
+
+    ],
+    "Yoga": [
+
+    ],
+    "ReactCommon/turbomodule/core": [
+
+    ],
+    "React-Fabric": [
+
+    ],
+    "React-FabricComponents": [
+
+    ],
+    "React-graphics": [
+
+    ],
+    "React-RCTFBReactNativeSpec": [
+
+    ]
   }
 }

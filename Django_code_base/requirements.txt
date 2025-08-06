@@ -1,0 +1,36 @@
+Django==5.2.2
+djangorestframework==3.16.0
+django-cors-headers==4.7.0
+dj-rest-auth==7.0.1
+django-allauth==65.9.0
+django-split-settings==1.3.2
+django-countries==7.6.1
+python-dotenv==1.1.0
+python-decouple==3.8
+python-dateutil==2.9.0
+geopy==2.4.1
+cryptography==45.0.4
+celery==5.5.3
+PyYAML==6.0.2
+split-settings==1.0.0
+gunicorn==22.0.0
+
+# Linters
+drf_yasg
+flake8==7.1.0
+black==24.4.2
+
+# DB Drivers
+psycopg2-binary==2.9.10
+
+PyJWT==2.10.1
+requests==2.32.4
+
+# Google API libraries for Calendar/Maps
+google-api-python-client==2.172.0
+google-auth==2.40.3
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.2
+httplib2==0.22.0
+uritemplate==4.2.0
+google-api-core==2.25.0
