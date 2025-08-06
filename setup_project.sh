@@ -26,12 +26,17 @@ cd ..
 echo -e "${GREEN}[Step 3] Installing frontend dependencies with npm...${NC}"
 cd Frontend
 npm install
+brew install rbenv
+rbenv init
+rbenv install 3.4.4
+gem install bundler -v 2.6.9 --user-install
+gem install cocoapods
 cd ..
 
 echo -e "${GREEN}[Step 4] Installing iOS pods if ios directory exists...${NC}"
 if [ -d "ios" ]; then
     cd ios
-    pod install
+    pod install --repo-update
     cd ..
 fi
 
